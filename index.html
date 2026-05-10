@@ -111,6 +111,19 @@
         </form>
     </div>
 
+    <!-- MODAL DETAIL EVENT -->
+    <div id="modal-event-detail" class="fixed inset-0 bg-black/80 z-[550] hidden flex-col justify-end sm:justify-center items-center sm:p-4 backdrop-blur-sm animate-fade">
+        <div class="bg-white dark:bg-[#111] w-full max-w-lg h-[85vh] sm:h-auto sm:max-h-[90vh] rounded-t-2xl sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden border dark:border-zinc-800">
+            <div class="p-4 border-b dark:border-zinc-800 flex justify-between items-center bg-gray-50 dark:bg-zinc-900 shrink-0">
+                <h3 class="text-sm font-black uppercase text-ygsred truncate pr-2" id="detail-title">Detail Event</h3>
+                <button onclick="closeEventDetail()" class="text-gray-500 hover:text-red-500 bg-gray-200 dark:bg-zinc-800 p-1.5 rounded-lg transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 overflow-y-auto space-y-5 flex-1 w-full" id="detail-content">
+                <!-- Konten dinamis akan masuk ke sini -->
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container" class="fixed top-20 right-4 z-[550] space-y-2 flex flex-col items-end pointer-events-none"></div>
     <datalist id="list-crew"></datalist>
 
@@ -413,7 +426,7 @@
         <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t dark:border-zinc-800 flex justify-around p-2 z-[100] backdrop-blur-md">
             <button onclick="switchTab('list')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-list"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Jadwal</span></button>
             <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-chat"><i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Chat</span></button>
-            <button onclick="switchTab('add')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Buat</span></button>
+            <button onclick="resetEventForm(); switchTab('add')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Buat</span></button>
             <button onclick="switchTab('assets')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-assets"><i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Aset</span></button>
             <button onclick="switchTab('team')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Tim</span></button>
             <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-profile"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Profil</span></button>
@@ -441,7 +454,7 @@
             console: ['FOH', 'MOH', 'Stagebox', 'Others'],
             mic: ['Wireless', 'Wired', 'DI Box', 'Others'],
             backline: ['Drum Kit', 'Keyboard', 'Ampli Gitar', 'Ampli Bass', 'Ampli Keys', 'Stand Gitar', 'Stand Keys', 'Others'],
-            stand: ['Stand Panjang', 'Stand Pendek', 'Claw', 'Others'],
+            stand: ['Stand Panjang', 'Stand Pendek', 'Stand Speaker', 'Claw', 'Others'],
             cable: ['Splitter', 'Junction Box', 'Rumbai', 'Multicore', 'XLR Cables', 'TS Cables', 'Others'],
             lighting: ['Consoles', 'Moving Beam', 'Parled', 'Fresnel', 'Minibrute', 'Stormy', 'Wallwasher', 'Follow Spot', 'Penerangan', 'Tripod', 'Hazer', 'Smoke Gun', 'Splitter', 'Others']
         };
@@ -509,7 +522,18 @@
         async function fetchData() {
             showLoading(true); const rD = await apiCall({ action: 'GET_DATA' }); const rU = await apiCall({ action: 'GET_USERS' }); showLoading(false);
             if(rD.success) { allProjects = rD.data; applyAgendaView(); updateTodayStatus(); }
-            if(rU.success) { allUsers = rU.data; document.getElementById('list-crew').innerHTML = allUsers.map(u => `<option value="${u.nickname || u.fullName}">`).join(''); }
+            if(rU.success) { 
+                allUsers = rU.data; 
+                document.getElementById('list-crew').innerHTML = allUsers.map(u => `<option value="${u.nickname || u.fullName}">`).join(''); 
+                if(currentUser) {
+                    const updatedMe = allUsers.find(u => u.username === currentUser.username);
+                    if(updatedMe) {
+                        currentUser = updatedMe;
+                        localStorage.setItem('ygsUserEx', JSON.stringify(currentUser));
+                        if(!document.getElementById('view-profile').classList.contains('hidden')) renderProfile();
+                    }
+                }
+            }
         }
 
         // CALENDAR LOGIC
@@ -523,12 +547,29 @@
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
+            
+            // Tambahkan Header Nama Hari (Senin - Minggu)
+            const dayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+            dayNames.forEach(d => {
+                grid.innerHTML += `<div class="text-[8px] sm:text-[10px] font-black text-gray-400 text-center uppercase pb-2">${d}</div>`;
+            });
+
             const dIM = new Date(currentYear, currentMonth + 1, 0).getDate(), tStr = new Date().toISOString().split('T')[0];
             document.getElementById('cal-month-year').innerText = new Date(currentYear, currentMonth).toLocaleDateString('id-ID', {month:'long', year:'numeric'});
+            
+            // Hitung sel kosong agar tanggal 1 selaras dengan harinya (Dimulai dari Senin)
+            let firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            let emptyDays = firstDay === 0 ? 6 : firstDay - 1; // 0 itu Minggu, ubah ke index 6
+            
+            for(let i=0; i<emptyDays; i++) {
+                grid.innerHTML += `<div></div>`;
+            }
+
             for(let i=1; i<=dIM; i++) {
                 const dStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                const evs = allProjects.filter(p => p.eventDate === dStr), isT = dStr === tStr, hasE = evs.length > 0;
-                const isM = JSON.stringify(evs).toLowerCase().includes('maintenance') || JSON.stringify(evs).toLowerCase().includes('prep');
+                const evs = allProjects.filter(p => p.eventDate === dStr || (p.activities && p.activities.some(a => a.date === dStr)));
+                const isT = dStr === tStr, hasE = evs.length > 0;
+                const isM = JSON.stringify(evs).toLowerCase().includes('maintenance') || JSON.stringify(evs).toLowerCase().includes('prep') || JSON.stringify(evs).toLowerCase().includes('muat gudang');
                 let cls = "cal-day " + (hasE ? "cal-event-circle " + (isM ? "cal-blue" : "") : "cal-red");
                 if(isT) cls += " cal-today";
                 grid.innerHTML += `<div class="${cls}" onclick="showEventsOnDate('${dStr}')">${i}</div>`;
@@ -536,27 +577,169 @@
         }
 
         // HTML Builder untuk Kotak Event List + Tombol Action Baru
-        function getEventCardHTML(p) {
+        function getEventCardHTML(p, selectedDate) {
+            let activityHTML = '';
+            let dateRangeDisplay = p.eventDate;
+
+            // Logika untuk menampilkan rentang tanggal event multi-hari
+            if (p.activities && p.activities.length > 1) {
+                dateRangeDisplay = `${p.activities[0].date} s/d ${p.activities[p.activities.length-1].date} (${p.activities.length} Hari)`;
+            } else if (p.activities && p.activities.length === 1) {
+                dateRangeDisplay = p.activities[0].date;
+            }
+
+            if (selectedDate && p.activities) {
+                const act = p.activities.find(a => a.date === selectedDate);
+                if (act) {
+                    activityHTML = `
+                        <div class="mt-2 bg-gray-50 dark:bg-zinc-800/50 p-2 rounded border dark:border-zinc-700/50">
+                            <p class="text-[10px] font-black text-ygsred uppercase mb-1">Aktivitas di Tanggal Terpilih:</p>
+                            <p class="text-[9px] font-bold text-gray-700 dark:text-gray-300">${act.startTime} - ${act.endTime}</p>
+                            <p class="text-[9px] text-gray-500">${(act.acts||[]).join(', ')}</p>
+                        </div>
+                    `;
+                }
+            }
+
             return `
             <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred shadow-sm mb-3 relative" id="ev-${p.id}">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="font-black text-sm uppercase">${p.eventName}</h3>
-                        <p class="text-[9px] text-gray-500 uppercase">${p.artist} • ${p.eventDate}</p>
+                <div class="flex justify-between items-start cursor-pointer group" onclick="showEventDetail('${p.id}')">
+                    <div class="w-full">
+                        <h3 class="font-black text-sm uppercase group-hover:text-ygsred transition-colors">${p.eventName}</h3>
+                        <p class="text-[9px] text-gray-500 uppercase">${p.artist} • ${dateRangeDisplay}</p>
+                        ${activityHTML}
+                        <p class="text-[8px] text-blue-500 font-bold mt-1.5 inline-flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded"><i data-lucide="eye" class="w-3 h-3"></i> Lihat Detail Event</p>
                     </div>
                 </div>
+                ${currentUser?.role === 'admin' ? `
                 <div class="flex gap-2 mt-3 pt-3 border-t dark:border-zinc-800">
                     <button onclick="shareWA('${p.id}')" class="flex-1 bg-green-500 text-white py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="share-2" class="w-3 h-3"></i> WA Share</button>
                     <button onclick="exportPDF('${p.id}')" class="flex-1 bg-blue-600 text-white py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button>
-                    ${currentUser?.role === 'admin' ? `<button onclick="deleteEvent('${p.id}')" class="flex-none bg-red-100 dark:bg-red-900/30 text-red-600 px-3 py-1.5 rounded text-[9px] font-black flex items-center justify-center transition hover:bg-red-200"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : ''}
+                    <button onclick="editEvent('${p.id}')" class="flex-none bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 px-3 py-1.5 rounded text-[9px] font-black flex items-center justify-center transition hover:bg-yellow-200"><i data-lucide="edit" class="w-3 h-3"></i></button>
+                    <button onclick="deleteEvent('${p.id}')" class="flex-none bg-red-100 dark:bg-red-900/30 text-red-600 px-3 py-1.5 rounded text-[9px] font-black flex items-center justify-center transition hover:bg-red-200"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                 </div>
+                ` : ''}
             </div>`;
         }
 
         function showEventsOnDate(d) {
-            const f = allProjects.filter(p => p.eventDate === d);
-            document.getElementById('project-container').innerHTML = f.map(p => getEventCardHTML(p)).join('') || '<div class="p-10 text-center font-bold text-gray-400">LIBUR / KOSONG</div>';
+            const f = allProjects.filter(p => p.eventDate === d || (p.activities && p.activities.some(a => a.date === d)));
+            document.getElementById('project-container').innerHTML = f.map(p => getEventCardHTML(p, d)).join('') || '<div class="p-10 text-center font-bold text-gray-400">LIBUR / KOSONG</div>';
             lucide.createIcons();
+        }
+
+        // --- MENAMPILKAN DETAIL EVENT ---
+        function showEventDetail(id) {
+            const p = allProjects.find(x => x.id === id); if(!p) return;
+            
+            document.getElementById('detail-title').innerText = p.eventName;
+            
+            let dateRangeDisplay = p.eventDate;
+            if (p.activities && p.activities.length > 1) {
+                dateRangeDisplay = `${p.activities[0].date} s/d ${p.activities[p.activities.length-1].date} (${p.activities.length} Hari)`;
+            } else if (p.activities && p.activities.length === 1) {
+                dateRangeDisplay = p.activities[0].date;
+            }
+
+            let c = `<div class="space-y-4">`;
+            
+            // 1. Info Dasar
+            c += `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Informasi Dasar</h4>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div><span class="text-[9px] text-gray-500 block uppercase">Status</span><b>${p.status}</b></div>
+                        <div><span class="text-[9px] text-gray-500 block uppercase">Tanggal</span><b>${dateRangeDisplay}</b></div>
+                        <div><span class="text-[9px] text-gray-500 block uppercase">Artis/Talent</span><b>${p.artist}</b></div>
+                        <div><span class="text-[9px] text-gray-500 block uppercase">Klien</span><b>${p.clientName || '-'} (${p.clientPhone || '-'})</b></div>
+                        <div class="col-span-2"><span class="text-[9px] text-gray-500 block uppercase">Lokasi/Maps</span><a href="${p.mapsLink}" target="_blank" class="text-blue-500 underline break-words">${p.mapsLink || '-'}</a></div>
+                        <div class="col-span-2"><span class="text-[9px] text-gray-500 block uppercase">Transportasi</span><b>${(p.transportasi && p.transportasi.length) ? p.transportasi.join(', ') : '-'}</b></div>
+                    </div>
+                  </div>`;
+                  
+            // 2. Aktivitas
+            if (p.activities && p.activities.length) {
+                c += `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+                        <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Jadwal Aktivitas</h4>
+                        <div class="space-y-2">`;
+                p.activities.forEach(a => {
+                    c += `<div class="text-xs">
+                            <span class="font-bold text-gray-700 dark:text-gray-300">${a.date} (${a.startTime} - ${a.endTime})</span>
+                            <div class="text-[10px] text-gray-500">${(a.acts||[]).join(', ')}</div>
+                          </div>`;
+                });
+                c += `</div></div>`;
+            }
+
+            // 3. Spesifikasi
+            c += `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Spesifikasi Alat</h4>
+                    <div class="text-xs space-y-3">`;
+            
+            const renderDyn = (title, arr) => {
+                if(!arr || !arr.length) return '';
+                const val = arr.filter(x => x.brand || x.qty);
+                if(!val.length) return '';
+                return `<div><p class="text-[10px] font-bold text-gray-500 uppercase mb-1">${title}</p><ul class="list-disc list-inside">` + 
+                       val.map(x => `<li><b>${x.jenis}</b>: ${x.brand||'-'} <span class="text-[9px] bg-gray-200 dark:bg-zinc-800 px-1 rounded font-bold">Qty: ${x.qty||'-'}</span></li>`).join('') + 
+                       `</ul></div>`;
+            };
+
+            let hasSpecs = false;
+            if (p.specDyn) {
+                if(p.specDyn.audio) {
+                    ['pa', 'monitor', 'console', 'mic', 'backline', 'stand', 'cable'].forEach(k => { 
+                        const html = renderDyn(`Audio - ${k}`, p.specDyn.audio[k]);
+                        if(html) { c += html; hasSpecs = true; }
+                    });
+                }
+                if(p.specDyn.lighting) {
+                    p.specDyn.lighting.forEach(l => { 
+                        const html = renderDyn(`Lighting - ${l.sub}`, l.data);
+                        if(html) { c += html; hasSpecs = true; }
+                    });
+                }
+                
+                ['led', 'rigging', 'genset', 'barikade'].forEach(k => {
+                    const html = renderDyn(k.toUpperCase(), p.specDyn[k]);
+                    if(html) { c += html; hasSpecs = true; }
+                });
+            } 
+            
+            if(!hasSpecs) {
+                c += `<p class="text-gray-500 italic text-center">Tidak ada data spesifikasi.</p>`;
+            }
+            c += `</div></div>`;
+
+            // 4. Tim Crew
+            const m = p.manpower || {};
+            c += `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Tim Lapangan</h4>
+                    <div class="grid grid-cols-2 gap-y-3 gap-x-2 text-xs">
+                        <div class="col-span-2"><span class="text-[9px] text-gray-500 block uppercase">PIC Utama</span><b>${m.pic||'-'}</b></div>
+                        
+                        <div><span class="text-[9px] text-gray-500 block uppercase border-b dark:border-zinc-800 mb-1">Audio</span>
+                        SE: ${m.audio?.se||'-'}<br>FOH: ${m.audio?.foh||'-'}<br>MOH: ${m.audio?.moh||'-'}<br>RF: ${m.audio?.rf||'-'}<br>Stage: ${m.audio?.stg||'-'}<br>Ast: ${m.audio?.ast||'-'}</div>
+                        
+                        <div><span class="text-[9px] text-gray-500 block uppercase border-b dark:border-zinc-800 mb-1">Lighting</span>
+                        LD: ${m.lighting?.ld||'-'}<br>Patcher: ${m.lighting?.ptc||'-'}<br>Adresser: ${m.lighting?.adr||'-'}<br>Ast: ${m.lighting?.ast||'-'}</div>
+                        
+                        <div><span class="text-[9px] text-gray-500 block uppercase border-b dark:border-zinc-800 mb-1">Roadies</span>
+                        Head: ${m.roadies?.head||'-'}<br>R1: ${m.roadies?.r1||'-'}<br>R2: ${m.roadies?.r2||'-'}<br>R3: ${m.roadies?.r3||'-'}<br>R4: ${m.roadies?.r4||'-'}</div>
+                        
+                        <div><span class="text-[9px] text-gray-500 block uppercase border-b dark:border-zinc-800 mb-1">Pendukung</span>
+                        Rigging: ${m.support?.rigging||'-'}<br>Stage: ${m.support?.stage||'-'}<br>Genset: ${m.support?.genset||'-'}<br>Barikade: ${m.support?.barikade||'-'}</div>
+                    </div>
+                  </div>`;
+
+            c += `</div>`;
+            document.getElementById('detail-content').innerHTML = c;
+            document.getElementById('modal-event-detail').classList.remove('hidden');
+            document.getElementById('modal-event-detail').classList.add('flex');
+        }
+        
+        function closeEventDetail() {
+            document.getElementById('modal-event-detail').classList.add('hidden');
+            document.getElementById('modal-event-detail').classList.remove('flex');
         }
         
         // Hapus Event (Admin)
@@ -579,6 +762,13 @@
         function exportPDF(id) {
             const p = allProjects.find(x => x.id === id); if(!p) return;
             
+            let dateRangeDisplay = p.eventDate;
+            if (p.activities && p.activities.length > 1) {
+                dateRangeDisplay = `${p.activities[0].date} s/d ${p.activities[p.activities.length-1].date} (${p.activities.length} Hari)`;
+            } else if (p.activities && p.activities.length === 1) {
+                dateRangeDisplay = p.activities[0].date;
+            }
+
             const div = document.createElement('div');
             div.className = 'p-8 bg-white text-black font-sans';
             div.style.width = '800px';
@@ -586,7 +776,7 @@
                 <div style="text-align:center; margin-bottom:20px; border-bottom:2px solid #e50914; padding-bottom:10px;">
                     <h1 style="font-size:24px; font-weight:900; color:#e50914; margin:0; letter-spacing: 2px;">YGS PRODUCTION</h1>
                     <h2 style="font-size:18px; font-weight:800; text-transform:uppercase; margin:5px 0;">${p.eventName}</h2>
-                    <p style="font-size:12px; color:#555;">Artist / Klien: <b>${p.artist}</b> | Tanggal: <b>${p.eventDate}</b></p>
+                    <p style="font-size:12px; color:#555;">Artist / Klien: <b>${p.artist}</b> | Tanggal: <b>${dateRangeDisplay}</b></p>
                 </div>
                 
                 <h3 style="font-size:14px; font-weight:bold; background:#f1f5f9; padding:5px; margin-bottom:10px;">PLOTTING CREW & MANPOWER</h3>
@@ -641,10 +831,18 @@
         // Share Whatsapp Crew Call
         function shareWA(id) {
             const p = allProjects.find(x => x.id === id); if(!p) return;
+
+            let dateRangeDisplay = p.eventDate;
+            if (p.activities && p.activities.length > 1) {
+                dateRangeDisplay = `${p.activities[0].date} s/d ${p.activities[p.activities.length-1].date} (${p.activities.length} Hari)`;
+            } else if (p.activities && p.activities.length === 1) {
+                dateRangeDisplay = p.activities[0].date;
+            }
+
             let txt = `*CREW CALL YGS PRODUCTION*\n\n`;
             txt += `*Event:* ${p.eventName}\n`;
             txt += `*Artist:* ${p.artist}\n`;
-            txt += `*Tanggal:* ${p.eventDate}\n`;
+            txt += `*Tanggal:* ${dateRangeDisplay}\n`;
             if(p.mapsLink) txt += `*Lokasi / Maps:* ${p.mapsLink}\n`;
             
             txt += `\n*-- TIM AUDIO --*\nSE: ${p.manpower?.audio?.se || '-'}\nFOH: ${p.manpower?.audio?.foh || '-'}\nMOH: ${p.manpower?.audio?.moh || '-'}\nRF: ${p.manpower?.audio?.rf || '-'}\nStage: ${p.manpower?.audio?.stg || '-'}\nAst: ${p.manpower?.audio?.ast || '-'}\n`;
@@ -710,13 +908,175 @@
             }
         }
 
+        function resetEventForm() {
+            document.getElementById('event-form').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('form-title').innerText = "Create Event Baru";
+            document.getElementById('days-container').innerHTML = '';
+            initDynForms();
+        }
+
+        function editEvent(id) {
+            const p = allProjects.find(x => x.id === id); if(!p) return;
+            resetEventForm();
+            switchTab('add');
+            
+            document.getElementById('form-title').innerText = "Edit Event: " + p.eventName;
+            document.getElementById('edit-id').value = p.id;
+            
+            document.getElementById('eventName').value = p.eventName || '';
+            document.getElementById('artist').value = p.artist || '';
+            document.getElementById('clientName').value = p.clientName || '';
+            document.getElementById('clientPhone').value = p.clientPhone || '';
+            document.getElementById('mapsLink').value = p.mapsLink || '';
+            document.getElementById('evStatus').value = p.status || 'Tentative';
+            
+            if (p.activities && p.activities.length > 0) {
+                document.getElementById('startDate').value = p.activities[0].date;
+                document.getElementById('endDate').value = p.activities[p.activities.length-1].date;
+                generateDays();
+                setTimeout(() => {
+                    const rows = document.querySelectorAll('.day-row');
+                    p.activities.forEach((act, i) => {
+                        if(rows[i]) {
+                            rows[i].querySelector('.time-start').value = act.startTime || '08:00';
+                            rows[i].querySelector('.time-end').value = act.endTime || '23:00';
+                            const cbs = Array.from(rows[i].querySelectorAll('.act-check'));
+                            cbs.forEach(cb => cb.checked = act.acts && act.acts.includes(cb.value));
+                        }
+                    });
+                }, 100);
+            } else {
+                document.getElementById('startDate').value = p.eventDate || '';
+                document.getElementById('endDate').value = p.eventDate || '';
+                if(p.eventDate) generateDays();
+            }
+
+            document.querySelectorAll('.trans-check').forEach(cb => cb.checked = false);
+            if(p.transportasi) {
+                p.transportasi.forEach(t => {
+                    const cb = document.querySelector(`.trans-check[value="${t}"]`);
+                    if(cb) cb.checked = true;
+                });
+            }
+
+            if(p.manpower) {
+                document.getElementById('pic').value = p.manpower.pic || '';
+                
+                document.getElementById('c_a_se').value = p.manpower.audio?.se || '';
+                document.getElementById('c_a_foh').value = p.manpower.audio?.foh || '';
+                document.getElementById('c_a_moh').value = p.manpower.audio?.moh || '';
+                document.getElementById('c_a_rf').value = p.manpower.audio?.rf || '';
+                document.getElementById('c_a_stg').value = p.manpower.audio?.stg || '';
+                document.getElementById('c_a_ast').value = p.manpower.audio?.ast || '';
+                
+                document.getElementById('c_l_ld').value = p.manpower.lighting?.ld || '';
+                document.getElementById('c_l_ptc').value = p.manpower.lighting?.ptc || '';
+                document.getElementById('c_l_adr').value = p.manpower.lighting?.adr || '';
+                document.getElementById('c_l_ast').value = p.manpower.lighting?.ast || '';
+                
+                document.getElementById('c_r_head').value = p.manpower.roadies?.head || '';
+                document.getElementById('c_r_1').value = p.manpower.roadies?.r1 || '';
+                document.getElementById('c_r_2').value = p.manpower.roadies?.r2 || '';
+                document.getElementById('c_r_3').value = p.manpower.roadies?.r3 || '';
+                document.getElementById('c_r_4').value = p.manpower.roadies?.r4 || '';
+                
+                document.getElementById('c_s_rigging').value = p.manpower.support?.rigging || '';
+                document.getElementById('c_s_stage').value = p.manpower.support?.stage || '';
+                document.getElementById('c_s_genset').value = p.manpower.support?.genset || '';
+                document.getElementById('c_s_barikade').value = p.manpower.support?.barikade || '';
+            }
+            
+            // --- MULAI PENAMBAHAN: MENGISI KEMBALI SPESIFIKASI ALAT / DYNAMIC SPECS ---
+            if (p.specDyn) {
+                const fillDyn = (cId, arr) => {
+                    if(!arr || !arr.length) return;
+                    const container = document.getElementById(cId);
+                    if(!container) return;
+                    arr.forEach(item => {
+                        // Lewati jika data tersimpan hanyalah baris default yang kosong
+                        if (!item.brand && !item.qty && item.jenis) return;
+
+                        const rows = Array.from(container.querySelectorAll('.dynamic-row'));
+                        // Cari baris default kosong yang namanya sesuai dengan item yang disimpan
+                        let targetRow = rows.find(r => r.querySelector('.dyn-jenis').value === item.jenis && r.querySelector('.dyn-brand').value === '' && r.querySelector('.dyn-qty').value === '');
+                        
+                        if (targetRow) {
+                            // Isi baris kosong tersebut
+                            targetRow.querySelector('.dyn-brand').value = item.brand || '';
+                            targetRow.querySelector('.dyn-qty').value = item.qty || '';
+                        } else {
+                            // Jika tidak ada baris kosong, buat baris baru (berguna jika user menambahkan lebih dari 1 brand/tipe)
+                            let pNode = container;
+                            const mRow = rows.find(r => r.querySelector('.dyn-jenis').value === item.jenis);
+                            if(mRow) pNode = mRow.parentElement;
+                            
+                            const div = document.createElement('div'); 
+                            div.className = 'grid grid-cols-12 gap-1 dynamic-row items-center mb-1';
+                            let ph = {j:'Posisi', b:'Brand/Tipe', q:'Qty'}; 
+                            if(cId.includes('genset')) ph={j:'Kegunaan', b:'KVA', q:'Unit'}; 
+                            if(cId.includes('led')) ph={j:'Posisi', b:'Brand', q:'Meter'};
+                            
+                            const isF = !!mRow && mRow.querySelector('.dyn-jenis').readOnly;
+                            div.innerHTML = `<input type="text" class="dyn-jenis col-span-4 p-2 rounded input-dark font-bold" placeholder="${ph.j}" value="${item.jenis || ''}" ${isF?'readonly':''}><input type="text" class="dyn-brand col-span-5 p-2 rounded input-dark font-bold text-xs" placeholder="${ph.b}" value="${item.brand || ''}"><input type="text" class="dyn-qty col-span-2 p-2 rounded input-dark text-center font-bold" placeholder="${ph.q}" value="${item.qty || ''}"><button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                            pNode.appendChild(div);
+                        }
+                    });
+                    lucide.createIcons();
+                };
+
+                // Isi seluruh bagian spesifikasi
+                if (p.specDyn.audio) {
+                    ['pa', 'monitor', 'console', 'mic', 'backline', 'stand', 'cable'].forEach(c => fillDyn('dyn-audio-'+c, p.specDyn.audio[c]));
+                }
+                if (p.specDyn.lighting) {
+                    p.specDyn.lighting.forEach(l => fillDyn('dyn-light-'+l.sub.replace(/\s+/g,''), l.data));
+                }
+                fillDyn('dyn-led', p.specDyn.led);
+                fillDyn('dyn-rigging', p.specDyn.rigging);
+                fillDyn('dyn-genset', p.specDyn.genset);
+                fillDyn('dyn-barikade', p.specDyn.barikade);
+            }
+            // --- AKHIR PENAMBAHAN ---
+            
+            window.scrollTo(0,0);
+            showToast("Mode Edit aktif. Silakan cek ulang data spesifikasi & tim jika ada perubahan.", false);
+        }
+
         document.getElementById('event-form').onsubmit = async (e) => {
             e.preventDefault(); showLoading(true);
+            const editId = document.getElementById('edit-id').value;
             const days = []; document.querySelectorAll('.day-row').forEach(r => days.push({ date: r.dataset.date, startTime: r.querySelector('.time-start').value, endTime: r.querySelector('.time-end').value, acts: Array.from(r.querySelectorAll('.act-check:checked')).map(x => x.value) }));
-            const p = { id: 'YGS-'+Date.now(), eventName: document.getElementById('eventName').value, artist: document.getElementById('artist').value, eventDate: document.getElementById('startDate').value, status: document.getElementById('evStatus').value, activities: days, transportasi: Array.from(document.querySelectorAll('.trans-check:checked')).map(x => x.value),
+            const p = { 
+                id: editId || ('YGS-'+Date.now()), 
+                eventName: document.getElementById('eventName').value, 
+                artist: document.getElementById('artist').value, 
+                clientName: document.getElementById('clientName').value,
+                clientPhone: document.getElementById('clientPhone').value,
+                mapsLink: document.getElementById('mapsLink').value,
+                eventDate: document.getElementById('startDate').value, 
+                status: document.getElementById('evStatus').value, 
+                activities: days, 
+                transportasi: Array.from(document.querySelectorAll('.trans-check:checked')).map(x => x.value),
                 specDyn: { audio: { pa: extractDynData('dyn-audio-pa'), monitor: extractDynData('dyn-audio-monitor'), console: extractDynData('dyn-audio-console'), mic: extractDynData('dyn-audio-mic'), backline: extractDynData('dyn-audio-backline'), stand: extractDynData('dyn-audio-stand'), cable: extractDynData('dyn-audio-cable'), others: extractDynData('dyn-audio-others') }, lighting: MASTER_GROUPS.lighting.map(s => ({ sub: s, data: extractDynData('dyn-light-'+s.replace(/\s+/g,'')) })), led: extractDynData('dyn-led'), rigging: extractDynData('dyn-rigging'), genset: extractDynData('dyn-genset'), barikade: extractDynData('dyn-barikade') },
-                manpower: { pic: document.getElementById('pic').value, audio: { se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value, moh: document.getElementById('c_a_moh').value, rf: document.getElementById('c_a_rf').value, stg: document.getElementById('c_a_stg').value, ast: document.getElementById('c_a_ast').value }, lighting: { ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value, adr: document.getElementById('c_l_adr').value, ast: document.getElementById('c_l_ast').value }, roadies: { head: document.getElementById('c_r_head').value, r1: document.getElementById('c_r_1').value, r2: document.getElementById('c_r_2').value, r3: document.getElementById('c_r_3').value, r4: document.getElementById('c_r_4').value }, support: { rigging: document.getElementById('c_s_rigging').value, stage: document.getElementById('c_s_stage').value, genset: document.getElementById('c_s_genset').value, barikade: document.getElementById('c_s_barikade').value } } };
-            const r = await apiCall({ action: 'ADD_DATA', payload: p }); showLoading(false); if(r.success) { switchTab('list'); fetchData(); }
+                manpower: { pic: document.getElementById('pic').value, audio: { se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value, moh: document.getElementById('c_a_moh').value, rf: document.getElementById('c_a_rf').value, stg: document.getElementById('c_a_stg').value, ast: document.getElementById('c_a_ast').value }, lighting: { ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value, adr: document.getElementById('c_l_adr').value, ast: document.getElementById('c_l_ast').value }, roadies: { head: document.getElementById('c_r_head').value, r1: document.getElementById('c_r_1').value, r2: document.getElementById('c_r_2').value, r3: document.getElementById('c_r_3').value, r4: document.getElementById('c_r_4').value }, support: { rigging: document.getElementById('c_s_rigging').value, stage: document.getElementById('c_s_stage').value, genset: document.getElementById('c_s_genset').value, barikade: document.getElementById('c_s_barikade').value } } 
+            };
+            
+            // Jika dalam mode edit, hapus data lama terlebih dahulu agar tidak duplikat
+            if (editId) {
+                await apiCall({ action: 'DELETE_DATA', payload: { id: editId } });
+            }
+            
+            const r = await apiCall({ action: 'ADD_DATA', payload: p }); 
+            showLoading(false); 
+            if(r.success) { 
+                resetEventForm();
+                switchTab('list'); 
+                fetchData(); 
+                showToast(editId ? "Event berhasil di-update!" : "Event baru ditambahkan!");
+            } else {
+                showToast("Gagal menyimpan event.", true);
+            }
         };
 
         function extractDynData(id) { const arr = []; const el = document.getElementById(id); if(!el) return arr; el.querySelectorAll('.dynamic-row').forEach(r => { const j = r.querySelector('.dyn-jenis').value, b = r.querySelector('.dyn-brand').value, q = r.querySelector('.dyn-qty').value; if(j||b||q) arr.push({jenis:j, brand:b, qty:q}); }); return arr; }
@@ -765,15 +1125,73 @@
 
         async function renderTeam() {
             const r = await apiCall({ action: 'GET_BON_REQUESTS' });
-            if(r.success) { document.getElementById('bon-pending-list').innerHTML = r.data.filter(b => b.status === 'pending').map(b => `<div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl flex justify-between items-center"><div><p class="text-[9px] font-black uppercase">${b.user}</p><p class="text-xs font-black text-blue-600">Rp ${Number(b.amount).toLocaleString()}</p></div><button onclick="approveBon('${b.id}')" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black">APPROVE</button></div>`).join('') || '<p class="text-center text-[8px]">Kosong</p>'; }
-            document.getElementById('team-list').innerHTML = allUsers.map(u => `<div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800 flex justify-between items-center"><div><p class="font-black text-sm uppercase">${u.fullName}</p><p class="text-[10px] text-ygsred font-bold uppercase tracking-widest">${u.position}</p></div><div class="text-[9px] text-right font-bold text-gray-500">${u.bankName||'N/A'}<br>${u.bankAcc||''}</div></div>`).join('');
+            if(r.success) { 
+                document.getElementById('bon-pending-list').innerHTML = r.data.filter(b => b.status === 'pending').map(b => `
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl flex justify-between items-center">
+                    <div>
+                        <p class="text-[9px] font-black uppercase">${b.user}</p>
+                        <div class="flex items-center gap-1 mt-1">
+                            <span class="text-[10px] font-black text-blue-600">Rp</span>
+                            <input type="number" id="bon-amt-${b.id}" value="${b.amount}" class="w-20 p-0.5 text-xs font-black text-blue-600 bg-transparent border-b border-blue-300 dark:border-blue-700 outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    <button onclick="approveBon('${b.id}')" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black">APPROVE</button>
+                </div>`).join('') || '<p class="text-center text-[8px]">Kosong</p>'; 
+            }
+            
+            document.getElementById('team-list').innerHTML = allUsers.map(u => `
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="font-black text-sm uppercase">${u.fullName}</p>
+                        <p class="text-[10px] text-ygsred font-bold uppercase tracking-widest">${u.position}</p>
+                    </div>
+                    <div class="text-[9px] text-right font-bold text-gray-500">
+                        ${u.bankName||'N/A'}<br>${u.bankAcc||''}
+                    </div>
+                </div>
+                <div class="mt-3 pt-3 border-t dark:border-zinc-800 flex items-center justify-between gap-2">
+                    <p class="text-[9px] font-bold uppercase text-gray-500">Total Pendapatan</p>
+                    <div class="flex gap-1">
+                        <input type="number" id="fee-${u.username}" placeholder="Nominal" value="${u.fee || 0}" class="input-dark p-1.5 text-[10px] font-bold rounded w-24">
+                        <button onclick="updateUserFee('${u.username}')" class="bg-ygsred text-white px-2 py-1.5 rounded font-black text-[9px] uppercase shadow">Simpan</button>
+                    </div>
+                </div>
+            </div>`).join('');
         }
-        async function approveBon(id) { showLoading(true); await apiCall({ action: 'APPROVE_BON', payload: { id } }); showLoading(false); fetchData(); renderTeam(); }
+        
+        async function updateUserFee(username) {
+            const feeVal = document.getElementById(`fee-${username}`).value;
+            showLoading(true);
+            await apiCall({ action: 'UPDATE_USER_FEE', payload: { username: username, fee: feeVal } });
+            showLoading(false);
+            showToast("Pendapatan berhasil diperbarui!");
+            fetchData();
+        }
+
+        async function approveBon(id) { 
+            const newAmount = document.getElementById(`bon-amt-${id}`).value;
+            showLoading(true); 
+            await apiCall({ action: 'APPROVE_BON', payload: { id, amount: newAmount } }); 
+            showLoading(false); 
+            fetchData(); 
+            renderTeam(); 
+        }
 
         function renderProfile() {
             const n = currentUser.nickname||currentUser.fullName, m = allProjects.filter(p => JSON.stringify(p.manpower||{}).includes(n));
-            let tF=0, tB=0; document.getElementById('profile-history').innerHTML = m.map(p => { const f = (p.finance && p.finance[n]) || {fee:0, bon:0}; tF+=Number(f.fee); tB+=Number(f.bon); return `<div class="bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl flex justify-between items-center text-[9px] font-bold"><div><p class="uppercase font-black text-ygsred">${p.eventName}</p><p class="text-gray-500">${p.eventDate}</p></div><div class="text-green-600">+ Rp ${Number(f.fee).toLocaleString()}</div></div>`; }).join('') || '<p class="text-center text-[8px]">Kosong</p>';
-            document.getElementById('prof-fee').innerText = "Rp "+tF.toLocaleString(); document.getElementById('prof-bon').innerText = "Rp "+tB.toLocaleString(); document.getElementById('prof-sisa').innerText = "Rp "+(tF-tB).toLocaleString();
+            let tB=0; 
+            document.getElementById('profile-history').innerHTML = m.map(p => { 
+                const f = (p.finance && p.finance[n]) || {fee:0, bon:0}; 
+                tB+=Number(f.bon); 
+                return `<div class="bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl flex justify-between items-center text-[9px] font-bold"><div><p class="uppercase font-black text-ygsred">${p.eventName}</p><p class="text-gray-500">${p.eventDate}</p></div><div class="text-green-600">Selesai</div></div>`; 
+            }).join('') || '<p class="text-center text-[8px]">Kosong</p>';
+            
+            const userFee = currentUser.fee ? Number(currentUser.fee) : 0;
+            
+            document.getElementById('prof-fee').innerText = "Rp "+userFee.toLocaleString(); 
+            document.getElementById('prof-bon').innerText = "Rp "+tB.toLocaleString(); 
+            document.getElementById('prof-sisa').innerText = "Rp "+(userFee-tB).toLocaleString();
         }
 
         // OTHER UTILS
@@ -785,9 +1203,11 @@
             
             if(activeAgendaView==='kalender') {
                 renderCalendar(); 
+                const today = new Date().toISOString().split('T')[0];
+                showEventsOnDate(today);
             } else { 
                 let f = activeAgendaView === 'saya' ? allProjects.filter(p => JSON.stringify(p.manpower||{}).includes(currentUser.nickname||currentUser.fullName)) : allProjects; 
-                c.innerHTML = f.map(p => getEventCardHTML(p)).join('') || '<p class="p-10 text-center font-bold">KOSONG / LIBUR</p>';
+                c.innerHTML = f.map(p => getEventCardHTML(p, null)).join('') || '<p class="p-10 text-center font-bold">KOSONG / LIBUR</p>';
                 lucide.createIcons();
             } 
         }
