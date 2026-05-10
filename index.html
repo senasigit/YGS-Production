@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YGS Production Management V19</title>
+    <title>YGS Production Management V20</title>
 
     <!-- PWA / App-like Meta Tags -->
     <meta name="theme-color" content="#e50914">
@@ -74,7 +74,7 @@
 
     <!-- MODAL TAMBAH ASET -->
     <div id="modal-asset" class="fixed inset-0 bg-black/80 z-[500] hidden flex flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
-        <form id="form-asset" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-sm space-y-4 border border-gray-200 dark:border-zinc-800 shadow-2xl">
+        <form id="form-asset" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-sm space-y-4 border border-gray-200 dark:border-zinc-800 shadow-2xl">
             <h3 class="text-lg font-black uppercase text-gray-900 dark:text-white border-b border-gray-200 dark:border-zinc-800 pb-2">Tambah Alat Baru</h3>
             <div class="space-y-1">
                 <label class="text-[9px] font-bold text-gray-500 uppercase">Nama Alat / Unit</label>
@@ -181,12 +181,13 @@
                 <div id="project-container" class="space-y-3"></div>
             </div>
 
-            <!-- TAB: CREATE (RESTORED COMPLETE V18) -->
+            <!-- TAB: CREATE (FIXED TRANSPORTASI) -->
             <div id="view-add" class="hidden animate-fade space-y-6 no-print">
                 <h2 id="form-title" class="text-lg font-black uppercase text-gray-900 dark:text-white border-b-2 border-ygsred pb-1 inline-block">Create Event Baru</h2>
                 <form id="event-form" class="space-y-6 pb-20">
                     <input type="hidden" id="edit-id" value="">
                     
+                    <!-- 1. Informasi Dasar Event -->
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-ygsred">
                         <h3 class="text-[10px] font-black text-ygsred uppercase tracking-[0.2em] mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2">1. Informasi Dasar Event</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pb-2">
@@ -217,13 +218,25 @@
                         <div class="pt-2">
                             <p class="text-[9px] font-bold text-gray-500 uppercase mb-2">Transportasi Operasional</p>
                             <div class="flex flex-wrap gap-2">
-                                ${['Grandmax', 'Carry', 'Omplong', 'Truck'].map(v => `<label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold"><input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="${v}"> ${v}</label>`).join('')}
+                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold">
+                                    <input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Grandmax"> Grandmax
+                                </label>
+                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold">
+                                    <input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Carry"> Carry
+                                </label>
+                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold">
+                                    <input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Omplong"> Omplong
+                                </label>
+                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold">
+                                    <input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Truck"> Truck
+                                </label>
                             </div>
                         </div>
                     </div>
 
                     <div id="days-container" class="space-y-3"></div>
 
+                    <!-- 2. Spesifikasi Audio -->
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-blue-600">
                         <h3 class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] border-b border-gray-200 dark:border-zinc-800 pb-2">2. Spesifikasi Audio</h3>
                         <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
@@ -260,6 +273,7 @@
                         </div>
                     </div>
 
+                    <!-- 3. Spesifikasi Lainnya -->
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-orange-500">
                         <h3 class="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em] border-b border-gray-200 dark:border-zinc-800 pb-2">3. Spesifikasi Lainnya</h3>
                         <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
@@ -284,6 +298,7 @@
                         </div>
                     </div>
 
+                    <!-- 4. Plotting Kru -->
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-zinc-500">
                         <h3 class="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] border-b border-gray-200 dark:border-zinc-800 pb-2">4. Plotting Kru Lapangan</h3>
                         <div class="mb-3 space-y-1"><p class="text-[9px] font-bold text-gray-500 uppercase">PIC Utama Event</p><input type="text" id="pic" list="list-crew" placeholder="PIC Event" class="w-full p-2.5 rounded-lg input-dark font-bold text-xs"></div>
@@ -356,7 +371,7 @@
 
             <!-- TAB: TIM (ADMIN) -->
             <div id="view-team" class="hidden animate-fade space-y-4">
-                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1 inline-block">Manajemen Gaji</h2>
+                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1 inline-block">Manajemen Gaji Tim</h2>
                 <div class="grid gap-3" id="team-list"></div>
             </div>
 
@@ -513,7 +528,7 @@
             }
         }
 
-        // --- ASSETS (EVERYONE CAN CHANGE STATUS) ---
+        // --- ASSETS ---
         function openAssetModal() { document.getElementById('modal-asset').classList.remove('hidden'); }
         function closeAssetModal() { document.getElementById('modal-asset').classList.add('hidden'); document.getElementById('form-asset').reset(); }
         
@@ -550,7 +565,7 @@
                 </tr>`).join('') || '<tr><td colspan="3" class="p-4 text-center">Kosong</td></tr>';
         }
 
-        // --- FORM DYNAMIC (MASTER GROUPS V18) ---
+        // --- FORM DYNAMIC ---
         function initDynForms() {
             const keys = ['audio-pa','audio-monitor','audio-console','audio-mic','audio-backline','audio-stand','audio-cable','audio-others','lighting','led','rigging','genset','barikade'];
             keys.forEach(k => {
@@ -670,13 +685,13 @@
             switchTab('list'); fetchData();
         };
 
-        // --- FINANCE & TEAM ---
+        // --- FINANCE ---
         function renderTeam() {
             const list = document.getElementById('team-list');
             list.innerHTML = allUsers.map(u => `
             <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl flex justify-between items-center border dark:border-zinc-800 shadow-sm">
                 <div><p class="font-black text-sm uppercase">${u.fullName}</p><p class="text-[10px] text-ygsred font-bold uppercase tracking-widest">${u.position}</p></div>
-                <button onclick="openFinanceModal('${u.nickname || u.fullName}')" class="text-blue-500 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg"><i data-lucide="wallet"></i></button>
+                <button onclick="openFinanceModal('${u.nickname || u.fullName}')" class="text-blue-500 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg"><i data-lucide="wallet" class="w-5 h-5"></i></button>
             </div>`).join('');
             lucide.createIcons();
         }
