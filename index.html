@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YGS Production Management V22</title>
+    <title>YGS Production Management V23</title>
 
     <!-- PWA / App-like Meta Tags -->
     <meta name="theme-color" content="#e50914">
@@ -13,9 +13,6 @@
     <meta name="apple-mobile-web-app-title" content="YGS App">
     <link rel="apple-touch-icon" href="logo ygs 2.PNG">
     
-    <!-- Inline Web App Manifest -->
-    <link rel="manifest" href='data:application/manifest+json,{"name":"YGS Production Management","short_name":"YGS App","start_url":".","display":"standalone","background_color":"#000000","theme_color":"#e50914","icons":[{"src":"logo ygs 2.PNG","sizes":"192x192","type":"image/png"}]}'>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -39,7 +36,6 @@
         .dark .card-dark { background: #111111; border: 1px solid #333333; box-shadow: none; }
         .dark .input-dark { background: #1a1a1a !important; border: 1px solid #444444 !important; color: white !important; }
         
-        .input-dark:focus { border-color: #e50914 !important; outline: none; box-shadow: 0 0 0 1px #e50914; }
         .btn-red { background-color: #e50914; color: white; transition: all 0.3s ease; }
         .btn-red:hover { background-color: #b20710; box-shadow: 0 4px 15px rgba(229,9,20,0.4); }
         
@@ -53,13 +49,8 @@
         .toast-show { animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        .spec-table { width: 100%; text-align: left; border-collapse: collapse; font-size: 10px; }
-        .spec-table th, .spec-table td { padding: 8px; border-bottom: 1px solid #333; }
-
-        /* Calendar Styles */
         .cal-day { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: 0.2s; position: relative;}
         .cal-day.has-event { background: rgba(229, 9, 20, 0.1); color: #e50914; border-color: rgba(229, 9, 20, 0.2); }
-        .cal-day.no-event { color: #64748b; }
         
         @media print {
             nav, header, .no-print { display: none !important; }
@@ -76,33 +67,43 @@
 
     <!-- MODAL TAMBAH ASET -->
     <div id="modal-asset" class="fixed inset-0 bg-black/80 z-[500] hidden flex flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
-        <form id="form-asset" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-sm space-y-4 border border-gray-200 dark:border-zinc-800 shadow-2xl">
-            <h3 class="text-lg font-black uppercase text-gray-900 dark:text-white border-b border-gray-200 dark:border-zinc-800 pb-2">Tambah Alat Baru</h3>
+        <form id="form-asset" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-sm space-y-4 border dark:border-zinc-800 shadow-2xl">
+            <h3 class="text-lg font-black uppercase text-gray-900 dark:text-white border-b dark:border-zinc-800 pb-2">Tambah Alat Baru</h3>
             <div class="space-y-1">
-                <label class="text-[9px] font-bold text-gray-500 uppercase">Nama Alat / Unit</label>
-                <input type="text" id="ast-name" class="w-full p-3 rounded-xl input-dark font-bold" placeholder="Cth: Shure SM58" required>
+                <label class="text-[9px] font-bold text-gray-500 uppercase">Nama Alat</label>
+                <input type="text" id="ast-name" class="w-full p-3 rounded-xl input-dark font-bold" required>
             </div>
             <div class="space-y-1">
-                <label class="text-[9px] font-bold text-gray-500 uppercase">Kategori Divisi</label>
+                <label class="text-[9px] font-bold text-gray-500 uppercase">Kategori</label>
                 <select id="ast-cat" class="w-full p-3 rounded-xl input-dark font-bold appearance-none" required>
-                    <option value="Audio">🔊 Audio</option>
-                    <option value="Lighting">💡 Lighting</option>
-                    <option value="Genset">⚡ Genset</option>
-                    <option value="Barikade">🚧 Barikade</option>
-                    <option value="Rigging">🏗️ Rigging / Stage</option>
-                    <option value="Transportasi">🚚 Transportasi</option>
-                    <option value="Lainnya">📦 Lainnya</option>
+                    <option value="Audio">Audio</option>
+                    <option value="Lighting">Lighting</option>
+                    <option value="Genset">Genset</option>
+                    <option value="Rigging">Rigging</option>
+                    <option value="Transportasi">Transportasi</option>
                 </select>
             </div>
             <div class="space-y-1">
-                <label class="text-[9px] font-bold text-gray-500 uppercase">Jumlah Unit</label>
-                <input type="number" id="ast-qty" class="w-full p-3 rounded-xl input-dark font-bold" placeholder="Cth: 10" required min="1">
+                <label class="text-[9px] font-bold text-gray-500 uppercase">Qty</label>
+                <input type="number" id="ast-qty" class="w-full p-3 rounded-xl input-dark font-bold" required min="1">
             </div>
             <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closeAssetModal()" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px] hover:bg-gray-300 dark:hover:bg-zinc-700 transition-colors">Batal</button>
-                <button type="submit" class="flex-1 py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px] shadow-lg shadow-red-900/30 hover:bg-red-700 transition-colors">Simpan Aset</button>
+                <button type="button" onclick="closeAssetModal()" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px]">Batal</button>
+                <button type="submit" class="flex-1 py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px]">Simpan</button>
             </div>
         </form>
+    </div>
+
+    <!-- MODAL KEUANGAN (ADMIN ONLY) -->
+    <div id="modal-finance" class="fixed inset-0 bg-black/80 z-[500] hidden flex flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
+        <div class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-md space-y-4 border dark:border-zinc-800 shadow-2xl max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center border-b dark:border-zinc-800 pb-2">
+                <h3 class="text-sm font-black uppercase text-gray-900 dark:text-white">Input Gaji: <span id="finance-crew-name" class="text-ygsred"></span></h3>
+                <button onclick="closeFinanceModal()"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="overflow-y-auto flex-1 space-y-3" id="finance-modal-list"></div>
+            <button onclick="saveFinance()" class="w-full py-3.5 rounded-xl bg-blue-600 text-white font-black uppercase text-[10px] shadow-lg">Simpan Gaji</button>
+        </div>
     </div>
 
     <div id="toast-container" class="fixed top-20 right-4 z-[400] space-y-2 flex flex-col items-end pointer-events-none"></div>
@@ -111,51 +112,37 @@
     <!-- AUTH / LOGIN -->
     <div id="view-auth" class="fixed inset-0 bg-gray-100 dark:bg-black z-[200] flex flex-col justify-center items-center p-6 no-print overflow-y-auto">
         <div class="w-full max-w-md card-dark p-8 rounded-2xl border-t-4 border-t-ygsred my-auto text-center">
-            <img src="logo ygs 2.PNG" alt="Logo YGS" class="w-32 h-auto object-contain mb-2 mx-auto dark:hidden" onerror="this.style.display='none';">
-            <img src="logo ygs.PNG" alt="Logo YGS" class="w-32 h-auto object-contain mb-2 mx-auto hidden dark:block" onerror="this.style.display='none';">
+            <img src="logo ygs 2.PNG" class="w-32 mx-auto mb-2 dark:hidden">
+            <img src="logo ygs.PNG" class="w-32 mx-auto mb-2 hidden dark:block">
             <h1 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest mt-2 mb-8">YGS Production</h1>
-            
             <form id="login-form" class="space-y-4">
                 <input type="text" id="log-username" class="w-full p-3 rounded-lg input-dark font-bold" placeholder="Username" required>
                 <input type="password" id="log-password" class="w-full p-3 rounded-lg input-dark font-bold" placeholder="Password" required>
-                <button type="submit" class="w-full btn-red py-3.5 rounded-lg font-black text-sm uppercase tracking-widest shadow-lg">Login Sistem</button>
-                <p class="text-center text-[10px] text-gray-500 mt-4 uppercase font-bold tracking-widest">Kru Baru? <a href="#" onclick="toggleAuth('register')" class="text-ygsred hover:underline">Daftar Akun</a></p>
+                <button type="submit" class="w-full btn-red py-3.5 rounded-lg font-black text-sm uppercase tracking-widest">Login</button>
+                <p class="text-[10px] text-gray-500 mt-4 uppercase font-bold">Kru Baru? <a href="#" onclick="toggleAuth('register')" class="text-ygsred">Daftar Akun</a></p>
             </form>
-
             <form id="register-form" class="space-y-3 hidden">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="reg-fullname" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Nama Lengkap" required>
-                    <input type="text" id="reg-nickname" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Panggilan" required>
-                </div>
-                <input type="text" id="reg-position" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Jabatan Utama" required>
-                <input type="text" id="reg-phone" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="No. WhatsApp" required>
-                <div class="flex gap-1 items-center">
-                    <button type="button" onclick="sendSimulatedOTP()" id="btn-send-otp" class="bg-green-600 hover:bg-green-700 text-white text-[9px] uppercase font-bold py-3 px-2 rounded-lg flex-1">Kirim OTP WA</button>
-                    <input type="text" id="reg-otp" class="w-full p-2.5 rounded-lg input-dark font-bold hidden text-center flex-1" placeholder="Kode 4 Digit" maxlength="4">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="reg-username" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Username" required>
-                    <input type="password" id="reg-password" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Password" required>
-                </div>
-                <div class="flex gap-2 items-center bg-gray-100 dark:bg-zinc-800 p-2 rounded-lg">
-                    <span id="captcha-question" class="bg-white dark:bg-zinc-900 px-3 py-2 rounded font-black text-sm text-ygsred w-24 text-center"></span>
-                    <input type="number" id="reg-captcha" class="flex-1 p-2.5 rounded-lg input-dark font-bold text-center" placeholder="?" required>
-                </div>
-                <button type="submit" class="w-full bg-gray-900 dark:bg-zinc-800 text-white py-3.5 rounded-lg font-black text-xs uppercase hover:bg-black">Daftar Akun Baru</button>
-                <p class="text-center text-[10px] text-gray-500 mt-4 uppercase font-bold tracking-widest">Kembali ke <a href="#" onclick="toggleAuth('login')" class="text-ygsred hover:underline">Login</a></p>
+                <input type="text" id="reg-fullname" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Nama Lengkap" required>
+                <input type="text" id="reg-nickname" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Panggilan" required>
+                <input type="text" id="reg-position" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Jabatan" required>
+                <input type="text" id="reg-phone" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="WhatsApp" required>
+                <input type="text" id="reg-username" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Username" required>
+                <input type="password" id="reg-password" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Password" required>
+                <button type="submit" class="w-full bg-zinc-800 text-white py-3.5 rounded-lg font-black text-xs uppercase">Daftar</button>
+                <p class="text-[10px] text-gray-500 mt-4 uppercase font-bold">Punya Akun? <a href="#" onclick="toggleAuth('login')" class="text-ygsred">Login</a></p>
             </form>
         </div>
     </div>
 
     <!-- MAIN APP -->
     <div id="app-content" class="hidden min-h-screen pt-4">
-        <header class="p-4 flex justify-between items-center bg-white/90 dark:bg-black/90 border-b border-gray-200 dark:border-zinc-800 sticky top-0 z-[100] no-print">
+        <header class="p-4 flex justify-between items-center bg-white/90 dark:bg-black/90 border-b dark:border-zinc-800 sticky top-0 z-[100] no-print">
             <div class="flex items-center gap-3">
                 <div class="bg-ygsred p-1.5 rounded">
                     <svg width="20" height="20" viewBox="0 0 100 100" fill="none"><path d="M30 35H45L55 65H40L30 35Z" fill="white"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
                 </div>
                 <div>
-                    <h1 class="text-xs font-black text-gray-900 dark:text-white tracking-tighter leading-none uppercase">YGS Production</h1>
+                    <h1 class="text-xs font-black text-gray-900 dark:text-white uppercase">YGS Pro</h1>
                     <p id="user-display" class="text-[9px] font-bold text-ygsred uppercase"></p>
                 </div>
             </div>
@@ -166,28 +153,42 @@
             
             <!-- TAB: JADWAL -->
             <div id="view-list" class="animate-fade">
-                <div class="flex justify-center gap-2 mb-6 bg-gray-100 dark:bg-zinc-900 p-1.5 rounded-xl border border-gray-200 dark:border-zinc-800">
+                <div class="flex justify-center gap-2 mb-6 bg-gray-100 dark:bg-zinc-900 p-1.5 rounded-xl border dark:border-zinc-800">
                     <button onclick="setAgendaView('kalender')" id="btn-view-kalender" class="flex-1 text-[10px] font-bold uppercase px-4 py-2 rounded-lg bg-white dark:bg-black shadow text-ygsred">Kalender</button>
                     <button onclick="setAgendaView('semua')" id="btn-view-semua" class="flex-1 text-[10px] font-bold uppercase px-4 py-2 rounded-lg text-gray-500">Semua</button>
                     <button onclick="setAgendaView('saya')" id="btn-view-saya" class="flex-1 text-[10px] font-bold uppercase px-4 py-2 rounded-lg text-gray-500">Tugas Saya</button>
                 </div>
-
                 <div id="wrapper-kalender" class="card-dark p-4 rounded-2xl mb-6">
                     <div class="flex justify-between items-center mb-4 border-b dark:border-zinc-800 pb-3">
                         <button onclick="changeMonth(-1)"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                         <h2 id="cal-month-year" class="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">BULAN TAHUN</h2>
                         <button onclick="changeMonth(1)"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                     </div>
-                    <div class="grid grid-cols-7 gap-1 mb-2 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                        <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
-                    </div>
                     <div id="calendar-grid" class="grid grid-cols-7 gap-1 sm:gap-2"></div>
                 </div>
-
-                <div class="flex justify-between items-end mb-2">
-                    <h3 class="text-[10px] font-black text-ygsred uppercase tracking-widest" id="selected-date-label">Agenda</h3>
-                </div>
                 <div id="project-container" class="space-y-3"></div>
+            </div>
+
+            <!-- TAB: CREATE (ADMIN ONLY VIEW LOGIC) -->
+            <div id="view-add" class="hidden animate-fade space-y-4">
+                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1 inline-block">Create Event</h2>
+                <form id="event-form" class="space-y-4">
+                    <input type="hidden" id="edit-id" value="">
+                    <div class="card-dark p-4 rounded-xl space-y-3">
+                        <input type="text" id="eventName" placeholder="Nama Event" class="w-full p-2.5 rounded input-dark font-bold" required>
+                        <input type="text" id="artist" placeholder="Artis / Klien" class="w-full p-2.5 rounded input-dark font-bold" required>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="date" id="startDate" class="w-full p-2.5 rounded input-dark font-bold" required>
+                            <select id="evStatus" class="w-full p-2.5 rounded input-dark font-bold">
+                                <option value="Tentative">Tentative</option>
+                                <option value="Confirmed">Confirmed</option>
+                            </select>
+                        </div>
+                        <input type="text" id="pic" list="list-crew" placeholder="PIC Utama" class="w-full p-2.5 rounded input-dark font-bold">
+                        <textarea id="manpower-input" placeholder="Plotting Kru Lain (Ketik Nama, pisahkan koma)" class="w-full p-2.5 rounded input-dark font-bold h-20"></textarea>
+                    </div>
+                    <button type="submit" class="w-full btn-red py-4 rounded-xl font-black uppercase tracking-widest shadow-lg">Simpan Event</button>
+                </form>
             </div>
 
             <!-- TAB: CHAT -->
@@ -199,10 +200,10 @@
                 </form>
             </div>
 
-            <!-- TAB: INVENTARIS ASET -->
+            <!-- TAB: ASSETS -->
             <div id="view-assets" class="hidden animate-fade space-y-4">
                 <div class="flex justify-between items-center border-b-2 border-ygsred pb-1">
-                    <h2 class="text-lg font-black uppercase text-gray-900 dark:text-white">Inventaris Alat</h2>
+                    <h2 class="text-lg font-black uppercase">Inventaris</h2>
                     <div class="flex gap-2">
                         <select id="asset-sort-by" onchange="renderAssets()" class="text-[9px] bg-gray-100 dark:bg-zinc-800 font-bold border-none rounded px-2 focus:ring-0">
                             <option value="cat">Sort: Kategori</option>
@@ -211,21 +212,42 @@
                         <button class="text-[10px] bg-ygsred text-white px-3 py-1.5 rounded font-bold" onclick="openAssetModal()">+ Tambah</button>
                     </div>
                 </div>
-                <div id="asset-list-container" class="space-y-6">
-                    <!-- Data ditaruh di sini per kategori/status -->
-                </div>
+                <div id="asset-list-container" class="space-y-4"></div>
+            </div>
+
+            <!-- TAB: TEAM (ADMIN ONLY) -->
+            <div id="view-team" class="hidden animate-fade space-y-4">
+                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1 inline-block">Manajemen Tim</h2>
+                <div id="team-list" class="grid gap-3"></div>
             </div>
 
             <!-- TAB: PROFIL -->
             <div id="view-profile" class="hidden animate-fade space-y-4">
                 <div class="card-dark p-6 rounded-2xl border-t-4 border-t-ygsred flex flex-col items-center text-center">
                     <div class="w-20 h-20 bg-gray-100 dark:bg-zinc-900 rounded-full flex items-center justify-center font-black text-3xl text-ygsred uppercase mb-4" id="profile-initial"></div>
-                    <h3 id="profile-fullname" class="text-xl font-black uppercase mb-1 text-gray-900 dark:text-white"></h3>
-                    <p id="profile-position" class="text-xs font-bold text-ygsred uppercase tracking-widest mb-4"></p>
-                    <button onclick="logout()" class="w-full bg-red-50 dark:bg-red-950/20 text-ygsred py-3 rounded-xl font-black text-xs uppercase border border-red-200 dark:border-red-900/50">Logout (Keluar)</button>
+                    <h3 id="profile-fullname" class="text-xl font-black uppercase mb-1"></h3>
+                    <p id="profile-position" class="text-xs font-bold text-gray-500 uppercase mb-6"></p>
+                    
+                    <!-- REKAP GAJI -->
+                    <div class="w-full grid grid-cols-3 gap-2 mb-6">
+                        <div class="bg-green-50 dark:bg-green-950/20 p-2 rounded-xl border border-green-100 dark:border-green-900/50">
+                            <p class="text-[8px] font-black uppercase text-green-600">Total Fee</p>
+                            <p id="prof-fee" class="text-[10px] font-black text-gray-900 dark:text-white">Rp 0</p>
+                        </div>
+                        <div class="bg-red-50 dark:bg-red-950/20 p-2 rounded-xl border border-red-100 dark:border-red-900/50">
+                            <p class="text-[8px] font-black uppercase text-red-600">Kas Bon</p>
+                            <p id="prof-bon" class="text-[10px] font-black text-gray-900 dark:text-white">Rp 0</p>
+                        </div>
+                        <div class="bg-blue-50 dark:bg-blue-950/20 p-2 rounded-xl border border-blue-100 dark:border-blue-900/50">
+                            <p class="text-[8px] font-black uppercase text-blue-600">Sisa</p>
+                            <p id="prof-sisa" class="text-[10px] font-black text-gray-900 dark:text-white">Rp 0</p>
+                        </div>
+                    </div>
+
+                    <button onclick="logout()" class="w-full bg-red-50 dark:bg-red-950/20 text-ygsred py-3 rounded-xl font-black text-xs uppercase border border-red-200 dark:border-red-900/50">Keluar Sistem</button>
                 </div>
-                <div class="card-dark p-5 rounded-2xl">
-                    <h3 class="text-[10px] font-black uppercase mb-3 text-gray-500">Riwayat Penugasan</h3>
+                <div class="card-dark p-4 rounded-2xl">
+                    <h3 class="text-[10px] font-black uppercase mb-3 text-gray-500">Rincian Pendapatan per Event</h3>
                     <div id="profile-history" class="space-y-2"></div>
                 </div>
             </div>
@@ -233,20 +255,21 @@
         </main>
 
         <!-- NAVIGATION -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t border-gray-200 dark:border-zinc-800 flex justify-around p-2 z-[100] backdrop-blur-md">
-            <button onclick="switchTab('list')" class="flex flex-col items-center gap-1 text-gray-400 p-2 rounded-xl" id="nav-list"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold">JADWAL</span></button>
-            <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 text-gray-400 p-2 rounded-xl" id="nav-chat"><i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold">CHAT</span></button>
-            <button onclick="switchTab('assets')" class="flex flex-col items-center gap-1 text-gray-400 p-2 rounded-xl" id="nav-assets"><i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold">ASET</span></button>
-            <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2 rounded-xl" id="nav-profile"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[8px] font-bold">PROFIL</span></button>
+        <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t dark:border-zinc-800 flex justify-around p-2 z-[100] backdrop-blur-md overflow-x-auto hide-scrollbar">
+            <button onclick="switchTab('list')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-list"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold">JADWAL</span></button>
+            <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-chat"><i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold">CHAT</span></button>
+            <button onclick="switchTab('add')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold">CREATE</span></button>
+            <button onclick="switchTab('assets')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-assets"><i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold">ASET</span></button>
+            <button onclick="switchTab('team')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold">TIM</span></button>
+            <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-profile"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[8px] font-bold">PROFIL</span></button>
         </nav>
     </div>
 
     <script>
-        // API URL
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz6alw0e-EwkuHNc0g0L25WOUo-Dx_LyLsaf7DEBOVUGZlr7bTD6hJXWv66mFobfDM/exec'; 
-        
         let currentUser = null;
         let allProjects = [];
+        let allUsers = [];
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
         let activeAgendaView = 'kalender';
@@ -264,6 +287,8 @@
             setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
         }
 
+        function formatRp(v) { return "Rp " + (Number(v) || 0).toLocaleString('id-ID'); }
+
         async function apiCall(payload) {
             try {
                 const res = await fetch(SCRIPT_URL, {
@@ -273,8 +298,7 @@
                 });
                 return JSON.parse(await res.text());
             } catch (e) {
-                console.error("API Error:", e);
-                return { success: false, message: "Koneksi ke server gagal" };
+                return { success: false, message: "Koneksi gagal" };
             }
         }
 
@@ -292,38 +316,16 @@
 
         function generateCaptcha() {
             const n1 = Math.floor(Math.random() * 10); const n2 = Math.floor(Math.random() * 10);
-            window.capAns = n1 + n2;
-            document.getElementById('captcha-question').innerText = `${n1} + ${n2}`;
-        }
-
-        function sendSimulatedOTP() {
-            alert("Simulasi OTP: 1234 telah dikirim ke WA Anda.");
-            document.getElementById('reg-otp').classList.remove('hidden');
-            window.simOtp = "1234";
+            window.capAns = n1 + n2; document.getElementById('captcha-question').innerText = `${n1} + ${n2}`;
         }
 
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
-            showLoading(true, 'Masuk...');
+            showLoading(true, 'Login...');
             const res = await apiCall({ action: 'LOGIN', payload: { username: document.getElementById('log-username').value.toLowerCase(), password: document.getElementById('log-password').value } });
             showLoading(false);
             if(res && res.success) { currentUser = res.user; localStorage.setItem('ygsUserEx', JSON.stringify(currentUser)); initApp(); } 
-            else showToast(res.message || "Login gagal", true);
-        };
-
-        document.getElementById('register-form').onsubmit = async (e) => {
-            e.preventDefault();
-            if(parseInt(document.getElementById('reg-captcha').value) !== window.capAns) { showToast("Captcha salah", true); return; }
-            if(document.getElementById('reg-otp').value !== window.simOtp) { showToast("OTP salah", true); return; }
-            showLoading(true, 'Daftar...');
-            const p = { 
-                fullName: document.getElementById('reg-fullname').value, nickname: document.getElementById('reg-nickname').value, 
-                position: document.getElementById('reg-position').value, phone: document.getElementById('reg-phone').value,
-                username: document.getElementById('reg-username').value.toLowerCase(), password: document.getElementById('reg-password').value
-            };
-            const res = await apiCall({ action: 'REGISTER', payload: p });
-            showLoading(false);
-            if(res && res.success) { showToast("Berhasil! Silakan Login."); toggleAuth('login'); } else showToast(res.message, true);
+            else showToast(res.message, true);
         };
 
         function initApp() {
@@ -333,244 +335,246 @@
             document.getElementById('profile-fullname').innerText = currentUser.fullName;
             document.getElementById('profile-position').innerText = currentUser.position;
             document.getElementById('profile-initial').innerText = (currentUser.nickname || currentUser.fullName).substring(0,2);
+            
+            // Hak Akses Admin
+            if(currentUser.role === 'admin') {
+                document.getElementById('nav-add').classList.remove('hidden');
+                document.getElementById('nav-team').classList.remove('hidden');
+            }
+
             fetchData();
             switchTab('list');
         }
 
-        function logout() { localStorage.removeItem('ygsUserEx'); location.reload(); }
-
         function switchTab(tab) {
-            ['view-list', 'view-chat', 'view-assets', 'view-profile'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-team', 'view-profile'].forEach(v => {
+                const el = document.getElementById(v); if(el) el.classList.add('hidden');
+            });
             document.getElementById('view-' + tab).classList.remove('hidden');
-            ['nav-list', 'nav-chat', 'nav-assets', 'nav-profile'].forEach(n => {
-                const nav = document.getElementById(n);
+            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-team', 'nav-profile'].forEach(n => {
+                const nav = document.getElementById(n); if(!nav) return;
                 nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
                 if(n === 'nav-' + tab) nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
             });
             if(tab === 'chat') renderChat();
             if(tab === 'assets') renderAssets();
+            if(tab === 'team') renderTeam();
             if(tab === 'profile') renderProfileSchedule();
             window.scrollTo(0,0);
         }
 
         async function fetchData() {
             showLoading(true, 'Sync...');
-            const res = await apiCall({ action: 'GET_DATA' });
+            const resData = await apiCall({ action: 'GET_DATA' });
+            const resUsers = await apiCall({ action: 'GET_USERS' });
             showLoading(false);
-            if(res && res.success) { allProjects = res.data; applyAgendaView(); }
+            if(resData && resData.success) { allProjects = resData.data; applyAgendaView(); }
+            if(resUsers && resUsers.success) { 
+                allUsers = resUsers.data; 
+                document.getElementById('list-crew').innerHTML = allUsers.map(u => `<option value="${u.nickname || u.fullName}">`).join('');
+            }
         }
 
-        // --- INVENTARIS ASET (REVISI V22: CATATAN PUBLIK UNTUK SEMUA KRU) ---
-
+        // --- ASSETS ---
         function openAssetModal() { document.getElementById('modal-asset').classList.remove('hidden'); }
         function closeAssetModal() { document.getElementById('modal-asset').classList.add('hidden'); document.getElementById('form-asset').reset(); }
-
+        
         document.getElementById('form-asset').onsubmit = async (e) => {
             e.preventDefault();
-            const payload = { 
-                name: document.getElementById('ast-name').value, 
-                cat: document.getElementById('ast-cat').value, 
-                qty: document.getElementById('ast-qty').value,
-                status: 'Baik',
-                note: ''
-            };
-            showLoading(true);
-            await apiCall({ action: 'SAVE_ASSET', payload });
-            showLoading(false);
-            closeAssetModal();
-            renderAssets();
+            const p = { name: document.getElementById('ast-name').value, cat: document.getElementById('ast-cat').value, qty: document.getElementById('ast-qty').value, status: 'Baik', note: '' };
+            showLoading(true); await apiCall({ action: 'SAVE_ASSET', payload: p }); showLoading(false);
+            closeAssetModal(); renderAssets();
         };
 
-        async function updateAssetStatus(id, newStatus) {
-            showLoading(true, 'Update status...');
-            const res = await apiCall({ action: 'UPDATE_ASSET_STATUS', payload: { id, status: newStatus } });
-            showLoading(false);
-            if(res && res.success) showToast("Status diperbarui"); else showToast("Gagal update", true);
+        async function updateAssetStatus(id, s) {
+            showLoading(true); await apiCall({ action: 'UPDATE_ASSET_STATUS', payload: { id, status: s } }); showLoading(false);
         }
 
-        async function updateAssetNote(id, newNote) {
-            showLoading(true, 'Menyimpan catatan...');
-            const res = await apiCall({ action: 'UPDATE_ASSET_NOTE', payload: { id, note: newNote } });
-            showLoading(false);
-            if(res && res.success) showToast("Catatan tersimpan"); else showToast("Gagal simpan catatan", true);
+        async function updateAssetNote(id, n) {
+            showLoading(true); await apiCall({ action: 'UPDATE_ASSET_NOTE', payload: { id, note: n } }); showLoading(false);
         }
 
         async function renderAssets() {
             const container = document.getElementById('asset-list-container');
             const sortBy = document.getElementById('asset-sort-by').value;
-            container.innerHTML = '<p class="text-center text-[10px] animate-pulse">Menarik data aset...</p>';
-            
             const res = await apiCall({ action: 'GET_ASSETS' });
-            if(!res || !res.success) { container.innerHTML = '<p class="text-center text-red-500 text-[10px]">Gagal memuat data.</p>'; return; }
+            if(!res || !res.success) return;
             
-            const data = res.data || [];
-            if(data.length === 0) { container.innerHTML = '<p class="text-center text-gray-500 text-[10px]">Gudang Kosong.</p>'; return; }
-
-            // Kelompokkan berdasarkan pilihan sort (Category atau Status)
             const groups = {};
-            data.forEach(a => {
-                const groupKey = a[sortBy] || 'Lainnya';
-                if(!groups[groupKey]) groups[groupKey] = [];
-                groups[groupKey].push(a);
+            res.data.forEach(a => {
+                const k = a[sortBy] || 'Lainnya';
+                if(!groups[k]) groups[k] = []; groups[k].push(a);
             });
 
-            const sortedKeys = Object.keys(groups).sort();
-            
-            container.innerHTML = sortedKeys.map(key => {
-                const items = groups[key].sort((a,b) => a.name.localeCompare(b.name));
+            container.innerHTML = Object.keys(groups).sort().map(k => {
                 return `
-                    <div class="card-dark rounded-xl overflow-hidden shadow-sm">
-                        <div class="bg-gray-100 dark:bg-zinc-900 px-4 py-2 border-b dark:border-zinc-800">
-                            <h3 class="text-[10px] font-black uppercase text-ygsred tracking-widest">${key}</h3>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-[10px]">
-                                <thead class="bg-gray-50 dark:bg-zinc-900/50 text-gray-400 uppercase font-black">
-                                    <tr>
-                                        <th class="p-3">Alat</th>
-                                        <th class="p-3 text-center">Qty</th>
-                                        <th class="p-3 text-center">Status</th>
-                                        <th class="p-3">Catatan (Publik)</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y dark:divide-zinc-800">
-                                    ${items.map(a => {
-                                        const isAdmin = currentUser.role === 'admin';
-                                        const statuses = ['Baik', 'Rusak', 'Service', 'Hilang'];
-                                        const colors = { 'Baik': 'text-green-500', 'Rusak': 'text-red-500', 'Service': 'text-yellow-500', 'Hilang': 'text-gray-500' };
-                                        
-                                        let statusHtml = '';
-
-                                        // Status tetap Admin-only untuk keamanan validasi
-                                        if(isAdmin) {
-                                            statusHtml = `
-                                                <select onchange="updateAssetStatus('${a.id}', this.value)" class="bg-transparent border-none font-bold focus:ring-0 ${colors[a.status] || ''}">
-                                                    ${statuses.map(s => `<option value="${s}" ${a.status === s ? 'selected' : ''}>${s}</option>`).join('')}
-                                                </select>`;
-                                        } else {
-                                            statusHtml = `<span class="font-bold ${colors[a.status] || ''}">${a.status || 'Baik'}</span>`;
-                                        }
-
-                                        // REVISI V22: Kolom Catatan selalu input text agar bisa diisi siapa saja
-                                        const noteHtml = `<input type="text" value="${a.note || ''}" onblur="updateAssetNote('${a.id}', this.value)" placeholder="Tambah catatan..." class="bg-transparent border-b border-gray-200 dark:border-zinc-800 w-full focus:border-ygsred outline-none text-[10px] py-1">`;
-
-                                        return `
-                                            <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30">
-                                                <td class="p-3 font-bold dark:text-zinc-200 uppercase">${a.name}</td>
-                                                <td class="p-3 text-center font-black">${a.qty}</td>
-                                                <td class="p-3 text-center">${statusHtml}</td>
-                                                <td class="p-3">${noteHtml}</td>
-                                            </tr>
-                                        `;
-                                    }).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // --- CHAT ---
-
-        async function renderChat() {
-            const container = document.getElementById('chat-container');
-            container.innerHTML = '<p class="text-center animate-pulse text-[10px]">Loading chat...</p>';
-            const res = await apiCall({ action: 'GET_CHATS' });
-            if(!res || !res.success) return;
-            const chats = res.data || [];
-            if(chats.length === 0) { container.innerHTML = '<p class="text-center text-gray-500 text-[10px] mt-10">Belum ada obrolan.</p>'; return; }
-            container.innerHTML = chats.map(c => {
-                const isMe = c.sender === (currentUser.nickname || currentUser.fullName);
-                return `<div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                    <span class="text-[8px] font-bold text-gray-500 mb-0.5">${c.sender} • ${new Date(c.time).toLocaleTimeString()}</span>
-                    <div class="px-3 py-2 rounded-2xl max-w-[85%] text-xs font-bold ${isMe ? 'bg-ygsred text-white rounded-br-none' : 'bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white rounded-bl-none'}">${c.msg}</div>
+                <div class="card-dark rounded-xl overflow-hidden">
+                    <div class="bg-gray-100 dark:bg-zinc-900 px-4 py-2 border-b dark:border-zinc-800"><h3 class="text-[9px] font-black uppercase text-ygsred">${k}</h3></div>
+                    <table class="w-full text-[10px]">
+                        <tbody class="divide-y dark:divide-zinc-800">
+                            ${groups[k].map(a => `
+                            <tr>
+                                <td class="p-3 font-bold uppercase">${a.name}</td>
+                                <td class="p-3 text-center font-black">${a.qty}</td>
+                                <td class="p-3">
+                                    <select onchange="updateAssetStatus('${a.id}', this.value)" class="bg-transparent border-none focus:ring-0 font-bold ${a.status==='Baik'?'text-green-500':'text-red-500'}">
+                                        <option value="Baik" ${a.status==='Baik'?'selected':''}>Baik</option>
+                                        <option value="Rusak" ${a.status==='Rusak'?'selected':''}>Rusak</option>
+                                        <option value="Service" ${a.status==='Service'?'selected':''}>Service</option>
+                                        <option value="Hilang" ${a.status==='Hilang'?'selected':''}>Hilang</option>
+                                    </select>
+                                </td>
+                                <td class="p-3"><input type="text" value="${a.note||''}" onblur="updateAssetNote('${a.id}', this.value)" placeholder="..." class="bg-transparent border-b border-gray-200 dark:border-zinc-800 w-full outline-none"></td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>
                 </div>`;
             }).join('');
-            container.scrollTop = container.scrollHeight;
         }
 
-        document.getElementById('chat-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const inp = document.getElementById('chat-input'); const msg = inp.value.trim(); if(!msg) return;
-            inp.value = '';
-            await apiCall({ action: 'ADD_CHAT', payload: { sender: currentUser.nickname || currentUser.fullName, msg, time: new Date().toISOString() } });
-            renderChat();
-        };
+        // --- FINANCE & TEAM ---
+        function renderTeam() {
+            const list = document.getElementById('team-list');
+            list.innerHTML = allUsers.map(u => `
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl flex justify-between items-center border dark:border-zinc-800">
+                <div><p class="font-black text-sm uppercase">${u.fullName}</p><p class="text-[10px] text-ygsred font-bold uppercase">${u.position}</p></div>
+                <button onclick="openFinanceModal('${u.nickname || u.fullName}')" class="text-blue-500 p-2"><i data-lucide="wallet"></i></button>
+            </div>`).join('');
+            lucide.createIcons();
+        }
+
+        function openFinanceModal(n) {
+            document.getElementById('finance-crew-name').innerText = n;
+            const container = document.getElementById('finance-modal-list');
+            const crewEvents = allProjects.filter(p => JSON.stringify(p.manpower || {}).includes(n));
+            container.innerHTML = crewEvents.map(p => {
+                const f = (p.finance && p.finance[n]) || { fee: 0, bon: 0 };
+                return `
+                <div class="bg-gray-50 dark:bg-zinc-900 p-3 rounded-xl finance-row" data-pid="${p.id}">
+                    <p class="text-[9px] font-black uppercase mb-2">${p.eventName}</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" class="fin-fee p-2 rounded input-dark" placeholder="Fee" value="${f.fee}">
+                        <input type="number" class="fin-bon p-2 rounded input-dark" placeholder="Bon" value="${f.bon}">
+                    </div>
+                </div>`;
+            }).join('') || '<p class="text-center text-xs">Belum ada event</p>';
+            document.getElementById('modal-finance').classList.remove('hidden');
+        }
+
+        function closeFinanceModal() { document.getElementById('modal-finance').classList.add('hidden'); }
+
+        async function saveFinance() {
+            const n = document.getElementById('finance-crew-name').innerText;
+            const data = [];
+            document.querySelectorAll('.finance-row').forEach(row => {
+                data.push({ projectId: row.dataset.pid, fee: row.querySelector('.fin-fee').value, bon: row.querySelector('.fin-bon').value });
+            });
+            showLoading(true); await apiCall({ action: 'UPDATE_FINANCE', payload: { crewName: n, data } }); showLoading(false);
+            closeFinanceModal(); fetchData();
+        }
+
+        function renderProfileSchedule() {
+            const n = currentUser.nickname || currentUser.fullName;
+            const matches = allProjects.filter(p => JSON.stringify(p.manpower || {}).includes(n));
+            let tFee = 0, tBon = 0;
+            const history = document.getElementById('profile-history');
+            history.innerHTML = matches.map(p => {
+                const f = (p.finance && p.finance[n]) || { fee: 0, bon: 0 };
+                tFee += Number(f.fee); tBon += Number(f.bon);
+                return `
+                <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg flex justify-between items-center text-[9px] font-bold">
+                    <span>${p.eventName}</span>
+                    <div class="text-right">
+                        <p class="text-green-600">+ ${formatRp(f.fee)}</p>
+                        <p class="text-red-500">- ${formatRp(f.bon)}</p>
+                    </div>
+                </div>`;
+            }).join('') || '<p class="text-center text-[8px]">Belum ada riwayat</p>';
+            document.getElementById('prof-fee').innerText = formatRp(tFee);
+            document.getElementById('prof-bon').innerText = formatRp(tBon);
+            document.getElementById('prof-sisa').innerText = formatRp(tFee - tBon);
+        }
 
         // --- JADWAL ---
+        document.getElementById('event-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const p = { 
+                id: document.getElementById('edit-id').value || 'YGS-' + Date.now(), 
+                eventName: document.getElementById('eventName').value, 
+                artist: document.getElementById('artist').value, 
+                eventDate: document.getElementById('startDate').value, 
+                status: document.getElementById('evStatus').value,
+                manpower: { pic: document.getElementById('pic').value, others: document.getElementById('manpower-input').value }
+            };
+            showLoading(true); await apiCall({ action: 'ADD_DATA', payload: p }); showLoading(false);
+            switchTab('list'); fetchData();
+        };
 
-        function setAgendaView(mode) {
-            activeAgendaView = mode;
-            ['kalender', 'semua', 'saya'].forEach(m => {
-                const btn = document.getElementById('btn-view-' + m);
-                btn.classList.toggle('bg-white', m === mode);
-                btn.classList.toggle('dark:bg-black', m === mode);
-                btn.classList.toggle('text-ygsred', m === mode);
-                btn.classList.toggle('text-gray-500', m !== mode);
-            }); applyAgendaView();
-        }
-
+        function setAgendaView(m) { activeAgendaView = m; applyAgendaView(); }
         function applyAgendaView() {
-            const wrapCal = document.getElementById('wrapper-kalender');
-            const container = document.getElementById('project-container');
-            if(activeAgendaView === 'kalender') { wrapCal.classList.remove('hidden'); renderCalendar(); }
+            const wrap = document.getElementById('wrapper-kalender');
+            const cont = document.getElementById('project-container');
+            wrap.classList.toggle('hidden', activeAgendaView !== 'kalender');
+            if(activeAgendaView === 'kalender') renderCalendar();
             else {
-                wrapCal.classList.add('hidden');
-                let filtered = activeAgendaView === 'semua' ? allProjects : allProjects.filter(p => JSON.stringify(p.manpower || {}).includes(currentUser.nickname || currentUser.fullName));
-                container.innerHTML = filtered.map(p => renderEventCard(p)).join('') || '<p class="text-center text-gray-500 text-[10px]">Kosong.</p>';
-                if(typeof lucide !== 'undefined') lucide.createIcons();
+                let filtered = allProjects;
+                if(activeAgendaView === 'saya') filtered = allProjects.filter(p => JSON.stringify(p.manpower || {}).includes(currentUser.nickname || currentUser.fullName));
+                cont.innerHTML = filtered.map(p => renderEventCard(p)).join('') || '<p class="text-center text-xs">Kosong</p>';
+                lucide.createIcons();
             }
         }
 
         function renderEventCard(p) {
-            const dateStr = new Date(p.eventDate).toLocaleDateString('id-ID', {day:'numeric', month:'short'});
-            return `<div onclick="viewDetail('${p.id}')" class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred flex justify-between items-center cursor-pointer mb-3">
-                <div>
-                    <h3 class="font-black text-sm uppercase text-gray-900 dark:text-white">${p.eventName}</h3>
-                    <p class="text-[10px] text-ygsred font-bold uppercase">${p.artist}</p>
-                    <p class="text-[9px] text-gray-500 mt-1">${dateStr}</p>
-                </div>
-                <i data-lucide="chevron-right" class="text-gray-400 w-4 h-4"></i>
+            return `
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred flex justify-between items-center shadow-sm">
+                <div><h3 class="font-black text-sm uppercase">${p.eventName}</h3><p class="text-[10px] text-ygsred font-black uppercase">${p.artist}</p></div>
+                <div class="flex gap-2">${currentUser.role==='admin'?`<button onclick="deleteEvent('${p.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`:''}<i data-lucide="chevron-right" class="text-gray-400"></i></div>
             </div>`;
+        }
+
+        async function deleteEvent(id) {
+            if(!confirm("Hapus?")) return; showLoading(true);
+            await apiCall({ action: 'DELETE_DATA', payload: { id } }); showLoading(false); fetchData();
         }
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
-            const title = document.getElementById('cal-month-year');
             grid.innerHTML = '';
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            title.innerText = `${months[currentMonth]} ${currentYear}`;
-            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            const eventMap = {};
-            allProjects.forEach(p => { const d = p.eventDate.split('T')[0]; if(!eventMap[d]) eventMap[d]=[]; eventMap[d].push(p); });
-            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="cal-day empty"></div>`;
+            document.getElementById('cal-month-year').innerText = new Date(currentYear, currentMonth).toLocaleDateString('id-ID', {month:'long', year:'numeric'});
             for(let i=1; i<=daysInMonth; i++) {
-                const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                const hasEvent = eventMap[dateStr] && eventMap[dateStr].length > 0;
-                grid.innerHTML += `<div class="cal-day ${hasEvent ? 'has-event' : 'no-event'}" onclick="showEventsOnDate('${dateStr}')">${i}</div>`;
+                const dStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                const hasE = allProjects.some(p => p.eventDate === dStr);
+                grid.innerHTML += `<div class="cal-day ${hasE?'has-event':''}" onclick="showEventsOnDate('${dStr}')">${i}</div>`;
             }
         }
 
-        function showEventsOnDate(dateStr) {
-            const filtered = allProjects.filter(p => p.eventDate.startsWith(dateStr));
-            document.getElementById('project-container').innerHTML = filtered.map(p => renderEventCard(p)).join('') || '<p class="text-center text-red-500 text-[10px] uppercase font-bold p-10 bg-red-50 dark:bg-red-950/20 rounded-xl">Free / Kosong</p>';
-            if(typeof lucide !== 'undefined') lucide.createIcons();
+        function showEventsOnDate(d) {
+            const f = allProjects.filter(p => p.eventDate === d);
+            document.getElementById('project-container').innerHTML = f.map(p => renderEventCard(p)).join('') || '<p class="text-center p-10 text-red-500 font-bold">KOSONG</p>';
+            lucide.createIcons();
         }
 
-        function changeMonth(dir) { currentMonth += dir; if(currentMonth>11){currentMonth=0;currentYear++} if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(); }
+        function changeMonth(v) { currentMonth += v; if(currentMonth>11){currentMonth=0;currentYear++} if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(); }
 
-        function renderProfileSchedule() {
-            const crewName = currentUser.nickname || currentUser.fullName;
-            const matches = allProjects.filter(p => JSON.stringify(p.manpower || {}).includes(crewName));
-            document.getElementById('profile-history').innerHTML = matches.map(p => `
-                <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg text-[9px] font-bold uppercase flex justify-between">
-                    <span>${p.eventName}</span>
-                    <span class="text-ygsred">${new Date(p.eventDate).toLocaleDateString()}</span>
-                </div>
-            `).join('') || '<p class="text-center text-gray-500 text-[8px]">Belum ada data.</p>';
+        async function renderChat() {
+            const cont = document.getElementById('chat-container');
+            const res = await apiCall({ action: 'GET_CHATS' });
+            if(!res || !res.success) return;
+            cont.innerHTML = res.data.map(c => {
+                const isMe = c.sender === (currentUser.nickname || currentUser.fullName);
+                return `<div class="flex flex-col ${isMe?'items-end':'items-start'}"><span class="text-[8px] font-bold text-gray-500">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold ${isMe?'bg-ygsred text-white':'bg-gray-100 dark:bg-zinc-800'}">${c.msg}</div></div>`;
+            }).join('');
+            cont.scrollTop = cont.scrollHeight;
         }
+
+        document.getElementById('chat-form').onsubmit = async (e) => {
+            e.preventDefault(); const i = document.getElementById('chat-input');
+            const p = { sender: currentUser.nickname || currentUser.fullName, msg: i.value, time: new Date().toISOString() };
+            i.value = ''; await apiCall({ action: 'ADD_CHAT', payload: p }); renderChat();
+        };
+
+        function logout() { localStorage.removeItem('ygsUserEx'); location.reload(); }
 
     </script>
 </body>
