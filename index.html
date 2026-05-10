@@ -128,7 +128,7 @@
                 <h3 class="text-sm font-black uppercase text-ygsred truncate pr-2" id="detail-title">Detail Event</h3>
                 <button onclick="closeEventDetail()" class="text-gray-500 hover:text-red-500 bg-gray-200 dark:bg-zinc-800 p-1.5 rounded-lg transition"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-5 overflow-y-auto space-y-5 flex-1 w-full" id="detail-content"></div>
+            <div class="p-5 overflow-y-auto space-y-4 flex-1 w-full" id="detail-content"></div>
         </div>
     </div>
 
@@ -159,7 +159,7 @@
                 <input type="text" id="log-username" class="w-full p-3 rounded-lg input-dark font-bold" placeholder="Username" required>
                 <input type="password" id="log-password" class="w-full p-3 rounded-lg input-dark font-bold" placeholder="Password" required>
                 <button type="submit" class="w-full btn-red py-3.5 rounded-lg font-black text-sm uppercase tracking-widest">Login</button>
-                <p class="text-[10px] text-gray-500 mt-4 uppercase font-bold">Kru Baru? <a href="#" onclick="toggleAuth('register')" class="text-ygsred underline">Daftar Akun</a></p>
+                <p class="text-[10px] text-gray-500 mt-4 uppercase font-bold">Crew Baru? <a href="#" onclick="toggleAuth('register')" class="text-ygsred underline">Daftar Akun</a></p>
             </form>
 
             <form id="register-form" class="space-y-3 hidden">
@@ -403,7 +403,7 @@
             <!-- TAB: TEAM (ADMIN) -->
             <div id="view-team" class="hidden animate-fade space-y-4 pb-10">
                 <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1">Manajemen Tim & Keuangan</h2>
-                <p class="text-[9px] text-gray-500 uppercase font-bold italic mb-4">Master kontrol akuntansi kru. Edit Total Pendapatan & Bon disini.</p>
+                <p class="text-[9px] text-gray-500 uppercase font-bold italic mb-4">Master kontrol akuntansi crew. Edit Total Pendapatan, Bon, & Pencairan disini.</p>
                 <div class="grid gap-3" id="team-list"></div>
             </div>
 
@@ -710,39 +710,26 @@
 
             let specHTML = '';
             if(p.specDyn) {
-                let audioStr = '';
-                if(p.specDyn.audio) {
-                    Object.keys(p.specDyn.audio).forEach(k => {
-                        let items = p.specDyn.audio[k];
-                        if(items && items.length) {
-                            audioStr += `<div class="mb-1"><b class="uppercase text-[8px] text-blue-500">${k}:</b> <span class="text-gray-700 dark:text-gray-300">` + items.map(i => `${i.qty} ${i.brand} ${i.jenis ? `(${i.jenis})` : ''}`).join(', ') + `</span></div>`;
-                        }
-                    });
-                }
-                let lightStr = '';
-                if(p.specDyn.lighting) {
-                    p.specDyn.lighting.forEach(l => {
-                        if(l.data && l.data.length) {
-                            lightStr += `<div class="mb-1"><b class="uppercase text-[8px] text-orange-500">${l.sub}:</b> <span class="text-gray-700 dark:text-gray-300">` + l.data.map(i => `${i.qty} ${i.brand} ${i.jenis ? `(${i.jenis})` : ''}`).join(', ') + `</span></div>`;
-                        }
-                    });
-                }
-                let otherStr = '';
-                ['led', 'rigging', 'genset', 'barikade'].forEach(k => {
-                    let items = p.specDyn[k];
-                    if(items && items.length) {
-                        otherStr += `<div class="mb-1"><b class="uppercase text-[8px] text-green-500">${k}:</b> <span class="text-gray-700 dark:text-gray-300">` + items.map(i => `${i.qty} ${i.brand} ${i.jenis ? `(${i.jenis})` : ''}`).join(', ') + `</span></div>`;
-                    }
-                });
+                const buildTableRows = (title, items) => {
+                    if(!items || !items.length) return '';
+                    return items.map(i => `<tr class="border-b dark:border-zinc-800/50"><td class="p-1.5 font-bold uppercase text-[8px] text-gray-500">${title}</td><td class="p-1.5">${i.brand} ${i.jenis ? `(${i.jenis})` : ''}</td><td class="p-1.5 text-center font-black">${i.qty}</td></tr>`).join('');
+                };
+
+                let audioRows = '';
+                if(p.specDyn.audio) Object.keys(p.specDyn.audio).forEach(k => { audioRows += buildTableRows(k, p.specDyn.audio[k]); });
+
+                let lightRows = '';
+                if(p.specDyn.lighting) p.specDyn.lighting.forEach(l => { lightRows += buildTableRows(l.sub, l.data); });
+
+                let otherRows = '';
+                ['led', 'rigging', 'genset', 'barikade'].forEach(k => { if(p.specDyn[k]) otherRows += buildTableRows(k, p.specDyn[k]); });
+
+                const wrapTable = (title, rows, color) => rows ? `<div class="mb-3"><span class="text-[9px] font-black text-${color}-600 block mb-1 uppercase">${title}</span><div class="border dark:border-zinc-800 rounded-lg overflow-hidden"><table class="w-full text-left text-[9px] text-gray-700 dark:text-gray-300"><thead class="bg-gray-100 dark:bg-zinc-800/50 uppercase text-[7px] text-gray-500"><tr><th class="p-1.5 w-1/3">Kategori</th><th class="p-1.5">Alat / Item</th><th class="p-1.5 text-center w-12">Qty</th></tr></thead><tbody>${rows}</tbody></table></div></div>` : '';
 
                 specHTML = `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
                     <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Spesifikasi Produksi</h4>
-                    <div class="text-[9px] font-bold space-y-2">
-                        ${audioStr ? `<div><span class="text-[9px] font-black text-gray-900 dark:text-white block mb-1">AUDIO</span>${audioStr}</div>` : ''}
-                        ${lightStr ? `<div><span class="text-[9px] font-black text-gray-900 dark:text-white block mb-1 mt-2">LIGHTING</span>${lightStr}</div>` : ''}
-                        ${otherStr ? `<div><span class="text-[9px] font-black text-gray-900 dark:text-white block mb-1 mt-2">PENDUKUNG</span>${otherStr}</div>` : ''}
-                        ${(!audioStr && !lightStr && !otherStr) ? '<p class="text-gray-500 italic">Belum ada data spesifikasi terlampir.</p>' : ''}
-                    </div>
+                    ${wrapTable('Audio', audioRows, 'blue')}${wrapTable('Lighting', lightRows, 'orange')}${wrapTable('Pendukung', otherRows, 'green')}
+                    ${(!audioRows && !lightRows && !otherRows) ? '<p class="text-[9px] text-gray-500 italic">Belum ada data spesifikasi terlampir.</p>' : ''}
                 </div>`;
             }
 
@@ -766,15 +753,32 @@
                 </div>
 
                 <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
-                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Plotting Crew</h4>
-                    <div class="grid grid-cols-2 gap-3 text-[10px] font-bold text-gray-700 dark:text-gray-300">
-                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase">Divisi Audio</span>
-                            SE: ${p.manpower?.audio?.se || '-'}<br>FOH: ${p.manpower?.audio?.foh || '-'}
+                    <div class="flex justify-between items-center border-b dark:border-zinc-800 pb-1 mb-2">
+                        <h4 class="text-[10px] font-black uppercase text-ygsred">Plotting Crew</h4>
+                        <span class="text-[9px] font-black text-gray-700 dark:text-white bg-gray-200 dark:bg-zinc-800 px-2 py-0.5 rounded">PIC: ${p.manpower?.pic || '-'}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-[9px] font-bold text-gray-700 dark:text-gray-300">
+                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase border-b dark:border-zinc-800/50 pb-0.5">Divisi Audio</span>
+                            SE: ${p.manpower?.audio?.se || '-'}<br>
+                            FOH: ${p.manpower?.audio?.foh || '-'}<br>
+                            MOH: ${p.manpower?.audio?.moh || '-'}<br>
+                            RF: ${p.manpower?.audio?.rf || '-'}<br>
+                            Stage: ${p.manpower?.audio?.stg || '-'}<br>
+                            Ast: ${p.manpower?.audio?.ast || '-'}
                         </div>
-                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase">Divisi Lighting</span>
-                            LD: ${p.manpower?.lighting?.ld || '-'}<br>PTC: ${p.manpower?.lighting?.ptc || '-'}
+                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase border-b dark:border-zinc-800/50 pb-0.5">Divisi Lighting</span>
+                            LD: ${p.manpower?.lighting?.ld || '-'}<br>
+                            PTC: ${p.manpower?.lighting?.ptc || '-'}<br>
+                            Adr: ${p.manpower?.lighting?.adr || '-'}<br>
+                            Ast: ${p.manpower?.lighting?.ast || '-'}
                         </div>
-                        <div class="col-span-2"><span class="text-[8px] text-gray-400 block mb-1">PIC UTAMA</span><b>${p.manpower?.pic || '-'}</b></div>
+                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase border-b dark:border-zinc-800/50 pb-0.5">Roadies & Support</span>
+                            Head: ${p.manpower?.roadies?.head || '-'}<br>
+                            Roadies: ${[p.manpower?.roadies?.r1, p.manpower?.roadies?.r2, p.manpower?.roadies?.r3, p.manpower?.roadies?.r4].filter(Boolean).join(', ') || '-'}<br>
+                            Rigging: ${p.manpower?.support?.rigging || '-'}<br>
+                            Genset: ${p.manpower?.support?.genset || '-'}<br>
+                            Barikade: ${p.manpower?.support?.barikade || '-'}
+                        </div>
                     </div>
                 </div>
                 
@@ -795,45 +799,155 @@
             });
         }
 
+        // --- Helper: Format HTML List Spesifikasi khusus untuk ekspor PDF ---
+        function getSpecHTMLForPDF(p) {
+            if (!p.specDyn) return '<p>Tidak ada spesifikasi terlampir.</p>';
+            
+            const buildTableRows = (title, items) => {
+                if(!items || !items.length) return '';
+                return items.map(i => `<tr><td style="padding:4px; border:1px solid #ddd; text-transform:uppercase; font-size:10px;">${title}</td><td style="padding:4px; border:1px solid #ddd;">${i.brand} ${i.jenis ? `(${i.jenis})` : ''}</td><td style="padding:4px; border:1px solid #ddd; text-align:center; font-weight:bold;">${i.qty}</td></tr>`).join('');
+            };
+
+            const wrapTable = (title, rows, color) => rows ? `<h4 style="margin:10px 0 5px 0; color:${color}; font-size:12px; text-transform:uppercase;">${title}</h4><table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:10px;"><tr style="background:#f4f4f5;"><th style="padding:4px; border:1px solid #ddd; text-align:left; width:30%;">Kategori</th><th style="padding:4px; border:1px solid #ddd; text-align:left;">Alat / Item</th><th style="padding:4px; border:1px solid #ddd; text-align:center; width:15%;">Qty</th></tr>${rows}</table>` : '';
+
+            let audioRows = ''; if(p.specDyn.audio) Object.keys(p.specDyn.audio).forEach(k => { audioRows += buildTableRows(k, p.specDyn.audio[k]); });
+            let lightRows = ''; if(p.specDyn.lighting) p.specDyn.lighting.forEach(l => { lightRows += buildTableRows(l.sub, l.data); });
+            let otherRows = ''; ['led', 'rigging', 'genset', 'barikade'].forEach(k => { if(p.specDyn[k]) otherRows += buildTableRows(k, p.specDyn[k]); });
+
+            let h = wrapTable('Audio', audioRows, '#3b82f6') + wrapTable('Lighting', lightRows, '#f97316') + wrapTable('Pendukung', otherRows, '#10b981');
+            return h || '<p>Tidak ada rincian alat.</p>';
+        }
+
         function exportPDF(id) {
             const p = allProjects.find(x => x.id === id); if(!p) return;
+            
+            let transHTML = p.transportasi && p.transportasi.length ? p.transportasi.join(', ') : '-';
+            let actHTML = '';
+            if(p.activities && p.activities.length) {
+                actHTML = `<table style="width:100%; border-collapse: collapse; margin-top: 10px; font-size: 12px;">
+                    <tr style="background:#f4f4f5;"><th style="padding:5px; border:1px solid #ddd; text-align:left;">Tanggal</th><th style="padding:5px; border:1px solid #ddd; text-align:left;">Waktu</th><th style="padding:5px; border:1px solid #ddd; text-align:left;">Kegiatan</th></tr>`;
+                p.activities.forEach(a => {
+                    actHTML += `<tr><td style="padding:5px; border:1px solid #ddd;">${a.date}</td><td style="padding:5px; border:1px solid #ddd;">${a.startTime} - ${a.endTime}</td><td style="padding:5px; border:1px solid #ddd;">${(a.acts||[]).join(', ')}</td></tr>`;
+                });
+                actHTML += `</table>`;
+            }
+
             const div = document.createElement('div');
-            div.className = 'p-10 bg-white text-black font-sans';
-            div.style.width = '800px';
+            div.style.padding = '20px';
+            div.style.fontFamily = 'Arial, sans-serif';
+            div.style.color = '#000';
+            div.style.background = '#fff';
+            
             div.innerHTML = `
-                <div style="border-bottom: 2px solid #e50914; padding-bottom: 10px; margin-bottom: 20px; text-align: center;">
-                    <h1 style="color:#e50914; font-weight:900; margin:0;">YGS PRODUCTION</h1>
-                    <p style="margin:5px 0; font-weight:bold; text-transform:uppercase;">Crew Call & Event Details</p>
-                </div>
-                <h2 style="text-transform:uppercase; margin-bottom: 5px;">${p.eventName}</h2>
-                <p><b>Talent:</b> ${p.artist} | <b>Tanggal:</b> ${p.eventDate}</p>
-                <hr>
-                <h3>Plotting Manpower</h3>
-                <p><b>PIC Utama:</b> ${p.manpower?.pic}</p>
-                <div style="display: flex; gap: 40px;">
-                    <div>
-                        <p><b>AUDIO TEAM:</b></p>
-                        <ul style="list-style:none; padding:0;">
-                            <li>SE: ${p.manpower?.audio?.se || '-'}</li>
-                            <li>FOH: ${p.manpower?.audio?.foh || '-'}</li>
-                        </ul>
+                <div style="display: flex; align-items: center; border-bottom: 3px solid #e50914; padding-bottom: 15px; margin-bottom: 20px;">
+                    <div style="background-color: #e50914; padding: 10px; border-radius: 8px; margin-right: 15px;">
+                        <svg width="30" height="30" viewBox="0 0 100 100" fill="none"><path d="M30 35H45L55 65H40L30 35Z" fill="white"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
                     </div>
                     <div>
-                        <p><b>LIGHTING TEAM:</b></p>
-                        <ul style="list-style:none; padding:0;">
-                            <li>LD: ${p.manpower?.lighting?.ld || '-'}</li>
-                            <li>Patcher: ${p.manpower?.lighting?.ptc || '-'}</li>
-                        </ul>
+                        <h1 style="color:#e50914; font-weight:900; margin:0; font-size: 24px; text-transform: uppercase;">YGS PRODUCTION</h1>
+                        <p style="margin:2px 0 0 0; font-weight:bold; text-transform:uppercase; font-size: 12px; letter-spacing: 1px;">Detail Event & Crew Call</p>
                     </div>
                 </div>
-                <div style="margin-top: 50px; text-align: center; color: #888; font-size: 10px;">Generated by YGS Production App V32</div>
+
+                <h2 style="text-transform:uppercase; margin-bottom: 5px; font-size: 18px;">${p.eventName}</h2>
+                <div style="font-size: 12px; margin-bottom: 20px; line-height: 1.6;">
+                    <b>Talent:</b> ${p.artist} <br>
+                    <b>Status:</b> ${p.status} <br>
+                    <b>Klien/EO:</b> ${p.clientName || '-'} (${p.clientPhone || '-'}) <br>
+                    <b>Lokasi:</b> ${p.mapsLink || '-'} <br>
+                    <b>Tanggal:</b> ${p.eventDate} <br>
+                </div>
+
+                <h3 style="font-size: 14px; color: #e50914; border-bottom: 1px solid #eee; padding-bottom: 5px;">1. Operasional & Jadwal</h3>
+                <p style="font-size: 12px;"><b>Transportasi:</b> ${transHTML}</p>
+                ${actHTML}
+
+                <h3 style="font-size: 14px; color: #e50914; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px;">2. Plotting Crew</h3>
+                <p style="font-size: 12px;"><b>PIC Utama:</b> ${p.manpower?.pic || '-'}</p>
+                <div style="display: flex; gap: 20px; font-size: 12px; margin-top: 10px;">
+                    <div style="flex: 1;">
+                        <b style="color:#555;">AUDIO:</b><br>
+                        <table style="width:100%; font-size:11px;">
+                            <tr><td style="width:40%">SE</td><td>: ${p.manpower?.audio?.se || '-'}</td></tr>
+                            <tr><td>FOH</td><td>: ${p.manpower?.audio?.foh || '-'}</td></tr>
+                            <tr><td>MOH</td><td>: ${p.manpower?.audio?.moh || '-'}</td></tr>
+                            <tr><td>RF</td><td>: ${p.manpower?.audio?.rf || '-'}</td></tr>
+                            <tr><td>Stage</td><td>: ${p.manpower?.audio?.stg || '-'}</td></tr>
+                            <tr><td>Ast</td><td>: ${p.manpower?.audio?.ast || '-'}</td></tr>
+                        </table>
+                    </div>
+                    <div style="flex: 1;">
+                        <b style="color:#555;">LIGHTING:</b><br>
+                        <table style="width:100%; font-size:11px;">
+                            <tr><td style="width:40%">LD</td><td>: ${p.manpower?.lighting?.ld || '-'}</td></tr>
+                            <tr><td>Patcher</td><td>: ${p.manpower?.lighting?.ptc || '-'}</td></tr>
+                            <tr><td>Adr</td><td>: ${p.manpower?.lighting?.adr || '-'}</td></tr>
+                            <tr><td>Ast</td><td>: ${p.manpower?.lighting?.ast || '-'}</td></tr>
+                        </table>
+                    </div>
+                    <div style="flex: 1;">
+                        <b style="color:#555;">ROADIES & PENDUKUNG:</b><br>
+                        <table style="width:100%; font-size:11px;">
+                            <tr><td style="width:40%">Head</td><td>: ${p.manpower?.roadies?.head || '-'}</td></tr>
+                            <tr><td valign="top">Roadies</td><td>: ${[p.manpower?.roadies?.r1, p.manpower?.roadies?.r2, p.manpower?.roadies?.r3, p.manpower?.roadies?.r4].filter(Boolean).join(', ') || '-'}</td></tr>
+                            <tr><td>Rigging</td><td>: ${p.manpower?.support?.rigging || '-'}</td></tr>
+                            <tr><td>Genset</td><td>: ${p.manpower?.support?.genset || '-'}</td></tr>
+                            <tr><td>Barikade</td><td>: ${p.manpower?.support?.barikade || '-'}</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 14px; color: #e50914; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px;">3. Spesifikasi Produksi</h3>
+                <div style="font-size: 12px;">
+                    ${getSpecHTMLForPDF(p)}
+                </div>
+
+                <div style="margin-top: 40px; text-align: center; color: #888; font-size: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                    Generated by YGS Production App V32
+                </div>
             `;
-            html2pdf().from(div).save(`YGS_Event_${p.eventName.replace(/\s+/g,'_')}.pdf`);
+
+            html2pdf().set({
+                margin: 10,
+                filename: `YGS_Event_${p.eventName.replace(/\s+/g,'_')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).from(div).save();
         }
 
         function shareWA(id) {
             const p = allProjects.find(x => x.id === id); if(!p) return;
-            let txt = `*CREW CALL YGS PRODUCTION*\n\nEvent: *${p.eventName}*\nArtist: ${p.artist}\nTanggal: ${p.eventDate}\nLokasi: ${p.mapsLink || '-'}\n\n*MANPOWER PLOTTING:*\nPIC: ${p.manpower?.pic}\n\nAUDIO:\n- SE: ${p.manpower?.audio?.se || '-'}\n- FOH: ${p.manpower?.audio?.foh || '-'}\n\nLIGHTING:\n- LD: ${p.manpower?.lighting?.ld || '-'}\n- PTC: ${p.manpower?.lighting?.ptc || '-'}\n\n_Dimohon standby di lokasi tepat waktu._`;
+            
+            const m = p.manpower || {};
+            const getVal = (val) => (val && val !== '-') ? val : null;
+            
+            let waCrew = `*PIC:* ${getVal(m.pic) || '-'}\n\n`;
+            
+            waCrew += `*AUDIO:*\n`;
+            if(getVal(m.audio?.se)) waCrew += `- SE: ${m.audio.se}\n`;
+            if(getVal(m.audio?.foh)) waCrew += `- FOH: ${m.audio.foh}\n`;
+            if(getVal(m.audio?.moh)) waCrew += `- MOH: ${m.audio.moh}\n`;
+            if(getVal(m.audio?.rf)) waCrew += `- RF: ${m.audio.rf}\n`;
+            if(getVal(m.audio?.stg)) waCrew += `- Stage: ${m.audio.stg}\n`;
+            if(getVal(m.audio?.ast)) waCrew += `- Ast: ${m.audio.ast}\n`;
+            
+            waCrew += `\n*LIGHTING:*\n`;
+            if(getVal(m.lighting?.ld)) waCrew += `- LD: ${m.lighting.ld}\n`;
+            if(getVal(m.lighting?.ptc)) waCrew += `- Patcher: ${m.lighting.ptc}\n`;
+            if(getVal(m.lighting?.adr)) waCrew += `- Adr: ${m.lighting.adr}\n`;
+            if(getVal(m.lighting?.ast)) waCrew += `- Ast: ${m.lighting.ast}\n`;
+
+            waCrew += `\n*ROADIES & PENDUKUNG:*\n`;
+            if(getVal(m.roadies?.head)) waCrew += `- Head: ${m.roadies.head}\n`;
+            [m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].forEach((r,i) => { if(getVal(r)) waCrew += `- R${i+1}: ${r}\n` });
+            if(getVal(m.support?.rigging)) waCrew += `- Rigging: ${m.support.rigging}\n`;
+            if(getVal(m.support?.stage)) waCrew += `- Stage: ${m.support.stage}\n`;
+            if(getVal(m.support?.genset)) waCrew += `- Genset: ${m.support.genset}\n`;
+            if(getVal(m.support?.barikade)) waCrew += `- Barikade: ${m.support.barikade}\n`;
+
+            let txt = `*CREW CALL YGS PRODUCTION*\n\nEvent: *${p.eventName}*\nArtist: ${p.artist}\nTanggal: ${p.eventDate}\nLokasi: ${p.mapsLink || '-'}\n\n*MANPOWER PLOTTING:*\n${waCrew}\n_Dimohon standby di lokasi tepat waktu._`;
+            
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
         }
 
@@ -1191,7 +1305,12 @@
             const pC = document.getElementById(`pencairan-${username}`).value;
             showLoading(true);
             await apiCall({ action: 'UPDATE_USER_FINANCE', payload: { username, fee: f, bon: b, pencairan: pC } });
-            showLoading(false); showToast("Akuntansi Terupdate ke Database!"); fetchData(); renderTeam();
+            
+            // Fix: Await fetchData agar data terbaru dari database masuk sebelum render
+            await fetchData(); 
+            showLoading(false); 
+            showToast("Akuntansi Terupdate ke Database!"); 
+            renderTeam();
         }
 
         function renderProfile() {
