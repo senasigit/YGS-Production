@@ -20,6 +20,9 @@
         }
     </script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Library untuk Export ke PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap');
         
@@ -78,17 +81,60 @@
         </form>
     </div>
 
+    <!-- MODAL ASET -->
+    <div id="modal-asset" class="fixed inset-0 bg-black/80 z-[500] hidden flex flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
+        <form id="form-asset" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-sm space-y-4 border dark:border-zinc-800 shadow-2xl">
+            <h3 class="text-lg font-black uppercase text-gray-900 dark:text-white border-b dark:border-zinc-800 pb-2">Tambah Aset Baru</h3>
+            <div class="space-y-1">
+                <label class="text-[9px] font-bold text-gray-500 uppercase">Nama Alat</label>
+                <input type="text" id="ast-name" class="w-full p-3 rounded-xl input-dark font-bold" placeholder="Cth: Shure SM58" required>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                    <label class="text-[9px] font-bold text-gray-500 uppercase">Kategori</label>
+                    <select id="ast-cat" class="w-full p-3 rounded-xl input-dark font-bold" required>
+                        <option value="Audio">Audio</option>
+                        <option value="Lighting">Lighting</option>
+                        <option value="Rigging">Rigging</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] font-bold text-gray-500 uppercase">Qty</label>
+                    <input type="number" id="ast-qty" class="w-full p-3 rounded-xl input-dark font-bold" placeholder="Cth: 10" required>
+                </div>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeAssetModal()" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px]">Batal</button>
+                <button type="submit" class="flex-1 py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px]">Simpan Aset</button>
+            </div>
+        </form>
+    </div>
+
     <div id="toast-container" class="fixed top-20 right-4 z-[550] space-y-2 flex flex-col items-end pointer-events-none"></div>
     <datalist id="list-crew"></datalist>
 
     <!-- AUTH SECTION -->
     <div id="view-auth" class="fixed inset-0 bg-gray-100 dark:bg-black z-[400] flex flex-col justify-center items-center p-6 no-print overflow-y-auto">
+        <!-- Tombol Tema -->
+        <button type="button" onclick="toggleTheme()" class="absolute top-4 right-4 p-2 rounded-full bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200 shadow-md border dark:border-zinc-700 transition">
+            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+            <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+        </button>
+
         <div class="w-full max-w-md card-dark p-8 rounded-2xl border-t-4 border-t-ygsred my-auto text-center space-y-6">
             <div class="flex flex-col items-center gap-2">
-                <div class="bg-ygsred p-2.5 rounded-xl shadow-lg shadow-red-900/20">
-                    <svg width="45" height="45" viewBox="0 0 100 100" fill="none"><path d="M30 35H45L55 65H40L30 35Z" fill="white"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
+                <!-- Logo Gambar -->
+                <img src="logo ygs.PNG" alt="YGS Logo" class="hidden dark:block h-16 sm:h-20 w-auto object-contain mx-auto" onerror="this.style.display='none'; document.getElementById('auth-fallback-logo').classList.remove('hidden'); document.getElementById('auth-fallback-logo').classList.add('flex');">
+                <img src="logo ygs 2.PNG" alt="YGS Logo" class="block dark:hidden h-16 sm:h-20 w-auto object-contain mx-auto" onerror="this.style.display='none'; document.getElementById('auth-fallback-logo').classList.remove('hidden'); document.getElementById('auth-fallback-logo').classList.add('flex');">
+                
+                <!-- Fallback jika gambar tidak ditemukan -->
+                <div id="auth-fallback-logo" class="hidden flex-col items-center gap-2">
+                    <div class="bg-ygsred p-2.5 rounded-xl shadow-lg shadow-red-900/20">
+                        <svg width="45" height="45" viewBox="0 0 100 100" fill="none"><path d="M30 35H45L55 65H40L30 35Z" fill="white"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
+                    </div>
+                    <h1 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest">YGS PRODUCTION</h1>
                 </div>
-                <h1 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest">YGS PRODUCTION</h1>
             </div>
 
             <form id="login-form" class="space-y-4">
@@ -126,16 +172,27 @@
     <div id="app-content" class="hidden min-h-screen pt-4">
         <header class="p-4 flex justify-between items-center bg-white/90 dark:bg-black/90 border-b dark:border-zinc-800 sticky top-0 z-[100] no-print backdrop-blur-md">
             <div class="flex items-center gap-3">
-                <div class="bg-ygsred p-1.5 rounded-lg">
-                    <svg width="24" height="24" viewBox="0 0 100 100" fill="none"><path d="M30 35H45L55 65H40L30 35Z" fill="white"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
+                <!-- Logo Gambar Header -->
+                <div class="flex items-center">
+                    <img src="logo ygs.PNG" alt="YGS Logo" class="hidden dark:block h-8 sm:h-10 w-auto object-contain" onerror="this.style.display='none'; document.getElementById('header-fallback-logo').classList.remove('hidden'); document.getElementById('header-fallback-logo').classList.add('flex');">
+                    <img src="logo ygs 2.PNG" alt="YGS Logo" class="block dark:hidden h-8 sm:h-10 w-auto object-contain" onerror="this.style.display='none'; document.getElementById('header-fallback-logo').classList.remove('hidden'); document.getElementById('header-fallback-logo').classList.add('flex');">
+                    
+                    <!-- Fallback Header -->
+                    <div id="header-fallback-logo" class="hidden items-center gap-3">
+                        <div class="bg-ygsred p-1.5 rounded-lg">
+                            <svg width="24" height="24" viewBox="0 0 100 100" fill="none"><path d="M30 35H45L55 65H40L30 35Z" fill="white"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
+                        </div>
+                        <h1 class="text-xs sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">YGS PRODUCTION</h1>
+                    </div>
                 </div>
                 <div>
-                    <h1 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter">YGS Pro</h1>
                     <p id="user-display" class="text-[9px] font-bold text-ygsred uppercase"></p>
                 </div>
             </div>
             <div class="flex gap-1">
-                <button onclick="fetchData()" class="text-gray-500 p-2"><i data-lucide="refresh-cw" class="w-5 h-5"></i></button>
+                <!-- Tombol Tema Header -->
+                <button onclick="toggleTheme()" class="text-gray-500 hover:text-ygsred p-2 transition"><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i></button>
+                <button onclick="fetchData()" class="text-gray-500 hover:text-ygsred p-2 transition"><i data-lucide="refresh-cw" class="w-5 h-5"></i></button>
             </div>
         </header>
 
@@ -276,6 +333,14 @@
                                 <input type="text" id="c_r_3" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Roadie 3: ">
                                 <input type="text" id="c_r_4" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 font-bold" placeholder="Roadie 4: ">
                             </div>
+                            <!-- TIM PENDUKUNG -->
+                            <div class="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border dark:border-zinc-800 space-y-2">
+                                <p class="text-green-600 font-black text-[10px] uppercase border-b dark:border-zinc-800 pb-1 mb-2">Tim Pendukung</p>
+                                <input type="text" id="c_s_rigging" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Rigging PIC: ">
+                                <input type="text" id="c_s_stage" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Stage PIC: ">
+                                <input type="text" id="c_s_genset" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Genset PIC: ">
+                                <input type="text" id="c_s_barikade" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 font-bold" placeholder="Barikade PIC: ">
+                            </div>
                         </div>
                     </div>
 
@@ -299,9 +364,11 @@
                     <button onclick="openAssetModal()" class="text-[10px] bg-ygsred text-white px-3 py-1.5 rounded font-bold">+ Tambah</button>
                 </div>
                 <div class="card-dark rounded-xl overflow-x-auto shadow-sm">
-                    <table class="w-full text-left text-[10px]">
+                    <table class="w-full text-left text-[10px]" id="asset-table">
                         <thead class="bg-gray-100 dark:bg-zinc-900 font-black uppercase">
-                            <tr><th class="p-3">Alat</th><th class="p-3 text-center">Qty</th><th class="p-3 text-center">Status</th><th class="p-3">Catatan</th></tr>
+                            <tr id="asset-table-header">
+                                <th class="p-3">Alat</th><th class="p-3 text-center">Qty</th><th class="p-3 text-center">Status</th><th class="p-3">Catatan</th>
+                            </tr>
                         </thead>
                         <tbody id="asset-list" class="divide-y dark:divide-zinc-800"></tbody>
                     </table>
@@ -357,6 +424,17 @@
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz6alw0e-EwkuHNc0g0L25WOUo-Dx_LyLsaf7DEBOVUGZlr7bTD6hJXWv66mFobfDM/exec'; 
         let currentUser = null, allProjects = [], allUsers = [], currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear(), activeAgendaView = 'kalender';
 
+        // --- TEMA GELAP / TERANG ---
+        const savedTheme = localStorage.getItem('ygsTheme');
+        if (savedTheme === 'light') document.documentElement.classList.remove('dark');
+        else if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+        
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('ygsTheme', isDark ? 'dark' : 'light');
+        }
+
         const MASTER_GROUPS = {
             pa: ['Main PA', 'Subwoofer', 'Frontfill', 'Delay Fill', 'Outfill', 'Others'],
             monitor: ['Wedges', 'IEM', 'Sidefill', 'Sub Sidefill', 'Sub Drum', 'Talkback', 'Others'],
@@ -409,7 +487,11 @@
             document.getElementById('profile-position').innerText = currentUser.position;
             document.getElementById('profile-initial').innerText = (currentUser.nickname || currentUser.fullName).substring(0,2);
             document.getElementById('prof-bank-info').innerText = currentUser.bankName ? `${currentUser.bankName} - ${currentUser.bankAcc}` : "Belum diatur";
-            if(currentUser.role === 'admin') { document.getElementById('nav-add').classList.remove('hidden'); document.getElementById('nav-team').classList.remove('hidden'); }
+            if(currentUser.role === 'admin') { 
+                document.getElementById('nav-add').classList.remove('hidden'); 
+                document.getElementById('nav-team').classList.remove('hidden'); 
+                document.getElementById('asset-table-header').innerHTML += '<th class="p-3 text-center">Aksi</th>'; // Add Admin header for Delete
+            }
             fetchData(); switchTab('list'); initDynForms();
         }
 
@@ -453,32 +535,168 @@
             }
         }
 
+        // HTML Builder untuk Kotak Event List + Tombol Action Baru
+        function getEventCardHTML(p) {
+            return `
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred shadow-sm mb-3 relative" id="ev-${p.id}">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-black text-sm uppercase">${p.eventName}</h3>
+                        <p class="text-[9px] text-gray-500 uppercase">${p.artist} • ${p.eventDate}</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-3 pt-3 border-t dark:border-zinc-800">
+                    <button onclick="shareWA('${p.id}')" class="flex-1 bg-green-500 text-white py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="share-2" class="w-3 h-3"></i> WA Share</button>
+                    <button onclick="exportPDF('${p.id}')" class="flex-1 bg-blue-600 text-white py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button>
+                    ${currentUser?.role === 'admin' ? `<button onclick="deleteEvent('${p.id}')" class="flex-none bg-red-100 dark:bg-red-900/30 text-red-600 px-3 py-1.5 rounded text-[9px] font-black flex items-center justify-center transition hover:bg-red-200"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : ''}
+                </div>
+            </div>`;
+        }
+
         function showEventsOnDate(d) {
             const f = allProjects.filter(p => p.eventDate === d);
-            document.getElementById('project-container').innerHTML = f.map(p => `<div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred shadow-sm"><h3 class="font-black text-sm uppercase">${p.eventName}</h3><p class="text-[9px] text-gray-500 uppercase">${p.artist}</p></div>`).join('') || '<div class="p-10 text-center font-bold text-gray-400">LIBUR</div>';
+            document.getElementById('project-container').innerHTML = f.map(p => getEventCardHTML(p)).join('') || '<div class="p-10 text-center font-bold text-gray-400">LIBUR / KOSONG</div>';
+            lucide.createIcons();
+        }
+        
+        // Hapus Event (Admin)
+        async function deleteEvent(id) {
+            if(!confirm("Anda yakin ingin menghapus Event ini? Data tidak dapat dikembalikan.")) return;
+            showLoading(true);
+            const r = await apiCall({ action: 'DELETE_DATA', payload: { id } });
+            showLoading(false);
+            if(r.success || (r.message && r.message.includes('success'))) {
+                allProjects = allProjects.filter(p => p.id !== id);
+                applyAgendaView();
+                updateTodayStatus();
+                showToast("Event berhasil dihapus!");
+            } else {
+                showToast("Gagal menghapus event.", true);
+            }
+        }
+
+        // Export PDF Event
+        function exportPDF(id) {
+            const p = allProjects.find(x => x.id === id); if(!p) return;
+            
+            const div = document.createElement('div');
+            div.className = 'p-8 bg-white text-black font-sans';
+            div.style.width = '800px';
+            div.innerHTML = `
+                <div style="text-align:center; margin-bottom:20px; border-bottom:2px solid #e50914; padding-bottom:10px;">
+                    <h1 style="font-size:24px; font-weight:900; color:#e50914; margin:0; letter-spacing: 2px;">YGS PRODUCTION</h1>
+                    <h2 style="font-size:18px; font-weight:800; text-transform:uppercase; margin:5px 0;">${p.eventName}</h2>
+                    <p style="font-size:12px; color:#555;">Artist / Klien: <b>${p.artist}</b> | Tanggal: <b>${p.eventDate}</b></p>
+                </div>
+                
+                <h3 style="font-size:14px; font-weight:bold; background:#f1f5f9; padding:5px; margin-bottom:10px;">PLOTTING CREW & MANPOWER</h3>
+                <table style="width:100%; font-size:11px; margin-bottom:20px; border-collapse: collapse;">
+                    <tr>
+                        <td style="vertical-align:top; width:33%; padding:5px;">
+                            <b>AUDIO</b><br>
+                            SE: ${p.manpower?.audio?.se || '-'}<br>
+                            FOH: ${p.manpower?.audio?.foh || '-'}<br>
+                            MOH: ${p.manpower?.audio?.moh || '-'}<br>
+                            RF: ${p.manpower?.audio?.rf || '-'}<br>
+                            Stage: ${p.manpower?.audio?.stg || '-'}<br>
+                            Ast: ${p.manpower?.audio?.ast || '-'}
+                        </td>
+                        <td style="vertical-align:top; width:33%; padding:5px;">
+                            <b>LIGHTING</b><br>
+                            LD: ${p.manpower?.lighting?.ld || '-'}<br>
+                            Patcher: ${p.manpower?.lighting?.ptc || '-'}<br>
+                            Adresser: ${p.manpower?.lighting?.adr || '-'}<br>
+                            Ast: ${p.manpower?.lighting?.ast || '-'}
+                        </td>
+                        <td style="vertical-align:top; width:33%; padding:5px;">
+                            <b>TIM PENDUKUNG</b><br>
+                            PIC Utama: ${p.manpower?.pic || '-'}<br>
+                            Rigging: ${p.manpower?.support?.rigging || '-'}<br>
+                            Stage: ${p.manpower?.support?.stage || '-'}<br>
+                            Genset: ${p.manpower?.support?.genset || '-'}<br>
+                            Barikade: ${p.manpower?.support?.barikade || '-'}
+                        </td>
+                    </tr>
+                </table>
+
+                <h3 style="font-size:14px; font-weight:bold; background:#f1f5f9; padding:5px; margin-bottom:10px;">TIM ROADIES</h3>
+                <p style="font-size:11px; padding:0 5px;">Head: ${p.manpower?.roadies?.head || '-'} | R1: ${p.manpower?.roadies?.r1 || '-'} | R2: ${p.manpower?.roadies?.r2 || '-'} | R3: ${p.manpower?.roadies?.r3 || '-'} | R4: ${p.manpower?.roadies?.r4 || '-'}</p>
+                <p style="text-align:center; margin-top:50px; font-size:9px; color:#888;">Generated by YGS Production App V32</p>
+            `;
+            
+            document.body.appendChild(div);
+            showLoading(true);
+            html2pdf().set({
+                margin: 0.5,
+                filename: `YGS_${p.eventName.replace(/\s+/g,'_')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            }).from(div).save().then(() => {
+                document.body.removeChild(div);
+                showLoading(false);
+            });
+        }
+
+        // Share Whatsapp Crew Call
+        function shareWA(id) {
+            const p = allProjects.find(x => x.id === id); if(!p) return;
+            let txt = `*CREW CALL YGS PRODUCTION*\n\n`;
+            txt += `*Event:* ${p.eventName}\n`;
+            txt += `*Artist:* ${p.artist}\n`;
+            txt += `*Tanggal:* ${p.eventDate}\n`;
+            if(p.mapsLink) txt += `*Lokasi / Maps:* ${p.mapsLink}\n`;
+            
+            txt += `\n*-- TIM AUDIO --*\nSE: ${p.manpower?.audio?.se || '-'}\nFOH: ${p.manpower?.audio?.foh || '-'}\nMOH: ${p.manpower?.audio?.moh || '-'}\nRF: ${p.manpower?.audio?.rf || '-'}\nStage: ${p.manpower?.audio?.stg || '-'}\nAst: ${p.manpower?.audio?.ast || '-'}\n`;
+            txt += `\n*-- TIM LIGHTING --*\nLD: ${p.manpower?.lighting?.ld || '-'}\nPatcher: ${p.manpower?.lighting?.ptc || '-'}\nAdresser: ${p.manpower?.lighting?.adr || '-'}\nAst: ${p.manpower?.lighting?.ast || '-'}\n`;
+            txt += `\n*-- TIM PENDUKUNG --*\nPIC Utama: ${p.manpower?.pic || '-'}\nRigging: ${p.manpower?.support?.rigging || '-'}\nStage: ${p.manpower?.support?.stage || '-'}\nGenset: ${p.manpower?.support?.genset || '-'}\nBarikade: ${p.manpower?.support?.barikade || '-'}\n`;
+            txt += `\n_Mohon kepada kru terkait untuk standby di lokasi tepat waktu._\n`;
+            
+            window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
         }
 
         // CREATE FORM LOGIC
         function initDynForms() {
             const aC = document.getElementById('dyn-audio-container'), lC = document.getElementById('dyn-lighting-container');
             if(!aC) return; aC.innerHTML = ''; lC.innerHTML = '';
+            
+            // Render struktur sub-kategori Audio
             ['pa', 'monitor', 'console', 'mic', 'backline', 'stand', 'cable'].forEach(c => {
-                const d = document.createElement('div'); d.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50';
-                d.innerHTML = `<div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black uppercase">${c}</p><button type="button" onclick="addDynRow('dyn-audio-${c}')" class="text-[8px] bg-blue-600 text-white px-2 py-1 rounded">+ Baris</button></div><div id="dyn-audio-${c}" class="space-y-1"></div>`;
-                aC.appendChild(d); MASTER_GROUPS[c].forEach(s => addDynRow('dyn-audio-'+c, {jenis: s}, true));
+                const catDiv = document.createElement('div');
+                catDiv.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50';
+                catDiv.innerHTML = `<p class="text-[11px] font-black uppercase text-blue-600 border-b dark:border-zinc-800 pb-2 mb-2">${c}</p><div id="dyn-audio-${c}" class="space-y-2"></div>`;
+                aC.appendChild(catDiv);
+                
+                const catContainer = document.getElementById(`dyn-audio-${c}`);
+                MASTER_GROUPS[c].forEach(s => {
+                    const subId = `dyn-audio-${c}-${s.replace(/[^a-zA-Z0-9]/g,'')}`;
+                    const subDiv = document.createElement('div');
+                    subDiv.className = 'bg-white dark:bg-zinc-800/50 p-2 rounded-lg border dark:border-zinc-800';
+                    subDiv.innerHTML = `<div class="flex justify-between items-center mb-2"><p class="text-[9px] font-bold uppercase text-gray-600 dark:text-gray-400">${s}</p><button type="button" onclick="addDynRow('${subId}', {jenis: '${s}'}, true)" class="text-[8px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Tambah</button></div><div id="${subId}" class="space-y-1"></div>`;
+                    catContainer.appendChild(subDiv);
+                    addDynRow(subId, {jenis: s}, true);
+                });
             });
+
+            // Render struktur sub-kategori Lighting
             MASTER_GROUPS.lighting.forEach(s => {
-                const d = document.createElement('div'); d.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50';
-                d.innerHTML = `<div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black uppercase">${s}</p><button type="button" onclick="addDynRow('dyn-light-${s.replace(/\s+/g,'')}', {jenis: '${s}'}, true)" class="text-[8px] bg-orange-600 text-white px-2 py-1 rounded shadow">+ Brand</button></div><div id="dyn-light-${s.replace(/\s+/g,'')}" class="space-y-1"></div>`;
-                lC.appendChild(d); addDynRow('dyn-light-'+s.replace(/\s+/g,''), {jenis: s}, true);
+                const subId = `dyn-light-${s.replace(/\s+/g,'')}`;
+                const d = document.createElement('div'); 
+                d.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50';
+                d.innerHTML = `<div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black uppercase">${s}</p><button type="button" onclick="addDynRow('${subId}', {jenis: '${s}'}, true)" class="text-[8px] bg-orange-600 text-white px-2 py-1 rounded shadow">+ Brand</button></div><div id="${subId}" class="space-y-1"></div>`;
+                lC.appendChild(d); 
+                addDynRow(subId, {jenis: s}, true);
             });
+            
             addDynRow('dyn-led', {jenis: 'Main Stage'}); addDynRow('dyn-rigging', {jenis: 'Main Stage'}); addDynRow('dyn-genset', {jenis: 'Genset Audio'}); addDynRow('dyn-barikade', {jenis: 'Rowing Stage'});
         }
 
         function addDynRow(cId, def={jenis:'', brand:'', qty:''}, isF=false) {
             const c = document.getElementById(cId); if(!c) return; const div = document.createElement('div'); div.className = 'grid grid-cols-12 gap-1 dynamic-row items-center mb-1';
             let ph = {j:'Posisi', b:'Brand/Tipe', q:'Qty'}; if(cId==='dyn-genset') ph={j:'Kegunaan', b:'KVA', q:'Unit'}; if(cId==='dyn-led') ph={j:'Posisi', b:'Brand', q:'Meter'};
-            div.innerHTML = `<input type="text" class="dyn-jenis col-span-4 p-2 rounded input-dark font-bold" placeholder="${ph.j}" value="${def.jenis}" ${isF?'readonly':''}><input type="text" class="dyn-brand col-span-5 p-2 rounded input-dark font-bold text-xs" placeholder="${ph.b}" value="${def.brand}"><input type="text" class="dyn-qty col-span-2 p-2 rounded input-dark text-center font-bold" placeholder="${ph.q}" value="${def.qty}"><button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+            
+            div.innerHTML = `<input type="text" class="dyn-jenis col-span-4 p-2 rounded input-dark font-bold" placeholder="${ph.j}" value="${def.jenis || ''}" ${isF?'readonly':''}><input type="text" class="dyn-brand col-span-5 p-2 rounded input-dark font-bold text-xs" placeholder="${ph.b}" value="${def.brand || ''}"><input type="text" class="dyn-qty col-span-2 p-2 rounded input-dark text-center font-bold" placeholder="${ph.q}" value="${def.qty || ''}"><button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+            
             c.appendChild(div); lucide.createIcons();
         }
 
@@ -506,9 +724,37 @@
         // ASSETS & BON LOGIC
         async function renderAssets() {
             const r = await apiCall({ action: 'GET_ASSETS' }); if(!r.success) return;
-            document.getElementById('asset-list').innerHTML = r.data.map(a => `<tr class="border-b dark:border-zinc-800"><td class="p-3 uppercase font-bold">${a.name}</td><td class="p-3 text-center font-black">${a.qty}</td><td class="p-3 text-center"><select onchange="updateAssetField('${a.id}', 'status', this.value)" class="bg-transparent font-black ${a.status==='Baik'?'text-green-500':'text-red-500'}"><option value="Baik" ${a.status==='Baik'?'selected':''}>Baik</option><option value="Rusak" ${a.status==='Rusak'?'selected':''}>Rusak</option></select></td><td class="p-3"><input type="text" onblur="updateAssetField('${a.id}', 'note', this.value)" class="bg-transparent text-[8px] italic w-full border-none focus:ring-0" placeholder="..." value="${a.note||''}"></td></tr>`).join('');
+            const isAdmin = currentUser && currentUser.role === 'admin';
+            document.getElementById('asset-list').innerHTML = r.data.map(a => `
+                <tr class="border-b dark:border-zinc-800">
+                    <td class="p-3 uppercase font-bold">${a.name}</td>
+                    <td class="p-3 text-center font-black">${a.qty}</td>
+                    <td class="p-3 text-center">
+                        <select onchange="updateAssetField('${a.id}', 'status', this.value)" class="bg-transparent font-black ${a.status==='Baik'?'text-green-500':'text-red-500'}">
+                            <option value="Baik" ${a.status==='Baik'?'selected':''}>Baik</option>
+                            <option value="Rusak" ${a.status==='Rusak'?'selected':''}>Rusak</option>
+                        </select>
+                    </td>
+                    <td class="p-3"><input type="text" onblur="updateAssetField('${a.id}', 'note', this.value)" class="bg-transparent text-[8px] italic w-full border-none focus:ring-0" placeholder="..." value="${a.note||''}"></td>
+                    ${isAdmin ? `<td class="p-3 text-center"><button onclick="deleteAsset('${a.id}')" class="text-red-500 hover:text-red-700 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>` : ''}
+                </tr>`).join('');
+            lucide.createIcons();
         }
+        
         async function updateAssetField(id, f, v) { await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id, field: f, value: v } }); }
+        
+        async function deleteAsset(id) {
+            if(!confirm("Anda yakin ingin menghapus aset ini?")) return;
+            showLoading(true);
+            const r = await apiCall({ action: 'DELETE_ASSET', payload: { id } });
+            showLoading(false);
+            if(r.success || (r.message && r.message.includes('success'))) {
+                renderAssets();
+                showToast("Aset dihapus!");
+            } else {
+                showToast("Gagal menghapus aset.", true);
+            }
+        }
 
         function openBonModal() { document.getElementById('modal-bon').classList.remove('hidden'); }
         function closeBonModal() { document.getElementById('modal-bon').classList.add('hidden'); }
@@ -533,7 +779,18 @@
         // OTHER UTILS
         function logout() { localStorage.removeItem('ygsUserEx'); location.reload(); }
         function setAgendaView(v) { activeAgendaView = v; applyAgendaView(); }
-        function applyAgendaView() { const w = document.getElementById('wrapper-kalender'), c = document.getElementById('project-container'); w.classList.toggle('hidden', activeAgendaView !== 'kalender'); if(activeAgendaView==='kalender') renderCalendar(); else { let f = activeAgendaView === 'saya' ? allProjects.filter(p => JSON.stringify(p.manpower||{}).includes(currentUser.nickname||currentUser.fullName)) : allProjects; c.innerHTML = f.map(p => `<div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred shadow-sm"><h3 class="font-black text-sm uppercase">${p.eventName}</h3><p class="text-[9px] text-ygsred font-black uppercase">${p.artist}</p></div>`).join('') || '<p class="p-10 text-center font-bold">KOSONG</p>'; } }
+        function applyAgendaView() { 
+            const w = document.getElementById('wrapper-kalender'), c = document.getElementById('project-container'); 
+            w.classList.toggle('hidden', activeAgendaView !== 'kalender'); 
+            
+            if(activeAgendaView==='kalender') {
+                renderCalendar(); 
+            } else { 
+                let f = activeAgendaView === 'saya' ? allProjects.filter(p => JSON.stringify(p.manpower||{}).includes(currentUser.nickname||currentUser.fullName)) : allProjects; 
+                c.innerHTML = f.map(p => getEventCardHTML(p)).join('') || '<p class="p-10 text-center font-bold">KOSONG / LIBUR</p>';
+                lucide.createIcons();
+            } 
+        }
         async function renderChat() { const r = await apiCall({ action: 'GET_CHATS' }); if(!r.success) return; document.getElementById('chat-container').innerHTML = r.data.map(c => { const isM = c.sender === (currentUser.nickname||currentUser.fullName); return `<div class="flex flex-col ${isM?'items-end':'items-start'}"><span class="text-[7px] font-bold text-gray-500">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold ${isM?'bg-ygsred text-white':'bg-gray-100 dark:bg-zinc-800'}">${c.msg}</div></div>`; }).join(''); document.getElementById('chat-container').scrollTop = 99999; }
         document.getElementById('chat-form').onsubmit = async (e) => { e.preventDefault(); const i = document.getElementById('chat-input'), p = { sender: currentUser.nickname||currentUser.fullName, msg: i.value, time: new Date().toISOString() }; i.value = ''; await apiCall({ action: 'ADD_CHAT', payload: p }); renderChat(); };
         function changeMonth(v) { currentMonth += v; if(currentMonth>11){currentMonth=0;currentYear++} if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(); }
