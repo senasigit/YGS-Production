@@ -377,9 +377,21 @@
                 </div>
             </div>
 
+            <!-- TAB: EVALUASI -->
+            <div id="view-eval" class="hidden animate-fade space-y-4 pb-20">
+                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1">Evaluasi Event</h2>
+                <div id="eval-container" class="space-y-3"></div>
+                <form id="eval-form" class="card-dark p-4 rounded-xl space-y-3">
+                    <p class="text-[9px] font-black uppercase text-gray-500">Kirim Evaluasi / Feedback</p>
+                    <select id="eval-event-id" class="w-full p-2.5 rounded input-dark font-bold text-[10px]"></select>
+                    <textarea id="eval-msg" class="w-full p-3 rounded-xl input-dark text-[10px] font-bold" rows="3" placeholder="Apa yang perlu diperbaiki?" required></textarea>
+                    <button type="submit" class="w-full bg-ygsred text-white py-3 rounded-xl font-black text-[10px] uppercase">Kirim Feedback</button>
+                </form>
+            </div>
+
             <!-- TAB: TEAM (ADMIN) -->
             <div id="view-team" class="hidden animate-fade space-y-4 pb-10">
-                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1">Manajemen Tim & Bon</h2>
+                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1">Manajemen Tim & Akuntansi</h2>
                 <div id="bon-approval-container" class="space-y-2 mb-6">
                     <p class="text-[10px] font-black text-gray-400 uppercase">Pengajuan Bon Pending</p>
                     <div id="bon-pending-list" class="space-y-2"></div>
@@ -418,7 +430,7 @@
                     <button id="btn-request-bon" onclick="openBonModal()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-xs uppercase mb-2">Ajukan Bon</button>
                     <button onclick="logout()" class="w-full bg-gray-100 dark:bg-zinc-900 text-red-600 py-3 rounded-xl font-black text-xs uppercase">Logout</button>
                 </div>
-                <div class="card-dark p-4 rounded-2xl"><h3 class="text-[10px] font-black uppercase text-gray-500 mb-3">Tugas Kerja</h3><div id="profile-history" class="space-y-2"></div></div>
+                <div class="card-dark p-4 rounded-2xl"><h3 class="text-[10px] font-black uppercase text-gray-500 mb-3">Tugas Kerja & Pendapatan</h3><div id="profile-history" class="space-y-2"></div></div>
             </div>
         </main>
 
@@ -427,6 +439,7 @@
             <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-chat"><i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Chat</span></button>
             <button onclick="resetEventForm(); switchTab('add')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Buat</span></button>
             <button onclick="switchTab('assets')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-assets"><i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Aset</span></button>
+            <button onclick="switchTab('eval')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-eval"><i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Eval</span></button>
             <button onclick="switchTab('team')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Tim</span></button>
             <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-profile"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Profil</span></button>
         </nav>
@@ -519,19 +532,19 @@
         }
 
         function switchTab(tab) {
-            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-team', 'view-profile'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-eval', 'view-team', 'view-profile'].forEach(v => document.getElementById(v).classList.add('hidden'));
             document.getElementById('view-' + tab).classList.remove('hidden');
-            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-team', 'nav-profile'].forEach(n => {
+            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile'].forEach(n => {
                 const nav = document.getElementById(n); if(!nav) return;
                 nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
                 if(n === 'nav-' + tab) nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
             });
-            if(tab === 'chat') renderChat(); if(tab === 'assets') renderAssets(); if(tab === 'team') renderTeam(); if(tab === 'profile') renderProfile();
+            if(tab === 'chat') renderChat(); if(tab === 'assets') renderAssets(); if(tab === 'team') renderTeam(); if(tab === 'profile') renderProfile(); if(tab === 'eval') renderEvaluations();
         }
 
         async function fetchData() {
             showLoading(true); const rD = await apiCall({ action: 'GET_DATA' }); const rU = await apiCall({ action: 'GET_USERS' }); showLoading(false);
-            if(rD.success) { allProjects = rD.data; applyAgendaView(); updateTodayStatus(); }
+            if(rD.success) { allProjects = rD.data; applyAgendaView(); updateTodayStatus(); updateEvalDropdown(); }
             if(rU.success) { 
                 allUsers = rU.data; 
                 document.getElementById('list-crew').innerHTML = allUsers.map(u => `<option value="${u.nickname || u.fullName}">`).join(''); 
@@ -611,7 +624,7 @@
                 </div>
                 ${currentUser?.role === 'admin' ? `
                 <div class="flex gap-2 mt-3 pt-3 border-t dark:border-zinc-800">
-                    <button onclick="shareWA('${p.id}')" class="flex-1 bg-green-500 text-white py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="share-2" class="w-3 h-3"></i> WA</button>
+                    <button onclick="shareWA('${p.id}')" class="flex-1 bg-green-500 text-white py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="share-2" class="w-3 h-3"></i> CREW CALL</button>
                     <button onclick="exportPDF('${p.id}')" class="flex-1 bg-blue-600 text-white py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button>
                     <button onclick="editEvent('${p.id}')" class="flex-none bg-yellow-500 text-white px-3 py-1.5 rounded text-[9px] font-black"><i data-lucide="edit" class="w-3 h-3"></i></button>
                     <button onclick="deleteEvent('${p.id}')" class="flex-none bg-red-600 text-white px-3 py-1.5 rounded text-[9px] font-black"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
@@ -631,23 +644,24 @@
             document.getElementById('detail-title').innerText = p.eventName;
             let c = `<div class="space-y-4">
                 <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
-                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Informasi</h4>
+                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Informasi Dasar</h4>
                     <div class="grid grid-cols-2 gap-2 text-[10px] font-bold">
                         <div><span class="text-[8px] text-gray-500 block">STATUS</span>${p.status}</div>
                         <div><span class="text-[8px] text-gray-500 block">TALENT</span>${p.artist}</div>
                         <div class="col-span-2"><span class="text-[8px] text-gray-500 block">KLIEN</span>${p.clientName || '-'} (${p.clientPhone || '-'})</div>
-                        <div class="col-span-2"><span class="text-[8px] text-gray-500 block">LOKASI</span><a href="${p.mapsLink}" target="_blank" class="text-blue-500 underline">${p.mapsLink || '-'}</a></div>
+                        <div class="col-span-2"><span class="text-[8px] text-gray-500 block">LOKASI</span><a href="${p.mapsLink}" target="_blank" class="text-blue-500 underline break-all">${p.mapsLink || '-'}</a></div>
                     </div>
                 </div>
                 <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
-                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Tim Lapangan</h4>
+                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Plotting Crew</h4>
                     <div class="grid grid-cols-2 gap-3 text-[10px] font-bold">
-                        <div><span class="text-[8px] text-gray-400 block mb-1">AUDIO</span>
+                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase">Divisi Audio</span>
                             SE: ${p.manpower?.audio?.se || '-'}<br>FOH: ${p.manpower?.audio?.foh || '-'}
                         </div>
-                        <div><span class="text-[8px] text-gray-400 block mb-1">LIGHTING</span>
+                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase">Divisi Lighting</span>
                             LD: ${p.manpower?.lighting?.ld || '-'}<br>PTC: ${p.manpower?.lighting?.ptc || '-'}
                         </div>
+                        <div class="col-span-2"><span class="text-[8px] text-gray-400 block mb-1">PIC UTAMA</span><b>${p.manpower?.pic || '-'}</b></div>
                     </div>
                 </div>`;
             c += `</div>`;
@@ -669,13 +683,41 @@
             const p = allProjects.find(x => x.id === id); if(!p) return;
             const div = document.createElement('div');
             div.className = 'p-10 bg-white text-black font-sans';
-            div.innerHTML = `<h1 style="color:#e50914; font-weight:900;">YGS PRODUCTION</h1><h2>EVENT: ${p.eventName}</h2><p>Artist: ${p.artist}</p><hr><p>Manpower PIC: ${p.manpower?.pic}</p>`;
-            html2pdf().from(div).save(`YGS_${p.eventName}.pdf`);
+            div.style.width = '800px';
+            div.innerHTML = `
+                <div style="border-bottom: 2px solid #e50914; padding-bottom: 10px; margin-bottom: 20px; text-align: center;">
+                    <h1 style="color:#e50914; font-weight:900; margin:0;">YGS PRODUCTION</h1>
+                    <p style="margin:5px 0; font-weight:bold; text-transform:uppercase;">Crew Call & Event Details</p>
+                </div>
+                <h2 style="text-transform:uppercase; margin-bottom: 5px;">${p.eventName}</h2>
+                <p><b>Talent:</b> ${p.artist} | <b>Tanggal:</b> ${p.eventDate}</p>
+                <hr>
+                <h3>Plotting Manpower</h3>
+                <p><b>PIC Utama:</b> ${p.manpower?.pic}</p>
+                <div style="display: flex; gap: 40px;">
+                    <div>
+                        <p><b>AUDIO TEAM:</b></p>
+                        <ul style="list-style:none; padding:0;">
+                            <li>SE: ${p.manpower?.audio?.se || '-'}</li>
+                            <li>FOH: ${p.manpower?.audio?.foh || '-'}</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p><b>LIGHTING TEAM:</b></p>
+                        <ul style="list-style:none; padding:0;">
+                            <li>LD: ${p.manpower?.lighting?.ld || '-'}</li>
+                            <li>Patcher: ${p.manpower?.lighting?.ptc || '-'}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin-top: 50px; text-align: center; color: #888; font-size: 10px;">Generated by YGS Production App V32</div>
+            `;
+            html2pdf().from(div).save(`YGS_Event_${p.eventName.replace(/\s+/g,'_')}.pdf`);
         }
 
         function shareWA(id) {
             const p = allProjects.find(x => x.id === id); if(!p) return;
-            let txt = `*YGS PRODUCTION*\nEvent: ${p.eventName}\nArtist: ${p.artist}\nTanggal: ${p.eventDate}\n\nPIC: ${p.manpower?.pic}`;
+            let txt = `*CREW CALL YGS PRODUCTION*\n\nEvent: *${p.eventName}*\nArtist: ${p.artist}\nTanggal: ${p.eventDate}\nLokasi: ${p.mapsLink || '-'}\n\n*MANPOWER PLOTTING:*\nPIC: ${p.manpower?.pic}\n\nAUDIO:\n- SE: ${p.manpower?.audio?.se || '-'}\n- FOH: ${p.manpower?.audio?.foh || '-'}\n\nLIGHTING:\n- LD: ${p.manpower?.lighting?.ld || '-'}\n- PTC: ${p.manpower?.lighting?.ptc || '-'}\n\n_Dimohon standby di lokasi tepat waktu._`;
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
         }
 
@@ -784,8 +826,8 @@
                         <p class="text-[10px] font-black text-blue-600">${formatIDR(b.amount)}</p>
                     </div>
                     <div class="flex gap-2">
-                        <input type="number" id="approve-amt-${b.id}" placeholder="Input Nominal" class="w-20 p-2 rounded input-dark text-[10px]">
-                        <button onclick="approveBon('${b.id}', '${b.username}')" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black">APPROVE</button>
+                        <input type="number" id="approve-amt-${b.id}" placeholder="Nominal" class="w-20 p-2 rounded input-dark text-[10px]">
+                        <button onclick="approveBon('${b.id}', '${b.username}')" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black">OK</button>
                     </div>
                 </div>`).join('') || '<p class="text-center text-[8px] text-gray-500 italic">Tidak ada pengajuan</p>'; 
             }
@@ -797,21 +839,21 @@
                         <p class="font-black text-sm uppercase">${u.fullName}</p>
                         <p class="text-[9px] text-ygsred font-bold uppercase tracking-widest">${u.position} • @${u.username}</p>
                     </div>
-                    <div class="text-[8px] text-right font-bold text-gray-500 bg-gray-50 dark:bg-zinc-800 p-1 rounded">
-                        WA: ${u.phone||'-'}<br>BANK: ${u.bankName||'-'} (${u.bankAcc||'-'})<br>ADDR: ${u.address||'-'}
+                    <div class="text-[8px] text-right font-bold text-gray-500 bg-gray-50 dark:bg-zinc-800 p-1.5 rounded-lg">
+                        WA: ${u.phone||'-'}<br>BANK: ${u.bankName||'-'} (${u.bankAcc||'-'})<br>ALAMAT: ${u.address||'-'}
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
                     <div class="space-y-1">
-                        <label class="text-[8px] font-bold text-gray-400 uppercase">Fee</label>
+                        <label class="text-[8px] font-bold text-gray-400 uppercase">Fee Master</label>
                         <input type="number" id="fee-${u.username}" value="${u.fee || 0}" class="w-full p-2 rounded input-dark font-black text-[10px]">
                     </div>
                     <div class="space-y-1">
-                        <label class="text-[8px] font-bold text-gray-400 uppercase">Bon</label>
+                        <label class="text-[8px] font-bold text-gray-400 uppercase">Bon Master</label>
                         <input type="number" id="bon-${u.username}" value="${u.bon || 0}" class="w-full p-2 rounded input-dark font-black text-[10px]">
                     </div>
                     <div class="flex items-end">
-                        <button onclick="updateFullFinance('${u.username}')" class="w-full bg-ygsred text-white py-2 rounded font-black text-[9px] uppercase">Simpan</button>
+                        <button onclick="updateFullFinance('${u.username}')" class="w-full bg-ygsred text-white py-2 rounded font-black text-[9px] uppercase shadow-lg">SIMPAN</button>
                     </div>
                 </div>
             </div>`).join('');
@@ -822,14 +864,14 @@
             const b = document.getElementById(`bon-${username}`).value;
             showLoading(true);
             await apiCall({ action: 'UPDATE_USER_FINANCE', payload: { username, fee: f, bon: b } });
-            showLoading(false); showToast("Terupdate!"); fetchData();
+            showLoading(false); showToast("Akuntansi Terupdate!"); fetchData();
         }
 
         async function approveBon(id, username) { 
             const amt = document.getElementById(`approve-amt-${id}`).value;
             if(!amt) return showToast("Input nominal!", true);
             showLoading(true); await apiCall({ action: 'APPROVE_BON', payload: { id, amount: amt, username } }); 
-            showLoading(false); fetchData(); renderTeam(); showToast("Bon disetujui!");
+            showLoading(false); fetchData(); renderTeam(); showToast("Bon disetujui & Saldo terupdate!");
         }
 
         function renderProfile() {
@@ -845,6 +887,38 @@
                     <div class="text-green-600">Terdaftar</div>
                 </div>`).join('') || '<p class="text-center text-[8px] italic py-4">Belum ada tugas</p>';
         }
+
+        // --- EVALUASI LOGIC ---
+        function updateEvalDropdown() {
+            const select = document.getElementById('eval-event-id');
+            select.innerHTML = allProjects.map(p => `<option value="${p.id}">${p.eventName}</option>`).join('');
+        }
+
+        async function renderEvaluations() {
+            const r = await apiCall({ action: 'GET_EVALS' });
+            if(r.success) {
+                document.getElementById('eval-container').innerHTML = r.data.map(e => `
+                    <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800 space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-[9px] font-black text-ygsred uppercase">${e.eventName}</span>
+                            <span class="text-[7px] text-gray-500 font-bold">${e.sender} • ${new Date(e.time).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-700 dark:text-gray-300 italic">"${e.msg}"</p>
+                    </div>
+                `).join('') || '<p class="text-center text-[8px] italic text-gray-500">Belum ada evaluasi.</p>';
+            }
+        }
+
+        document.getElementById('eval-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const eid = document.getElementById('eval-event-id').value;
+            const eventName = allProjects.find(p => p.id === eid)?.eventName || "Unknown";
+            const msg = document.getElementById('eval-msg').value;
+            showLoading(true);
+            await apiCall({ action: 'ADD_EVAL', payload: { eventId: eid, eventName, msg, sender: currentUser.nickname||currentUser.fullName, time: new Date().toISOString() } });
+            document.getElementById('eval-msg').value = '';
+            showLoading(false); showToast("Terima kasih!"); renderEvaluations();
+        };
 
         function logout() { localStorage.removeItem('ygsUserEx'); location.reload(); }
         function setAgendaView(v) { activeAgendaView = v; applyAgendaView(); }
