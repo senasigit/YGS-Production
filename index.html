@@ -60,21 +60,31 @@
         <p class="text-xs font-bold text-gray-600 dark:text-gray-300 tracking-widest uppercase">Memproses...</p>
     </div>
 
-    <!-- MODAL BON -->
-    <div id="modal-bon" class="fixed inset-0 bg-black/80 z-[500] hidden flex flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
-        <form id="form-bon" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-sm space-y-4 border dark:border-zinc-800 shadow-2xl">
-            <h3 class="text-lg font-black uppercase text-gray-900 dark:text-white border-b dark:border-zinc-800 pb-2">Ajukan Kas Bon</h3>
-            <div class="space-y-1">
-                <label class="text-[9px] font-bold text-gray-500 uppercase">Nominal (Rp)</label>
-                <input type="number" id="bon-amount" class="w-full p-3 rounded-xl input-dark font-bold" placeholder="Cth: 100000" required>
+    <!-- MODAL CUSTOM CONFIRMATION (Pengganti alert/confirm) -->
+    <div id="modal-confirm" class="fixed inset-0 bg-black/80 z-[600] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
+        <div class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-xs space-y-4 border dark:border-zinc-800 shadow-2xl text-center">
+            <div class="mx-auto w-12 h-12 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full flex items-center justify-center mb-2">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
             </div>
-            <div class="space-y-1">
-                <label class="text-[9px] font-bold text-gray-500 uppercase">Keperluan</label>
-                <input type="text" id="bon-note" class="w-full p-3 rounded-xl input-dark font-bold" placeholder="Alasan peminjaman" required>
-            </div>
+            <h3 class="text-sm font-black uppercase text-gray-900 dark:text-white" id="confirm-title">Konfirmasi</h3>
+            <p class="text-[10px] text-gray-500 font-bold" id="confirm-msg">Apakah Anda yakin?</p>
             <div class="flex gap-3 pt-2">
-                <button type="button" onclick="closeBonModal()" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px]">Batal</button>
-                <button type="submit" class="flex-1 py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px]">Kirim Pengajuan</button>
+                <button type="button" id="btn-confirm-cancel" class="flex-1 py-3 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px] transition hover:bg-gray-300 dark:hover:bg-zinc-700">Batal</button>
+                <button type="button" id="btn-confirm-ok" class="flex-1 py-3 rounded-xl bg-red-600 text-white font-black uppercase text-[10px] transition hover:bg-red-700">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GAJI EVENT (ADMIN) -->
+    <div id="modal-finance" class="fixed inset-0 bg-black/80 z-[500] hidden flex flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
+        <form id="form-finance" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-sm space-y-4 border dark:border-zinc-800 shadow-2xl">
+            <input type="hidden" id="fin-event-id">
+            <h3 class="text-sm font-black uppercase text-gray-900 dark:text-white border-b dark:border-zinc-800 pb-2 truncate" id="fin-event-title">Gaji Crew</h3>
+            <p class="text-[9px] text-gray-500 uppercase font-bold">Input gaji untuk crew di event ini. Saldo akan otomatis masuk ke dompet crew.</p>
+            <div id="fin-crew-list" class="space-y-2 max-h-[50vh] overflow-y-auto pr-1"></div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeFinanceModal()" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px]">Batal</button>
+                <button type="submit" class="flex-1 py-3.5 rounded-xl bg-green-600 text-white font-black uppercase text-[10px]">Simpan Gaji</button>
             </div>
         </form>
     </div>
@@ -380,87 +390,102 @@
             <!-- TAB: EVALUASI -->
             <div id="view-eval" class="hidden animate-fade space-y-4 pb-20">
                 <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1">Evaluasi Event</h2>
-                <div id="eval-container" class="space-y-3"></div>
-                <form id="eval-form" class="card-dark p-4 rounded-xl space-y-3">
-                    <p class="text-[9px] font-black uppercase text-gray-500">Kirim Evaluasi / Feedback</p>
+                <div id="eval-container" class="space-y-4"></div>
+                
+                <form id="eval-form" class="card-dark p-4 rounded-xl space-y-3 mt-4 border-t-4 border-ygsred">
+                    <p class="text-[10px] font-black uppercase text-gray-900 dark:text-white">Kirim Evaluasi / Feedback</p>
                     <select id="eval-event-id" class="w-full p-2.5 rounded input-dark font-bold text-[10px]"></select>
-                    <textarea id="eval-msg" class="w-full p-3 rounded-xl input-dark text-[10px] font-bold" rows="3" placeholder="Apa yang perlu diperbaiki?" required></textarea>
+                    <textarea id="eval-msg" class="w-full p-3 rounded-xl input-dark text-[10px] font-bold" rows="3" placeholder="Tuliskan evaluasi kinerja teknis atau operasional..." required></textarea>
                     <button type="submit" class="w-full bg-ygsred text-white py-3 rounded-xl font-black text-[10px] uppercase">Kirim Feedback</button>
                 </form>
             </div>
 
             <!-- TAB: TEAM (ADMIN) -->
             <div id="view-team" class="hidden animate-fade space-y-4 pb-10">
-                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1">Manajemen Tim & Akuntansi</h2>
-                <div id="bon-approval-container" class="space-y-2 mb-6">
-                    <p class="text-[10px] font-black text-gray-400 uppercase">Pengajuan Bon Pending</p>
-                    <div id="bon-pending-list" class="space-y-2"></div>
-                </div>
+                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1">Manajemen Tim & Keuangan</h2>
+                <p class="text-[9px] text-gray-500 uppercase font-bold italic mb-4">Master kontrol akuntansi kru. Edit Total Pendapatan & Bon disini.</p>
                 <div class="grid gap-3" id="team-list"></div>
             </div>
 
-            <!-- TAB: PROFIL -->
+            <!-- TAB: DOMPET & PROFIL -->
             <div id="view-profile" class="hidden animate-fade space-y-6 pb-20">
-                <div class="card-dark p-6 rounded-2xl border-t-4 border-t-ygsred text-center relative overflow-hidden">
+                <div class="card-dark p-6 rounded-2xl border-t-4 border-t-ygsred text-center relative overflow-hidden shadow-lg">
                     <div class="absolute -top-10 -right-10 opacity-[0.03]">
                         <svg width="200" height="200" viewBox="0 0 100 100" fill="red"><path d="M30 35H45L55 65H40L30 35Z"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
                     </div>
-                    <div id="profile-initial" class="w-16 h-16 bg-gray-100 dark:bg-zinc-900 rounded-full mx-auto flex items-center justify-center font-black text-2xl text-ygsred mb-4 uppercase"></div>
-                    <h3 id="profile-fullname" class="text-xl font-black uppercase mb-1"></h3>
-                    <p id="profile-position" class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4"></p>
                     
-                    <div class="bg-gray-50 dark:bg-zinc-900 p-3 rounded-xl mb-6 text-left border dark:border-zinc-800 space-y-2">
+                    <div class="flex justify-between items-start mb-4 relative z-10 text-left">
                         <div>
-                            <p class="text-[8px] font-black text-gray-400 uppercase mb-1">Informasi Pribadi</p>
-                            <p class="text-[10px] font-bold text-gray-700 dark:text-gray-300"><i data-lucide="phone" class="w-3 h-3 inline-block align-middle mr-1"></i> <span id="prof-phone"></span></p>
+                            <h3 id="profile-fullname" class="text-sm font-black uppercase mb-0.5"></h3>
+                            <p id="profile-position" class="text-[9px] font-bold text-gray-500 uppercase tracking-widest"></p>
+                        </div>
+                        <div id="profile-initial" class="w-10 h-10 bg-gray-100 dark:bg-zinc-900 rounded-full flex items-center justify-center font-black text-sm text-ygsred uppercase shrink-0 border dark:border-zinc-800"></div>
+                    </div>
+                    
+                    <div class="bg-gray-50 dark:bg-zinc-900 p-3 rounded-xl mb-6 text-left border dark:border-zinc-800 space-y-2 relative z-10">
+                        <div>
+                            <p class="text-[8px] font-black text-gray-400 uppercase mb-1 border-b dark:border-zinc-800 pb-1">Informasi Pribadi & Dompet</p>
+                            <p class="text-[10px] font-bold text-gray-700 dark:text-gray-300 mt-1.5"><i data-lucide="phone" class="w-3 h-3 inline-block align-middle mr-1"></i> <span id="prof-phone"></span></p>
                             <p class="text-[10px] font-bold text-gray-700 dark:text-gray-300 mt-1"><i data-lucide="user" class="w-3 h-3 inline-block align-middle mr-1"></i> @<span id="prof-username"></span> (<span id="prof-nickname"></span>)</p>
                             <p class="text-[10px] font-bold text-gray-700 dark:text-gray-300 mt-1"><i data-lucide="map-pin" class="w-3 h-3 inline-block align-middle mr-1"></i> <span id="prof-address"></span></p>
                         </div>
-                        <div class="pt-2 border-t dark:border-zinc-800">
-                            <p class="text-[8px] font-black text-gray-400 uppercase mb-1">Rekening Gaji</p>
-                            <p id="prof-bank-info" class="text-[10px] font-bold"></p>
+                        <div class="pt-2 border-t dark:border-zinc-800 mt-2">
+                            <p class="text-[8px] font-black text-gray-400 uppercase mb-1">Rekening Pencairan</p>
+                            <p id="prof-bank-info" class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase"></p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 mb-6 text-center">
-                        <div class="bg-green-50 dark:bg-green-950/20 p-2 rounded-xl border border-green-100 dark:border-green-900/50"><p class="text-[8px] font-bold text-green-600 uppercase">Fee</p><p id="prof-fee" class="text-[10px] font-black">Rp 0</p></div>
-                        <div class="bg-red-50 dark:bg-red-950/20 p-2 rounded-xl border border-red-100 dark:border-red-900/50"><p class="text-[8px] font-bold text-red-600 uppercase">Bon</p><p id="prof-bon" class="text-[10px] font-black">Rp 0</p></div>
-                        <div class="bg-blue-50 dark:bg-blue-950/20 p-2 rounded-xl border border-blue-100 dark:border-blue-900/50"><p class="text-[8px] font-bold text-blue-600 uppercase">Sisa</p><p id="prof-sisa" class="text-[10px] font-black">Rp 0</p></div>
+                    <div class="grid grid-cols-2 gap-2 mb-6 text-center relative z-10">
+                        <div class="bg-gray-100 dark:bg-zinc-900 p-2.5 rounded-xl border dark:border-zinc-800">
+                            <p class="text-[8px] font-bold text-gray-500 uppercase">Total Pendapatan</p>
+                            <p id="prof-fee" class="text-[11px] font-black text-gray-800 dark:text-gray-200 mt-1">Rp 0</p>
+                        </div>
+                        <div class="bg-red-50 dark:bg-red-950/20 p-2.5 rounded-xl border border-red-100 dark:border-red-900/50">
+                            <p class="text-[8px] font-bold text-red-600 uppercase">Total Kas Bon</p>
+                            <p id="prof-bon" class="text-[11px] font-black text-red-600 mt-1">Rp 0</p>
+                        </div>
+                        <div class="col-span-2 bg-green-50 dark:bg-green-950/20 p-3 rounded-xl border border-green-100 dark:border-green-900/50 mt-1">
+                            <p class="text-[9px] font-black text-green-700 uppercase tracking-widest">Saldo Aktif Dompet</p>
+                            <p id="prof-sisa" class="text-xl font-black text-green-600 mt-1">Rp 0</p>
+                        </div>
                     </div>
-                    <button id="btn-request-bon" onclick="openBonModal()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-xs uppercase mb-2">Ajukan Bon</button>
-                    <button onclick="logout()" class="w-full bg-gray-100 dark:bg-zinc-900 text-red-600 py-3 rounded-xl font-black text-xs uppercase">Logout</button>
+                    
+                    <button onclick="logout()" class="w-full bg-gray-100 dark:bg-zinc-900 text-red-600 py-3 rounded-xl font-black text-[10px] uppercase border dark:border-zinc-800 relative z-10 transition hover:bg-gray-200 dark:hover:bg-zinc-800">Logout Akun</button>
                 </div>
-                <div class="card-dark p-4 rounded-2xl"><h3 class="text-[10px] font-black uppercase text-gray-500 mb-3">Tugas Kerja & Pendapatan</h3><div id="profile-history" class="space-y-2"></div></div>
+                
+                <div class="card-dark p-4 rounded-2xl">
+                    <h3 class="text-[10px] font-black uppercase text-gray-500 mb-3 border-b dark:border-zinc-800 pb-1">Riwayat Gaji per Event</h3>
+                    <div id="profile-history" class="space-y-2"></div>
+                </div>
             </div>
         </main>
 
         <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t dark:border-zinc-800 flex justify-around p-2 z-[100] backdrop-blur-md">
-            <button onclick="switchTab('list')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-list"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Jadwal</span></button>
-            <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-chat"><i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Chat</span></button>
-            <button onclick="resetEventForm(); switchTab('add')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Buat</span></button>
-            <button onclick="switchTab('assets')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-assets"><i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Aset</span></button>
-            <button onclick="switchTab('eval')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-eval"><i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Eval</span></button>
-            <button onclick="switchTab('team')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Tim</span></button>
-            <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-profile"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Profil</span></button>
+            <button onclick="switchTab('list')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-list"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Jadwal</span></button>
+            <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-chat"><i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Chat</span></button>
+            <button onclick="resetEventForm(); switchTab('add')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Buat</span></button>
+            <button onclick="switchTab('assets')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-assets"><i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Aset</span></button>
+            <button onclick="switchTab('eval')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-eval"><i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Eval</span></button>
+            <button onclick="switchTab('team')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Tim</span></button>
+            <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-profile"><i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Dompet</span></button>
         </nav>
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz6alw0e-EwkuHNc0g0L25WOUo-Dx_LyLsaf7DEBOVUGZlr7bTD6hJXWv66mFobfDM/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzghGlrwvxYB4t6z2f1BML6DQbuX2sX2mu5L709mZbEF0G7Po8mU49y3_96c5IzaRw/exec'; 
         let currentUser = null, allProjects = [], allUsers = [], currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear(), activeAgendaView = 'kalender';
 
         function formatIDR(val) {
-            return "Rp " + Number(val || 0).toLocaleString('id-ID');
+            let num = Number(val || 0);
+            let isMinus = num < 0;
+            let formatted = Math.abs(num).toLocaleString('id-ID');
+            return (isMinus ? "-Rp " : "Rp ") + formatted;
         }
 
-        const savedTheme = localStorage.getItem('ygsTheme');
-        if (savedTheme === 'light') document.documentElement.classList.remove('dark');
-        else if (savedTheme === 'dark') document.documentElement.classList.add('dark');
-        
+        // Removed localStorage usage as per iFrame sandbox constraints. 
+        // Replaced logic with pure in-memory state.
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
-            localStorage.setItem('ygsTheme', isDark ? 'dark' : 'light');
         }
 
         const MASTER_GROUPS = {
@@ -483,19 +508,47 @@
             setTimeout(() => { t.remove(); }, 3000);
         }
 
+        // Custom Confirm Logic (Replacing standard confirm)
+        let confirmAction = null;
+        function showCustomConfirm(title, msg, onConfirm) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-msg').innerText = msg;
+            confirmAction = onConfirm;
+            document.getElementById('modal-confirm').classList.remove('hidden');
+            document.getElementById('modal-confirm').classList.add('flex');
+            lucide.createIcons();
+        }
+
+        document.getElementById('btn-confirm-cancel').onclick = () => {
+            document.getElementById('modal-confirm').classList.add('hidden');
+            document.getElementById('modal-confirm').classList.remove('flex');
+            confirmAction = null;
+        };
+
+        document.getElementById('btn-confirm-ok').onclick = () => {
+            document.getElementById('modal-confirm').classList.add('hidden');
+            document.getElementById('modal-confirm').classList.remove('flex');
+            if (confirmAction) confirmAction();
+        };
+
         async function apiCall(payload) {
             try { const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }); return JSON.parse(await res.text()); } 
             catch (e) { return { success: false, message: "Server Error" }; }
         }
 
-        window.onload = () => { const saved = localStorage.getItem('ygsUserEx'); if(saved) { currentUser = JSON.parse(saved); initApp(); } lucide.createIcons(); }
+        window.onload = () => { 
+            lucide.createIcons(); 
+            // In-memory initialization forces user login every refresh
+            document.getElementById('view-auth').classList.remove('hidden');
+        }
+        
         function toggleAuth(type) { document.getElementById('login-form').classList.toggle('hidden', type !== 'login'); document.getElementById('register-form').classList.toggle('hidden', type !== 'register'); }
 
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault(); showLoading(true);
             const res = await apiCall({ action: 'LOGIN', payload: { username: document.getElementById('log-username').value.toLowerCase(), password: document.getElementById('log-password').value } });
             showLoading(false);
-            if(res.success) { currentUser = res.user; localStorage.setItem('ygsUserEx', JSON.stringify(currentUser)); initApp(); } 
+            if(res.success) { currentUser = res.user; initApp(); } 
             else showToast(res.message, true);
         };
 
@@ -526,7 +579,6 @@
                 document.getElementById('nav-team').classList.remove('hidden'); 
                 document.getElementById('btn-add-asset').classList.remove('hidden'); 
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-                document.getElementById('btn-request-bon').classList.add('hidden'); 
             }
             fetchData(); switchTab('list'); initDynForms();
         }
@@ -550,10 +602,7 @@
                 document.getElementById('list-crew').innerHTML = allUsers.map(u => `<option value="${u.nickname || u.fullName}">`).join(''); 
                 if(currentUser) {
                     const updatedMe = allUsers.find(u => u.username === currentUser.username);
-                    if(updatedMe) {
-                        currentUser = updatedMe;
-                        localStorage.setItem('ygsUserEx', JSON.stringify(currentUser));
-                    }
+                    if(updatedMe) currentUser = updatedMe;
                 }
             }
         }
@@ -619,13 +668,14 @@
                         <h3 class="font-black text-sm uppercase group-hover:text-ygsred transition-colors">${p.eventName}</h3>
                         <p class="text-[9px] text-gray-500 uppercase">${p.artist} • ${dateRangeDisplay}</p>
                         ${activityHTML}
-                        <p class="text-[8px] text-blue-500 font-bold mt-1.5 flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> Lihat Detail</p>
+                        <p class="text-[8px] text-blue-500 font-bold mt-1.5 flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> Lihat Detail Event</p>
                     </div>
                 </div>
                 ${currentUser?.role === 'admin' ? `
-                <div class="flex gap-2 mt-3 pt-3 border-t dark:border-zinc-800">
-                    <button onclick="shareWA('${p.id}')" class="flex-1 bg-green-500 text-white py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="share-2" class="w-3 h-3"></i> CREW CALL</button>
-                    <button onclick="exportPDF('${p.id}')" class="flex-1 bg-blue-600 text-white py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button>
+                <div class="flex gap-2 mt-3 pt-3 border-t dark:border-zinc-800 flex-wrap">
+                    <button onclick="openFinanceModal('${p.id}')" class="flex-none bg-emerald-600 text-white px-3 py-1.5 rounded text-[9px] font-black"><i data-lucide="dollar-sign" class="w-3 h-3"></i> GAJI CREW</button>
+                    <button onclick="shareWA('${p.id}')" class="flex-none bg-green-500 text-white px-3 py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="share-2" class="w-3 h-3"></i> WA</button>
+                    <button onclick="exportPDF('${p.id}')" class="flex-none bg-blue-600 text-white px-3 py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button>
                     <button onclick="editEvent('${p.id}')" class="flex-none bg-yellow-500 text-white px-3 py-1.5 rounded text-[9px] font-black"><i data-lucide="edit" class="w-3 h-3"></i></button>
                     <button onclick="deleteEvent('${p.id}')" class="flex-none bg-red-600 text-white px-3 py-1.5 rounded text-[9px] font-black"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                 </div>
@@ -674,9 +724,10 @@
         function closeEventDetail() { document.getElementById('modal-event-detail').classList.add('hidden'); }
 
         async function deleteEvent(id) {
-            if(!confirm("Hapus event?")) return;
-            showLoading(true); await apiCall({ action: 'DELETE_DATA', payload: { id } });
-            showLoading(false); fetchData(); showToast("Dihapus!");
+            showCustomConfirm("Hapus Event", "Hapus event ini dari database secara permanen?", async () => {
+                showLoading(true); await apiCall({ action: 'DELETE_DATA', payload: { id } });
+                showLoading(false); fetchData(); showToast("Event Dihapus!");
+            });
         }
 
         function exportPDF(id) {
@@ -720,6 +771,184 @@
             let txt = `*CREW CALL YGS PRODUCTION*\n\nEvent: *${p.eventName}*\nArtist: ${p.artist}\nTanggal: ${p.eventDate}\nLokasi: ${p.mapsLink || '-'}\n\n*MANPOWER PLOTTING:*\nPIC: ${p.manpower?.pic}\n\nAUDIO:\n- SE: ${p.manpower?.audio?.se || '-'}\n- FOH: ${p.manpower?.audio?.foh || '-'}\n\nLIGHTING:\n- LD: ${p.manpower?.lighting?.ld || '-'}\n- PTC: ${p.manpower?.lighting?.ptc || '-'}\n\n_Dimohon standby di lokasi tepat waktu._`;
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
         }
+
+        // --- EDIT EVENT OTOMATIS (AUTO-FILL) ---
+        function editEvent(id) {
+            const p = allProjects.find(x => x.id === id); if(!p) return;
+            resetEventForm();
+            switchTab('add');
+            
+            document.getElementById('form-title').innerText = "Edit Event: " + p.eventName;
+            document.getElementById('edit-id').value = p.id;
+            
+            document.getElementById('eventName').value = p.eventName || '';
+            document.getElementById('artist').value = p.artist || '';
+            document.getElementById('clientName').value = p.clientName || '';
+            document.getElementById('clientPhone').value = p.clientPhone || '';
+            document.getElementById('mapsLink').value = p.mapsLink || '';
+            document.getElementById('evStatus').value = p.status || 'Tentative';
+            
+            if (p.activities && p.activities.length > 0) {
+                document.getElementById('startDate').value = p.activities[0].date;
+                document.getElementById('endDate').value = p.activities[p.activities.length-1].date;
+                generateDays();
+                
+                setTimeout(() => {
+                    const rows = document.querySelectorAll('.day-row');
+                    p.activities.forEach((act, i) => {
+                        if(rows[i]) {
+                            rows[i].querySelector('.time-start').value = act.startTime || '08:00';
+                            rows[i].querySelector('.time-end').value = act.endTime || '23:00';
+                            const cbs = Array.from(rows[i].querySelectorAll('.act-check'));
+                            cbs.forEach(cb => cb.checked = act.acts && act.acts.includes(cb.value));
+                        }
+                    });
+                }, 100);
+            } else {
+                document.getElementById('startDate').value = p.eventDate || '';
+                document.getElementById('endDate').value = p.eventDate || '';
+                if(p.eventDate) generateDays();
+            }
+
+            document.querySelectorAll('.trans-check').forEach(cb => cb.checked = false);
+            if(p.transportasi) {
+                p.transportasi.forEach(t => {
+                    const cb = document.querySelector(`.trans-check[value="${t}"]`);
+                    if(cb) cb.checked = true;
+                });
+            }
+
+            if(p.manpower) {
+                document.getElementById('pic').value = p.manpower.pic || '';
+                document.getElementById('c_a_se').value = p.manpower.audio?.se || '';
+                document.getElementById('c_a_foh').value = p.manpower.audio?.foh || '';
+                document.getElementById('c_a_moh').value = p.manpower.audio?.moh || '';
+                document.getElementById('c_a_rf').value = p.manpower.audio?.rf || '';
+                document.getElementById('c_a_stg').value = p.manpower.audio?.stg || '';
+                document.getElementById('c_a_ast').value = p.manpower.audio?.ast || '';
+                document.getElementById('c_l_ld').value = p.manpower.lighting?.ld || '';
+                document.getElementById('c_l_ptc').value = p.manpower.lighting?.ptc || '';
+                document.getElementById('c_l_adr').value = p.manpower.lighting?.adr || '';
+                document.getElementById('c_l_ast').value = p.manpower.lighting?.ast || '';
+                document.getElementById('c_r_head').value = p.manpower.roadies?.head || '';
+                document.getElementById('c_r_1').value = p.manpower.roadies?.r1 || '';
+                document.getElementById('c_r_2').value = p.manpower.roadies?.r2 || '';
+                document.getElementById('c_r_3').value = p.manpower.roadies?.r3 || '';
+                document.getElementById('c_r_4').value = p.manpower.roadies?.r4 || '';
+                document.getElementById('c_s_rigging').value = p.manpower.support?.rigging || '';
+                document.getElementById('c_s_stage').value = p.manpower.support?.stage || '';
+                document.getElementById('c_s_genset').value = p.manpower.support?.genset || '';
+                document.getElementById('c_s_barikade').value = p.manpower.support?.barikade || '';
+            }
+            
+            if (p.specDyn) {
+                const fillDyn = (cId, arr) => {
+                    if(!arr || !arr.length) return;
+                    const container = document.getElementById(cId);
+                    if(!container) return;
+                    arr.forEach(item => {
+                        if (!item.brand && !item.qty && item.jenis) return;
+                        const rows = Array.from(container.querySelectorAll('.dynamic-row'));
+                        let targetRow = rows.find(r => r.querySelector('.dyn-jenis').value === item.jenis && r.querySelector('.dyn-brand').value === '' && r.querySelector('.dyn-qty').value === '');
+                        
+                        if (targetRow) {
+                            targetRow.querySelector('.dyn-brand').value = item.brand || '';
+                            targetRow.querySelector('.dyn-qty').value = item.qty || '';
+                        } else {
+                            let pNode = container;
+                            const mRow = rows.find(r => r.querySelector('.dyn-jenis').value === item.jenis);
+                            if(mRow) pNode = mRow.parentElement;
+                            
+                            const div = document.createElement('div'); 
+                            div.className = 'grid grid-cols-12 gap-1 dynamic-row items-center mb-1';
+                            let ph = {j:'Posisi', b:'Brand/Tipe', q:'Qty'}; 
+                            if(cId.includes('genset')) ph={j:'Kegunaan', b:'KVA', q:'Unit'}; 
+                            if(cId.includes('led')) ph={j:'Posisi', b:'Brand', q:'Meter'};
+                            
+                            const isF = !!mRow && mRow.querySelector('.dyn-jenis').readOnly;
+                            div.innerHTML = `<input type="text" class="dyn-jenis col-span-4 p-2 rounded input-dark font-bold" placeholder="${ph.j}" value="${item.jenis || ''}" ${isF?'readonly':''}><input type="text" class="dyn-brand col-span-5 p-2 rounded input-dark font-bold" placeholder="${ph.b}" value="${item.brand || ''}"><input type="text" class="dyn-qty col-span-2 p-2 rounded input-dark text-center font-bold" placeholder="${ph.q}" value="${item.qty || ''}"><button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                            pNode.appendChild(div);
+                        }
+                    });
+                    lucide.createIcons();
+                };
+
+                if (p.specDyn.audio) {
+                    ['pa', 'monitor', 'console', 'mic', 'backline', 'stand', 'cable'].forEach(c => fillDyn('dyn-audio-'+c, p.specDyn.audio[c]));
+                }
+                if (p.specDyn.lighting) {
+                    p.specDyn.lighting.forEach(l => fillDyn('dyn-light-'+l.sub.replace(/\s+/g,''), l.data));
+                }
+                fillDyn('dyn-led', p.specDyn.led);
+                fillDyn('dyn-rigging', p.specDyn.rigging);
+                fillDyn('dyn-genset', p.specDyn.genset);
+                fillDyn('dyn-barikade', p.specDyn.barikade);
+            }
+            
+            window.scrollTo(0,0);
+            showToast("Mode Edit! Data lama otomatis diisi ulang dari database.", false);
+        }
+
+        // --- GAJI CREW MODAL (ADMIN) ---
+        function openFinanceModal(id) {
+            const p = allProjects.find(x => x.id === id); if(!p) return;
+            document.getElementById('fin-event-id').value = p.id;
+            document.getElementById('fin-event-title').innerText = "Gaji Crew: " + p.eventName;
+            
+            let crewNames = new Set();
+            const m = p.manpower || {};
+            if(m.pic) crewNames.add(m.pic);
+            if(m.audio) Object.values(m.audio).forEach(n => { if(n) crewNames.add(n); });
+            if(m.lighting) Object.values(m.lighting).forEach(n => { if(n) crewNames.add(n); });
+            if(m.roadies) Object.values(m.roadies).forEach(n => { if(n) crewNames.add(n); });
+            if(m.support) Object.values(m.support).forEach(n => { if(n) crewNames.add(n); });
+            
+            crewNames.delete('-'); crewNames.delete('');
+            
+            const container = document.getElementById('fin-crew-list');
+            container.innerHTML = '';
+            
+            Array.from(crewNames).forEach(crew => {
+                const val = (p.finance && p.finance[crew]) ? p.finance[crew] : '';
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-50 dark:bg-zinc-900 p-2.5 rounded-lg border dark:border-zinc-800">
+                        <span class="text-[10px] font-black uppercase">${crew}</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-[10px] font-bold text-gray-500">Rp</span>
+                            <input type="number" class="fin-input w-24 p-1.5 rounded input-dark text-[10px] font-black" data-crew="${crew}" value="${val}">
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if(crewNames.size === 0) container.innerHTML = '<p class="text-[10px] italic text-center text-gray-500">Belum ada crew yang diplotting.</p>';
+            
+            document.getElementById('modal-finance').classList.remove('hidden');
+            document.getElementById('modal-finance').classList.add('flex');
+        }
+
+        function closeFinanceModal() { document.getElementById('modal-finance').classList.add('hidden'); document.getElementById('modal-finance').classList.remove('flex'); }
+
+        document.getElementById('form-finance').onsubmit = async (e) => {
+            e.preventDefault();
+            showLoading(true);
+            const id = document.getElementById('fin-event-id').value;
+            const p = allProjects.find(x => x.id === id);
+            if(!p) return;
+            
+            p.finance = p.finance || {};
+            document.querySelectorAll('.fin-input').forEach(inp => {
+                p.finance[inp.dataset.crew] = Number(inp.value) || 0;
+            });
+            
+            // Mengirim ulang data project secara utuh beserta object finance yang baru update
+            await apiCall({ action: 'ADD_DATA', payload: p }); 
+            
+            showLoading(false);
+            closeFinanceModal();
+            showToast("Gaji Crew tersimpan!");
+            fetchData(); 
+        };
 
         function initDynForms() {
             const aC = document.getElementById('dyn-audio-container'), lC = document.getElementById('dyn-lighting-container');
@@ -770,6 +999,14 @@
             e.preventDefault(); showLoading(true);
             const editId = document.getElementById('edit-id').value;
             const days = []; document.querySelectorAll('.day-row').forEach(r => days.push({ date: r.dataset.date, startTime: r.querySelector('.time-start').value, endTime: r.querySelector('.time-end').value, acts: Array.from(r.querySelectorAll('.act-check:checked')).map(x => x.value) }));
+            
+            // Pertahankan nilai finance gaji jika sedang mode edit, agar tidak hilang saat diupdate
+            let existingFinance = {};
+            if(editId) {
+                const existingEvent = allProjects.find(x => x.id === editId);
+                if(existingEvent && existingEvent.finance) existingFinance = existingEvent.finance;
+            }
+
             const p = { 
                 id: editId || ('YGS-'+Date.now()), 
                 eventName: document.getElementById('eventName').value, 
@@ -780,11 +1017,19 @@
                 eventDate: document.getElementById('startDate').value, 
                 status: document.getElementById('evStatus').value, 
                 activities: days, 
-                manpower: { pic: document.getElementById('pic').value, audio: { se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value }, lighting: { ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value } }
+                finance: existingFinance,
+                transportasi: Array.from(document.querySelectorAll('.trans-check:checked')).map(x => x.value),
+                specDyn: { audio: { pa: extractDynData('dyn-audio-pa'), monitor: extractDynData('dyn-audio-monitor'), console: extractDynData('dyn-audio-console'), mic: extractDynData('dyn-audio-mic'), backline: extractDynData('dyn-audio-backline'), stand: extractDynData('dyn-audio-stand'), cable: extractDynData('dyn-audio-cable'), others: extractDynData('dyn-audio-others') }, lighting: MASTER_GROUPS.lighting.map(s => ({ sub: s, data: extractDynData('dyn-light-'+s.replace(/\s+/g,'')) })), led: extractDynData('dyn-led'), rigging: extractDynData('dyn-rigging'), genset: extractDynData('dyn-genset'), barikade: extractDynData('dyn-barikade') },
+                manpower: { pic: document.getElementById('pic').value, audio: { se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value, moh: document.getElementById('c_a_moh').value, rf: document.getElementById('c_a_rf').value, stg: document.getElementById('c_a_stg').value, ast: document.getElementById('c_a_ast').value }, lighting: { ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value, adr: document.getElementById('c_l_adr').value, ast: document.getElementById('c_l_ast').value }, roadies: { head: document.getElementById('c_r_head').value, r1: document.getElementById('c_r_1').value, r2: document.getElementById('c_r_2').value, r3: document.getElementById('c_r_3').value, r4: document.getElementById('c_r_4').value }, support: { rigging: document.getElementById('c_s_rigging').value, stage: document.getElementById('c_s_stage').value, genset: document.getElementById('c_s_genset').value, barikade: document.getElementById('c_s_barikade').value } }
             };
+            
+            // Backend ADD_DATA sekarang akan otomatis melakukan update (upsert) jika ID sudah ada
             await apiCall({ action: 'ADD_DATA', payload: p });
-            showLoading(false); resetEventForm(); switchTab('list'); fetchData(); showToast("Berhasil!");
+            
+            showLoading(false); resetEventForm(); switchTab('list'); fetchData(); showToast(editId ? "Terupdate!" : "Berhasil ditambah!");
         };
+
+        function extractDynData(id) { const arr = []; const el = document.getElementById(id); if(!el) return arr; el.querySelectorAll('.dynamic-row').forEach(r => { const j = r.querySelector('.dyn-jenis').value, b = r.querySelector('.dyn-brand').value, q = r.querySelector('.dyn-qty').value; if(j||b||q) arr.push({jenis:j, brand:b, qty:q}); }); return arr; }
 
         async function renderAssets() {
             const r = await apiCall({ action: 'GET_ASSETS' }); if(!r.success) return;
@@ -807,56 +1052,66 @@
         }
         
         async function updateAssetField(id, f, v) { await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id, field: f, value: v } }); }
-        async function deleteAsset(id) { if(!confirm("Hapus?")) return; showLoading(true); await apiCall({ action: 'DELETE_ASSET', payload: { id } }); showLoading(false); renderAssets(); }
+        
+        async function deleteAsset(id) { 
+            showCustomConfirm("Hapus Aset", "Hapus aset ini secara permanen?", async () => {
+                showLoading(true); await apiCall({ action: 'DELETE_ASSET', payload: { id } }); 
+                showLoading(false); renderAssets(); 
+            });
+        }
 
-        function openBonModal() { document.getElementById('modal-bon').classList.remove('hidden'); }
-        function closeBonModal() { document.getElementById('modal-bon').classList.add('hidden'); }
-        document.getElementById('form-bon').onsubmit = async (e) => {
-            e.preventDefault(); showLoading(true); await apiCall({ action: 'REQUEST_BON', payload: { amount: document.getElementById('bon-amount').value, note: document.getElementById('bon-note').value, user: currentUser.nickname||currentUser.fullName, username: currentUser.username, time: new Date().toISOString() } });
-            showLoading(false); closeBonModal(); showToast("Terkirim!");
-        };
+        // --- AKUNTANSI & TIM (ADMIN) ---
+        function calculateUserTotalFee(username, nickname, fullname) {
+            let total = 0;
+            allProjects.forEach(p => {
+                if(p.finance) {
+                    if(p.finance[nickname]) total += Number(p.finance[nickname]);
+                    else if(p.finance[fullname]) total += Number(p.finance[fullname]);
+                    else if(p.finance[username]) total += Number(p.finance[username]);
+                }
+            });
+            return total;
+        }
 
         async function renderTeam() {
-            const rB = await apiCall({ action: 'GET_BON_REQUESTS' });
-            if(rB.success) { 
-                document.getElementById('bon-pending-list').innerHTML = rB.data.filter(b => b.status === 'pending').map(b => `
-                <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl flex justify-between items-center border dark:border-blue-800">
-                    <div>
-                        <p class="text-[9px] font-black uppercase">${b.user}</p>
-                        <p class="text-[10px] font-black text-blue-600">${formatIDR(b.amount)}</p>
+            document.getElementById('team-list').innerHTML = allUsers.map(u => {
+                const totalGajiEvent = calculateUserTotalFee(u.username, u.nickname, u.fullName);
+                const feeMaster = Number(u.fee || 0); // Manual tambahan dari admin
+                const totalBon = Number(u.bon || 0);  // Total bon manual input admin
+                const saldoAktif = (totalGajiEvent + feeMaster) - totalBon;
+
+                return `
+                <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800 shadow-sm space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-black text-sm uppercase">${u.fullName}</p>
+                            <p class="text-[9px] text-ygsred font-bold uppercase tracking-widest">${u.position} • @${u.username}</p>
+                        </div>
+                        <div class="text-[8px] text-right font-bold text-gray-500 bg-gray-50 dark:bg-zinc-800 p-1.5 rounded-lg border dark:border-zinc-700/50">
+                            WA: ${u.phone||'-'}<br>BANK: ${u.bankName||'-'} (${u.bankAcc||'-'})<br>ADDR: ${u.address||'-'}
+                        </div>
                     </div>
-                    <div class="flex gap-2">
-                        <input type="number" id="approve-amt-${b.id}" placeholder="Nominal" class="w-20 p-2 rounded input-dark text-[10px]">
-                        <button onclick="approveBon('${b.id}', '${b.username}')" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black">OK</button>
+                    <div class="grid grid-cols-4 gap-2 bg-gray-50 dark:bg-zinc-900/50 p-2.5 rounded-lg border dark:border-zinc-800/50 text-[9px] text-center">
+                        <div><span class="block text-[8px] text-gray-400 mb-0.5">Gaji Event</span><b class="text-gray-900 dark:text-gray-100">${formatIDR(totalGajiEvent)}</b></div>
+                        <div><span class="block text-[8px] text-gray-400 mb-0.5">Pendapatan Plus</span><b class="text-gray-900 dark:text-gray-100">${formatIDR(feeMaster)}</b></div>
+                        <div><span class="block text-[8px] text-gray-400 mb-0.5">Total Bon</span><b class="text-red-500">${formatIDR(totalBon)}</b></div>
+                        <div><span class="block text-[8px] text-gray-400 mb-0.5">SALDO AKTIF</span><b class="${saldoAktif < 0 ? 'text-red-500' : 'text-green-500'}">${formatIDR(saldoAktif)}</b></div>
                     </div>
-                </div>`).join('') || '<p class="text-center text-[8px] text-gray-500 italic">Tidak ada pengajuan</p>'; 
-            }
-            
-            document.getElementById('team-list').innerHTML = allUsers.map(u => `
-            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800 shadow-sm space-y-3">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="font-black text-sm uppercase">${u.fullName}</p>
-                        <p class="text-[9px] text-ygsred font-bold uppercase tracking-widest">${u.position} • @${u.username}</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="space-y-1">
+                            <label class="text-[8px] font-bold text-gray-400 uppercase">Input Pendapatan</label>
+                            <input type="number" id="fee-${u.username}" value="${u.fee || 0}" class="w-full p-2 rounded input-dark font-black text-[10px]">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[8px] font-bold text-gray-400 uppercase">Input Total Bon</label>
+                            <input type="number" id="bon-${u.username}" value="${u.bon || 0}" class="w-full p-2 rounded input-dark font-black text-[10px]">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="updateFullFinance('${u.username}')" class="w-full bg-ygsred text-white py-2 rounded font-black text-[9px] uppercase shadow-lg hover:bg-red-700 transition">SIMPAN</button>
+                        </div>
                     </div>
-                    <div class="text-[8px] text-right font-bold text-gray-500 bg-gray-50 dark:bg-zinc-800 p-1.5 rounded-lg">
-                        WA: ${u.phone||'-'}<br>BANK: ${u.bankName||'-'} (${u.bankAcc||'-'})<br>ALAMAT: ${u.address||'-'}
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="space-y-1">
-                        <label class="text-[8px] font-bold text-gray-400 uppercase">Fee Master</label>
-                        <input type="number" id="fee-${u.username}" value="${u.fee || 0}" class="w-full p-2 rounded input-dark font-black text-[10px]">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[8px] font-bold text-gray-400 uppercase">Bon Master</label>
-                        <input type="number" id="bon-${u.username}" value="${u.bon || 0}" class="w-full p-2 rounded input-dark font-black text-[10px]">
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="updateFullFinance('${u.username}')" class="w-full bg-ygsred text-white py-2 rounded font-black text-[9px] uppercase shadow-lg">SIMPAN</button>
-                    </div>
-                </div>
-            </div>`).join('');
+                </div>`;
+            }).join('');
         }
         
         async function updateFullFinance(username) {
@@ -864,28 +1119,40 @@
             const b = document.getElementById(`bon-${username}`).value;
             showLoading(true);
             await apiCall({ action: 'UPDATE_USER_FINANCE', payload: { username, fee: f, bon: b } });
-            showLoading(false); showToast("Akuntansi Terupdate!"); fetchData();
-        }
-
-        async function approveBon(id, username) { 
-            const amt = document.getElementById(`approve-amt-${id}`).value;
-            if(!amt) return showToast("Input nominal!", true);
-            showLoading(true); await apiCall({ action: 'APPROVE_BON', payload: { id, amount: amt, username } }); 
-            showLoading(false); fetchData(); renderTeam(); showToast("Bon disetujui & Saldo terupdate!");
+            showLoading(false); showToast("Akuntansi Terupdate ke Database!"); fetchData(); renderTeam();
         }
 
         function renderProfile() {
             const u = currentUser;
-            document.getElementById('prof-fee').innerText = formatIDR(u.fee); 
-            document.getElementById('prof-bon').innerText = formatIDR(u.bon); 
-            document.getElementById('prof-sisa').innerText = formatIDR(Number(u.fee || 0) - Number(u.bon || 0));
+            const totalGajiEvent = calculateUserTotalFee(u.username, u.nickname, u.fullName);
+            const feeMaster = Number(u.fee || 0); 
+            const totalBon = Number(u.bon || 0);
+            const saldoAktif = (totalGajiEvent + feeMaster) - totalBon;
+
+            // Update dompet view based on current real data
+            document.getElementById('prof-fee').innerText = formatIDR(totalGajiEvent + feeMaster); 
+            document.getElementById('prof-bon').innerText = formatIDR(totalBon); 
+            
+            const saldoEl = document.getElementById('prof-sisa');
+            saldoEl.innerText = formatIDR(saldoAktif);
+            saldoEl.className = `text-xl font-black mt-1 ${saldoAktif < 0 ? 'text-red-600' : 'text-green-600'}`;
             
             const tasks = allProjects.filter(p => JSON.stringify(p.manpower).includes(u.nickname || u.fullName));
-            document.getElementById('profile-history').innerHTML = tasks.map(t => `
-                <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl flex justify-between items-center text-[9px] font-bold">
+            document.getElementById('profile-history').innerHTML = tasks.map(t => {
+                let gaji = 0;
+                if(t.finance) {
+                    if(t.finance[u.nickname]) gaji = t.finance[u.nickname];
+                    else if(t.finance[u.fullName]) gaji = t.finance[u.fullName];
+                }
+                return `
+                <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl flex justify-between items-center text-[9px] font-bold border dark:border-zinc-800 shadow-sm">
                     <div><p class="uppercase font-black text-ygsred">${t.eventName}</p><p class="text-gray-500">${t.eventDate}</p></div>
-                    <div class="text-green-600">Terdaftar</div>
-                </div>`).join('') || '<p class="text-center text-[8px] italic py-4">Belum ada tugas</p>';
+                    <div class="text-right">
+                        <p class="text-[8px] uppercase text-gray-500">Gaji Diterima</p>
+                        <p class="text-[11px] font-black text-green-600">${formatIDR(gaji)}</p>
+                    </div>
+                </div>`;
+            }).join('') || '<p class="text-center text-[8px] italic py-4">Belum ada tugas/event</p>';
         }
 
         // --- EVALUASI LOGIC ---
@@ -897,15 +1164,31 @@
         async function renderEvaluations() {
             const r = await apiCall({ action: 'GET_EVALS' });
             if(r.success) {
-                document.getElementById('eval-container').innerHTML = r.data.map(e => `
-                    <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800 space-y-2">
-                        <div class="flex justify-between">
-                            <span class="text-[9px] font-black text-ygsred uppercase">${e.eventName}</span>
-                            <span class="text-[7px] text-gray-500 font-bold">${e.sender} • ${new Date(e.time).toLocaleDateString()}</span>
-                        </div>
-                        <p class="text-[10px] font-bold text-gray-700 dark:text-gray-300 italic">"${e.msg}"</p>
-                    </div>
-                `).join('') || '<p class="text-center text-[8px] italic text-gray-500">Belum ada evaluasi.</p>';
+                // Kelompokkan eval per event agar rapi
+                const groupedEvals = {};
+                r.data.forEach(e => {
+                    if(!groupedEvals[e.eventName]) groupedEvals[e.eventName] = [];
+                    groupedEvals[e.eventName].push(e);
+                });
+
+                let html = '';
+                for (const event in groupedEvals) {
+                    html += `<div class="bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl border dark:border-zinc-800">
+                                <h4 class="text-[10px] font-black text-ygsred uppercase mb-3 border-b dark:border-zinc-800 pb-1">${event}</h4>
+                                <div class="space-y-3">`;
+                    groupedEvals[event].forEach(e => {
+                        html += `
+                        <div class="bg-white dark:bg-zinc-800 p-3 rounded-lg shadow-sm border dark:border-zinc-700/50">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[9px] font-bold text-gray-900 dark:text-gray-100 uppercase">${e.sender}</span>
+                                <span class="text-[7px] font-bold text-gray-400">${new Date(e.time).toLocaleDateString('id-ID')}</span>
+                            </div>
+                            <p class="text-[10px] font-medium text-gray-600 dark:text-gray-300 italic">"${e.msg}"</p>
+                        </div>`;
+                    });
+                    html += `</div></div>`;
+                }
+                document.getElementById('eval-container').innerHTML = html || '<p class="text-center text-[8px] italic text-gray-500">Belum ada evaluasi tersimpan.</p>';
             }
         }
 
@@ -917,10 +1200,14 @@
             showLoading(true);
             await apiCall({ action: 'ADD_EVAL', payload: { eventId: eid, eventName, msg, sender: currentUser.nickname||currentUser.fullName, time: new Date().toISOString() } });
             document.getElementById('eval-msg').value = '';
-            showLoading(false); showToast("Terima kasih!"); renderEvaluations();
+            showLoading(false); showToast("Terima kasih atas evaluasinya!"); renderEvaluations();
         };
 
-        function logout() { localStorage.removeItem('ygsUserEx'); location.reload(); }
+        function logout() { 
+            currentUser = null; 
+            location.reload(); 
+        }
+        
         function setAgendaView(v) { activeAgendaView = v; applyAgendaView(); }
         function applyAgendaView() { 
             const w = document.getElementById('wrapper-kalender'), c = document.getElementById('project-container'); 
@@ -933,11 +1220,16 @@
                 lucide.createIcons();
             } 
         }
+        
         async function renderChat() { const r = await apiCall({ action: 'GET_CHATS' }); if(!r.success) return; document.getElementById('chat-container').innerHTML = r.data.map(c => `<div class="flex flex-col ${c.sender === (currentUser.nickname||currentUser.fullName)?'items-end':'items-start'}"><span class="text-[7px] font-bold text-gray-500">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold ${c.sender === (currentUser.nickname||currentUser.fullName)?'bg-ygsred text-white':'bg-gray-100 dark:bg-zinc-800'}">${c.msg}</div></div>`).join(''); document.getElementById('chat-container').scrollTop = 99999; }
+        
         document.getElementById('chat-form').onsubmit = async (e) => { e.preventDefault(); const i = document.getElementById('chat-input'), p = { sender: currentUser.nickname||currentUser.fullName, msg: i.value, time: new Date().toISOString() }; i.value = ''; await apiCall({ action: 'ADD_CHAT', payload: p }); renderChat(); };
+        
         function changeMonth(v) { currentMonth += v; if(currentMonth>11){currentMonth=0;currentYear++} if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(); }
+        
         function openAssetModal() { document.getElementById('modal-asset').classList.remove('hidden'); }
         function closeAssetModal() { document.getElementById('modal-asset').classList.add('hidden'); }
+        
         document.getElementById('form-asset').onsubmit = async (e) => { e.preventDefault(); showLoading(true); await apiCall({ action: 'SAVE_ASSET', payload: { name: document.getElementById('ast-name').value, cat: document.getElementById('ast-cat').value, qty: document.getElementById('ast-qty').value, status: 'Baik', note: '' } }); showLoading(false); closeAssetModal(); renderAssets(); };
     </script>
 </body>
