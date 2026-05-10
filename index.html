@@ -60,7 +60,7 @@
         <p class="text-xs font-bold text-gray-600 dark:text-gray-300 tracking-widest uppercase">Memproses...</p>
     </div>
 
-    <!-- MODAL CUSTOM CONFIRMATION (Pengganti alert/confirm) -->
+    <!-- MODAL CUSTOM CONFIRMATION -->
     <div id="modal-confirm" class="fixed inset-0 bg-black/80 z-[600] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
         <div class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-xs space-y-4 border dark:border-zinc-800 shadow-2xl text-center">
             <div class="mx-auto w-12 h-12 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full flex items-center justify-center mb-2">
@@ -435,19 +435,24 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 mb-6 text-center relative z-10">
+                    <div class="grid grid-cols-3 gap-2 mb-2 text-center relative z-10">
                         <div class="bg-gray-100 dark:bg-zinc-900 p-2.5 rounded-xl border dark:border-zinc-800">
-                            <p class="text-[8px] font-bold text-gray-500 uppercase">Total Pendapatan</p>
-                            <p id="prof-fee" class="text-[11px] font-black text-gray-800 dark:text-gray-200 mt-1">Rp 0</p>
+                            <p class="text-[7px] font-bold text-gray-500 uppercase">Pendapatan</p>
+                            <p id="prof-fee" class="text-[10px] font-black text-gray-800 dark:text-gray-200 mt-1">Rp 0</p>
                         </div>
                         <div class="bg-red-50 dark:bg-red-950/20 p-2.5 rounded-xl border border-red-100 dark:border-red-900/50">
-                            <p class="text-[8px] font-bold text-red-600 uppercase">Total Kas Bon</p>
-                            <p id="prof-bon" class="text-[11px] font-black text-red-600 mt-1">Rp 0</p>
+                            <p class="text-[7px] font-bold text-red-600 uppercase">Total Bon</p>
+                            <p id="prof-bon" class="text-[10px] font-black text-red-600 mt-1">Rp 0</p>
                         </div>
-                        <div class="col-span-2 bg-green-50 dark:bg-green-950/20 p-3 rounded-xl border border-green-100 dark:border-green-900/50 mt-1">
-                            <p class="text-[9px] font-black text-green-700 uppercase tracking-widest">Saldo Aktif Dompet</p>
-                            <p id="prof-sisa" class="text-xl font-black text-green-600 mt-1">Rp 0</p>
+                        <div class="bg-blue-50 dark:bg-blue-950/20 p-2.5 rounded-xl border border-blue-100 dark:border-blue-900/50">
+                            <p class="text-[7px] font-bold text-blue-600 uppercase">Pencairan</p>
+                            <p id="prof-pencairan" class="text-[10px] font-black text-blue-600 mt-1">Rp 0</p>
                         </div>
+                    </div>
+                    
+                    <div class="bg-green-50 dark:bg-green-950/20 p-3 rounded-xl border border-green-100 dark:border-green-900/50 mb-6 relative z-10 text-center">
+                        <p class="text-[9px] font-black text-green-700 uppercase tracking-widest">Saldo Aktif Dompet</p>
+                        <p id="prof-sisa" class="text-xl font-black text-green-600 mt-1">Rp 0</p>
                     </div>
                     
                     <button onclick="logout()" class="w-full bg-gray-100 dark:bg-zinc-900 text-red-600 py-3 rounded-xl font-black text-[10px] uppercase border dark:border-zinc-800 relative z-10 transition hover:bg-gray-200 dark:hover:bg-zinc-800">Logout Akun</button>
@@ -692,6 +697,55 @@
         function showEventDetail(id) {
             const p = allProjects.find(x => x.id === id); if(!p) return;
             document.getElementById('detail-title').innerText = p.eventName;
+            
+            let transHTML = p.transportasi && p.transportasi.length ? p.transportasi.join(', ') : '-';
+            let actHTML = '';
+            if(p.activities && p.activities.length) {
+                actHTML = `<div class="mt-2 pt-2 border-t dark:border-zinc-800"><span class="text-[8px] text-gray-400 block mb-1 uppercase">Jadwal Kegiatan</span><ul class="list-disc pl-4 space-y-1">`;
+                p.activities.forEach(a => {
+                    actHTML += `<li class="text-gray-700 dark:text-gray-300">${a.date} (${a.startTime}-${a.endTime}): ${(a.acts||[]).join(', ')}</li>`;
+                });
+                actHTML += `</ul></div>`;
+            }
+
+            let specHTML = '';
+            if(p.specDyn) {
+                let audioStr = '';
+                if(p.specDyn.audio) {
+                    Object.keys(p.specDyn.audio).forEach(k => {
+                        let items = p.specDyn.audio[k];
+                        if(items && items.length) {
+                            audioStr += `<div class="mb-1"><b class="uppercase text-[8px] text-blue-500">${k}:</b> <span class="text-gray-700 dark:text-gray-300">` + items.map(i => `${i.qty} ${i.brand} ${i.jenis ? `(${i.jenis})` : ''}`).join(', ') + `</span></div>`;
+                        }
+                    });
+                }
+                let lightStr = '';
+                if(p.specDyn.lighting) {
+                    p.specDyn.lighting.forEach(l => {
+                        if(l.data && l.data.length) {
+                            lightStr += `<div class="mb-1"><b class="uppercase text-[8px] text-orange-500">${l.sub}:</b> <span class="text-gray-700 dark:text-gray-300">` + l.data.map(i => `${i.qty} ${i.brand} ${i.jenis ? `(${i.jenis})` : ''}`).join(', ') + `</span></div>`;
+                        }
+                    });
+                }
+                let otherStr = '';
+                ['led', 'rigging', 'genset', 'barikade'].forEach(k => {
+                    let items = p.specDyn[k];
+                    if(items && items.length) {
+                        otherStr += `<div class="mb-1"><b class="uppercase text-[8px] text-green-500">${k}:</b> <span class="text-gray-700 dark:text-gray-300">` + items.map(i => `${i.qty} ${i.brand} ${i.jenis ? `(${i.jenis})` : ''}`).join(', ') + `</span></div>`;
+                    }
+                });
+
+                specHTML = `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Spesifikasi Produksi</h4>
+                    <div class="text-[9px] font-bold space-y-2">
+                        ${audioStr ? `<div><span class="text-[9px] font-black text-gray-900 dark:text-white block mb-1">AUDIO</span>${audioStr}</div>` : ''}
+                        ${lightStr ? `<div><span class="text-[9px] font-black text-gray-900 dark:text-white block mb-1 mt-2">LIGHTING</span>${lightStr}</div>` : ''}
+                        ${otherStr ? `<div><span class="text-[9px] font-black text-gray-900 dark:text-white block mb-1 mt-2">PENDUKUNG</span>${otherStr}</div>` : ''}
+                        ${(!audioStr && !lightStr && !otherStr) ? '<p class="text-gray-500 italic">Belum ada data spesifikasi terlampir.</p>' : ''}
+                    </div>
+                </div>`;
+            }
+
             let c = `<div class="space-y-4">
                 <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
                     <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Informasi Dasar</h4>
@@ -702,9 +756,18 @@
                         <div class="col-span-2"><span class="text-[8px] text-gray-500 block">LOKASI</span><a href="${p.mapsLink}" target="_blank" class="text-blue-500 underline break-all">${p.mapsLink || '-'}</a></div>
                     </div>
                 </div>
+
+                <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Operasional & Jadwal</h4>
+                    <div class="text-[10px] font-bold">
+                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase">Transportasi</span><span class="text-gray-700 dark:text-gray-300">${transHTML}</span></div>
+                        ${actHTML}
+                    </div>
+                </div>
+
                 <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
                     <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Plotting Crew</h4>
-                    <div class="grid grid-cols-2 gap-3 text-[10px] font-bold">
+                    <div class="grid grid-cols-2 gap-3 text-[10px] font-bold text-gray-700 dark:text-gray-300">
                         <div><span class="text-[8px] text-gray-400 block mb-1 uppercase">Divisi Audio</span>
                             SE: ${p.manpower?.audio?.se || '-'}<br>FOH: ${p.manpower?.audio?.foh || '-'}
                         </div>
@@ -713,8 +776,10 @@
                         </div>
                         <div class="col-span-2"><span class="text-[8px] text-gray-400 block mb-1">PIC UTAMA</span><b>${p.manpower?.pic || '-'}</b></div>
                     </div>
-                </div>`;
-            c += `</div>`;
+                </div>
+                
+                ${specHTML}
+            </div>`;
             document.getElementById('detail-content').innerHTML = c;
             document.getElementById('modal-event-detail').classList.remove('hidden');
             document.getElementById('modal-event-detail').classList.add('flex');
@@ -1078,7 +1143,8 @@
                 const totalGajiEvent = calculateUserTotalFee(u.username, u.nickname, u.fullName);
                 const feeMaster = Number(u.fee || 0); // Manual tambahan dari admin
                 const totalBon = Number(u.bon || 0);  // Total bon manual input admin
-                const saldoAktif = (totalGajiEvent + feeMaster) - totalBon;
+                const totalPencairan = Number(u.pencairan || 0); // Total Pencairan
+                const saldoAktif = (totalGajiEvent + feeMaster) - totalBon - totalPencairan;
 
                 return `
                 <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800 shadow-sm space-y-3">
@@ -1091,20 +1157,25 @@
                             WA: ${u.phone||'-'}<br>BANK: ${u.bankName||'-'} (${u.bankAcc||'-'})<br>ADDR: ${u.address||'-'}
                         </div>
                     </div>
-                    <div class="grid grid-cols-4 gap-2 bg-gray-50 dark:bg-zinc-900/50 p-2.5 rounded-lg border dark:border-zinc-800/50 text-[9px] text-center">
-                        <div><span class="block text-[8px] text-gray-400 mb-0.5">Gaji Event</span><b class="text-gray-900 dark:text-gray-100">${formatIDR(totalGajiEvent)}</b></div>
-                        <div><span class="block text-[8px] text-gray-400 mb-0.5">Pendapatan Plus</span><b class="text-gray-900 dark:text-gray-100">${formatIDR(feeMaster)}</b></div>
-                        <div><span class="block text-[8px] text-gray-400 mb-0.5">Total Bon</span><b class="text-red-500">${formatIDR(totalBon)}</b></div>
-                        <div><span class="block text-[8px] text-gray-400 mb-0.5">SALDO AKTIF</span><b class="${saldoAktif < 0 ? 'text-red-500' : 'text-green-500'}">${formatIDR(saldoAktif)}</b></div>
+                    <div class="grid grid-cols-5 gap-1 bg-gray-50 dark:bg-zinc-900/50 p-2.5 rounded-lg border dark:border-zinc-800/50 text-[9px] text-center">
+                        <div><span class="block text-[7px] text-gray-400 mb-0.5">Gaji Event</span><b class="text-gray-900 dark:text-gray-100">${formatIDR(totalGajiEvent)}</b></div>
+                        <div><span class="block text-[7px] text-gray-400 mb-0.5">Pendapatan Plus</span><b class="text-gray-900 dark:text-gray-100">${formatIDR(feeMaster)}</b></div>
+                        <div><span class="block text-[7px] text-gray-400 mb-0.5">Total Bon</span><b class="text-red-500">${formatIDR(totalBon)}</b></div>
+                        <div><span class="block text-[7px] text-gray-400 mb-0.5">Pencairan</span><b class="text-blue-500">${formatIDR(totalPencairan)}</b></div>
+                        <div><span class="block text-[7px] text-gray-400 mb-0.5">SALDO AKTIF</span><b class="${saldoAktif < 0 ? 'text-red-500' : 'text-green-500'}">${formatIDR(saldoAktif)}</b></div>
                     </div>
-                    <div class="grid grid-cols-3 gap-2">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <div class="space-y-1">
-                            <label class="text-[8px] font-bold text-gray-400 uppercase">Input Pendapatan</label>
+                            <label class="text-[8px] font-bold text-gray-400 uppercase">+ Pendapatan</label>
                             <input type="number" id="fee-${u.username}" value="${u.fee || 0}" class="w-full p-2 rounded input-dark font-black text-[10px]">
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[8px] font-bold text-gray-400 uppercase">Input Total Bon</label>
+                            <label class="text-[8px] font-bold text-gray-400 uppercase">+ Total Bon</label>
                             <input type="number" id="bon-${u.username}" value="${u.bon || 0}" class="w-full p-2 rounded input-dark font-black text-[10px]">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[8px] font-bold text-gray-400 uppercase">+ Pencairan</label>
+                            <input type="number" id="pencairan-${u.username}" value="${u.pencairan || 0}" class="w-full p-2 rounded input-dark font-black text-[10px]">
                         </div>
                         <div class="flex items-end">
                             <button onclick="updateFullFinance('${u.username}')" class="w-full bg-ygsred text-white py-2 rounded font-black text-[9px] uppercase shadow-lg hover:bg-red-700 transition">SIMPAN</button>
@@ -1117,8 +1188,9 @@
         async function updateFullFinance(username) {
             const f = document.getElementById(`fee-${username}`).value;
             const b = document.getElementById(`bon-${username}`).value;
+            const pC = document.getElementById(`pencairan-${username}`).value;
             showLoading(true);
-            await apiCall({ action: 'UPDATE_USER_FINANCE', payload: { username, fee: f, bon: b } });
+            await apiCall({ action: 'UPDATE_USER_FINANCE', payload: { username, fee: f, bon: b, pencairan: pC } });
             showLoading(false); showToast("Akuntansi Terupdate ke Database!"); fetchData(); renderTeam();
         }
 
@@ -1127,11 +1199,13 @@
             const totalGajiEvent = calculateUserTotalFee(u.username, u.nickname, u.fullName);
             const feeMaster = Number(u.fee || 0); 
             const totalBon = Number(u.bon || 0);
-            const saldoAktif = (totalGajiEvent + feeMaster) - totalBon;
+            const totalPencairan = Number(u.pencairan || 0);
+            const saldoAktif = (totalGajiEvent + feeMaster) - totalBon - totalPencairan;
 
             // Update dompet view based on current real data
             document.getElementById('prof-fee').innerText = formatIDR(totalGajiEvent + feeMaster); 
             document.getElementById('prof-bon').innerText = formatIDR(totalBon); 
+            document.getElementById('prof-pencairan').innerText = formatIDR(totalPencairan); 
             
             const saldoEl = document.getElementById('prof-sisa');
             saldoEl.innerText = formatIDR(saldoAktif);
