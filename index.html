@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YGS Production Management V20</title>
+    <title>YGS Production Management V33</title>
 
     <!-- PWA / App-like Meta Tags -->
     <meta name="theme-color" content="#e50914">
@@ -11,7 +11,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="YGS App">
-    <link rel="apple-touch-icon" href="logo ygs 2.PNG">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -30,125 +29,127 @@
         body { background-color: #f8fafc; color: #0f172a; }
         .card-dark { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         .input-dark { background: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; color: #0f172a !important; font-size: 11px; }
+        .input-dark:focus { border-color: #e50914 !important; outline: none; box-shadow: 0 0 0 1px #e50914; }
         
         /* Dark Mode */
         .dark body { background-color: #000000; color: #ffffff; }
         .dark .card-dark { background: #111111; border: 1px solid #333333; box-shadow: none; }
         .dark .input-dark { background: #1a1a1a !important; border: 1px solid #444444 !important; color: white !important; }
         
-        .input-dark:focus { border-color: #e50914 !important; outline: none; box-shadow: 0 0 0 1px #e50914; }
         .btn-red { background-color: #e50914; color: white; transition: all 0.3s ease; }
         .btn-red:hover { background-color: #b20710; box-shadow: 0 4px 15px rgba(229,9,20,0.4); }
         
         .animate-fade { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        ::-webkit-scrollbar { width: 5px; height: 5px;}
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .dark ::-webkit-scrollbar-thumb { background: #333333; }
+        /* Kalender V33 Styles */
+        .cal-day { height: 42px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; position: relative;}
+        .cal-red { background: rgba(239, 68, 68, 0.1); color: #ef4444; } /* Libur */
+        .cal-blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; } /* Maintenance/Prep */
+        .cal-today { border-color: #10b981 !important; color: #10b981 !important; } /* Hari Ini */
+        .cal-event-circle { border: 2px solid #e50914 !important; } /* Event Terdaftar */
 
-        .toast-show { animation: slideIn 0.3s ease-out forwards; }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        
-        /* Calendar */
-        .cal-day { height: 40px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: 0.2s; position: relative;}
-        .cal-day.empty { background: transparent; cursor: default; }
-        .cal-day.has-event { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border-color: rgba(59, 130, 246, 0.4); }
-        .cal-day.no-event { background: rgba(229, 9, 20, 0.1); color: #ef4444; border-color: rgba(229, 9, 20, 0.2); }
-
-        .spec-table { width: 100%; text-align: left; border-collapse: collapse; font-size: 10px; }
-        .spec-table th, .spec-table td { padding: 8px; border-bottom: 1px solid #333; word-wrap: break-word; white-space: normal; }
-
-        @media print {
-            nav, header, .no-print { display: none !important; }
-            .card-dark { border: 1px solid #ccc !important; box-shadow: none !important; }
-        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 10px; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="min-h-screen pb-24 relative">
 
-    <div id="loading-overlay" class="fixed inset-0 bg-white/90 dark:bg-black/90 z-[300] hidden flex flex-col justify-center items-center backdrop-blur-sm">
+    <div id="loading-overlay" class="fixed inset-0 bg-white/90 dark:bg-black/90 z-[600] hidden flex flex-col justify-center items-center backdrop-blur-sm">
         <div class="w-12 h-12 border-4 border-ygsred border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-xs font-bold text-gray-600 dark:text-gray-300 tracking-widest uppercase" id="loading-text">Memproses...</p>
+        <p class="text-xs font-bold text-gray-600 dark:text-gray-300 tracking-widest uppercase">Memproses Data...</p>
     </div>
 
-    <!-- MODAL TAMBAH ASET -->
+    <!-- MODAL BON -->
+    <div id="modal-bon" class="fixed inset-0 bg-black/80 z-[500] hidden flex flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
+        <form id="form-bon" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-sm space-y-4 border dark:border-zinc-800 shadow-2xl">
+            <h3 class="text-lg font-black uppercase text-gray-900 dark:text-white border-b dark:border-zinc-800 pb-2">Ajukan Kas Bon</h3>
+            <div class="space-y-1">
+                <label class="text-[9px] font-bold text-gray-500 uppercase">Nominal (Rp)</label>
+                <input type="number" id="bon-amount" class="w-full p-3 rounded-xl input-dark font-bold" placeholder="Cth: 100000" required>
+            </div>
+            <div class="space-y-1">
+                <label class="text-[9px] font-bold text-gray-500 uppercase">Keperluan</label>
+                <input type="text" id="bon-note" class="w-full p-3 rounded-xl input-dark font-bold" placeholder="Alasan peminjaman" required>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeBonModal()" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px]">Batal</button>
+                <button type="submit" class="flex-1 py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px]">Kirim Pengajuan</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ASSET MODAL -->
     <div id="modal-asset" class="fixed inset-0 bg-black/80 z-[500] hidden flex flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
-        <form id="form-asset" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-sm space-y-4 border border-gray-200 dark:border-zinc-800 shadow-2xl">
-            <h3 class="text-lg font-black uppercase text-gray-900 dark:text-white border-b border-gray-200 dark:border-zinc-800 pb-2">Tambah Alat Baru</h3>
-            <div class="space-y-1">
-                <label class="text-[9px] font-bold text-gray-500 uppercase">Nama Alat / Unit</label>
-                <input type="text" id="ast-name" class="w-full p-3 rounded-xl input-dark font-bold" required>
-            </div>
-            <div class="space-y-1">
-                <label class="text-[9px] font-bold text-gray-500 uppercase">Kategori Divisi</label>
-                <select id="ast-cat" class="w-full p-3 rounded-xl input-dark font-bold appearance-none" required>
-                    <option value="Audio">🔊 Audio</option>
-                    <option value="Lighting">💡 Lighting</option>
-                    <option value="Genset">⚡ Genset</option>
-                    <option value="Barikade">🚧 Barikade</option>
-                    <option value="Rigging">🏗️ Rigging / Stage</option>
-                    <option value="Transportasi">🚚 Transportasi</option>
-                    <option value="Lainnya">📦 Lainnya</option>
-                </select>
-            </div>
-            <div class="space-y-1">
-                <label class="text-[9px] font-bold text-gray-500 uppercase">Jumlah Unit</label>
-                <input type="number" id="ast-qty" class="w-full p-3 rounded-xl input-dark font-bold" required min="1">
-            </div>
-            <div class="flex gap-3 pt-4">
+        <form id="form-asset" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-sm space-y-4 border dark:border-zinc-800 shadow-2xl">
+            <h3 class="text-lg font-black uppercase text-gray-900 dark:text-white border-b dark:border-zinc-800 pb-2">Tambah Alat Baru</h3>
+            <input type="text" id="ast-name" class="w-full p-3 rounded-xl input-dark font-bold" placeholder="Nama Alat" required>
+            <select id="ast-cat" class="w-full p-3 rounded-xl input-dark font-bold">
+                <option value="Audio">Audio</option>
+                <option value="Lighting">Lighting</option>
+                <option value="Genset">Genset</option>
+                <option value="Rigging">Rigging</option>
+                <option value="Transportasi">Transportasi</option>
+                <option value="Barikade">Barikade</option>
+            </select>
+            <input type="number" id="ast-qty" class="w-full p-3 rounded-xl input-dark font-bold" placeholder="Jumlah" required>
+            <div class="flex gap-3 pt-2">
                 <button type="button" onclick="closeAssetModal()" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px]">Batal</button>
                 <button type="submit" class="flex-1 py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px]">Simpan</button>
             </div>
         </form>
     </div>
 
-    <!-- MODAL KEUANGAN (ADMIN) -->
-    <div id="modal-finance" class="fixed inset-0 bg-black/80 z-[500] hidden flex flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
-        <div class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-md space-y-4 border border-gray-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center border-b border-gray-200 dark:border-zinc-800 pb-2">
-                <h3 class="text-sm font-black uppercase text-gray-900 dark:text-white">Rekap Gaji: <span id="finance-crew-name" class="text-ygsred"></span></h3>
-                <button type="button" onclick="closeFinanceModal()"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="overflow-y-auto flex-1 space-y-3" id="finance-modal-list"></div>
-            <div class="flex gap-3 pt-4 border-t border-gray-200 dark:border-zinc-800">
-                <button type="button" onclick="closeFinanceModal()" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px]">Batal</button>
-                <button type="button" onclick="saveFinance()" class="flex-1 py-3.5 rounded-xl bg-blue-600 text-white font-black uppercase text-[10px]">Simpan</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="toast-container" class="fixed top-20 right-4 z-[400] space-y-2 flex flex-col items-end pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-20 right-4 z-[550] space-y-2 flex flex-col items-end pointer-events-none"></div>
     <datalist id="list-crew"></datalist>
 
-    <!-- AUTH / LOGIN -->
-    <div id="view-auth" class="fixed inset-0 bg-gray-100 dark:bg-black z-[200] flex flex-col justify-center items-center p-6 no-print overflow-y-auto">
-        <div class="w-full max-w-md card-dark p-8 rounded-2xl border-t-4 border-t-ygsred my-auto text-center">
-            <h1 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest mb-8">YGS Production</h1>
+    <!-- AUTH SECTION -->
+    <div id="view-auth" class="fixed inset-0 bg-gray-100 dark:bg-black z-[400] flex flex-col justify-center items-center p-6 no-print overflow-y-auto">
+        <div class="w-full max-w-md card-dark p-8 rounded-2xl border-t-4 border-t-ygsred my-auto text-center space-y-6">
+            <div class="flex flex-col items-center gap-2">
+                <div class="bg-ygsred p-2.5 rounded-xl shadow-lg shadow-red-900/20">
+                    <svg width="45" height="45" viewBox="0 0 100 100" fill="none"><path d="M30 35H45L55 65H40L30 35Z" fill="white"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
+                </div>
+                <h1 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest">YGS PRODUCTION</h1>
+            </div>
+
             <form id="login-form" class="space-y-4">
                 <input type="text" id="log-username" class="w-full p-3 rounded-lg input-dark font-bold" placeholder="Username" required>
                 <input type="password" id="log-password" class="w-full p-3 rounded-lg input-dark font-bold" placeholder="Password" required>
                 <button type="submit" class="w-full btn-red py-3.5 rounded-lg font-black text-sm uppercase tracking-widest">Login</button>
-                <p class="text-[10px] text-gray-500 mt-4 uppercase font-bold">Kru Baru? <a href="#" onclick="toggleAuth('register')" class="text-ygsred">Daftar Akun</a></p>
+                <p class="text-[10px] text-gray-500 mt-4 uppercase font-bold">Kru Baru? <a href="#" onclick="toggleAuth('register')" class="text-ygsred underline">Daftar Akun</a></p>
             </form>
+
             <form id="register-form" class="space-y-3 hidden">
-                <input type="text" id="reg-fullname" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Nama Lengkap" required>
-                <input type="text" id="reg-nickname" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Panggilan" required>
-                <input type="text" id="reg-position" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Jabatan" required>
-                <input type="text" id="reg-phone" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="WhatsApp" required>
-                <input type="text" id="reg-username" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Username" required>
-                <input type="password" id="reg-password" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="Password" required>
-                <button type="submit" class="w-full bg-zinc-800 text-white py-3.5 rounded-lg font-black text-xs uppercase tracking-widest">Daftar</button>
-                <p class="text-[10px] text-gray-500 mt-4 uppercase font-bold">Punya Akun? <a href="#" onclick="toggleAuth('login')" class="text-ygsred">Login</a></p>
+                <div class="grid grid-cols-2 gap-2 text-left">
+                    <div class="space-y-1"><label class="text-[8px] font-bold text-gray-400 ml-1 uppercase">Nama Lengkap</label><input type="text" id="reg-fullname" class="w-full p-2.5 rounded-lg input-dark font-bold" required></div>
+                    <div class="space-y-1"><label class="text-[8px] font-bold text-gray-400 ml-1 uppercase">Panggilan</label><input type="text" id="reg-nickname" class="w-full p-2.5 rounded-lg input-dark font-bold" required></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-left">
+                    <div class="space-y-1"><label class="text-[8px] font-bold text-gray-400 ml-1 uppercase">Jabatan</label><input type="text" id="reg-position" class="w-full p-2.5 rounded-lg input-dark font-bold" required></div>
+                    <div class="space-y-1"><label class="text-[8px] font-bold text-gray-400 ml-1 uppercase">WhatsApp</label><input type="text" id="reg-phone" class="w-full p-2.5 rounded-lg input-dark font-bold" required></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-left">
+                    <div class="space-y-1"><label class="text-[8px] font-bold text-gray-400 ml-1 uppercase">Nama Bank</label><input type="text" id="reg-bank-name" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="BCA/Mandiri/Lainnya"></div>
+                    <div class="space-y-1"><label class="text-[8px] font-bold text-gray-400 ml-1 uppercase">No Rekening</label><input type="text" id="reg-bank-acc" class="w-full p-2.5 rounded-lg input-dark font-bold" placeholder="0001xxxx"></div>
+                </div>
+                <div class="space-y-1 text-left"><label class="text-[8px] font-bold text-gray-400 ml-1 uppercase">Username Login</label><input type="text" id="reg-username" class="w-full p-2.5 rounded-lg input-dark font-bold" required></div>
+                <div class="grid grid-cols-2 gap-2 text-left">
+                    <div class="space-y-1"><label class="text-[8px] font-bold text-gray-400 ml-1 uppercase">Password</label><input type="password" id="reg-password" class="w-full p-2.5 rounded-lg input-dark font-bold" required></div>
+                    <div class="space-y-1"><label class="text-[8px] font-bold text-gray-400 ml-1 uppercase">Konfirmasi</label><input type="password" id="reg-confirm" class="w-full p-2.5 rounded-lg input-dark font-bold" required></div>
+                </div>
+                <button type="submit" class="w-full bg-zinc-800 text-white py-3.5 rounded-lg font-black text-xs uppercase mt-2 tracking-widest">Daftar Akun</button>
+                <p class="text-[10px] text-gray-500 mt-4 uppercase font-bold">Punya Akun? <a href="#" onclick="toggleAuth('login')" class="text-ygsred underline">Login</a></p>
             </form>
         </div>
     </div>
 
-    <!-- MAIN APP -->
+    <!-- MAIN APP CONTENT -->
     <div id="app-content" class="hidden min-h-screen pt-4">
-        <header class="p-4 flex justify-between items-center bg-white/90 dark:bg-black/90 border-b border-gray-200 dark:border-zinc-800 sticky top-0 z-[100] no-print">
+        <header class="p-4 flex justify-between items-center bg-white/90 dark:bg-black/90 border-b dark:border-zinc-800 sticky top-0 z-[100] no-print backdrop-blur-md">
             <div class="flex items-center gap-3">
-                <div class="bg-ygsred p-1 rounded">
+                <div class="bg-ygsred p-1.5 rounded-lg">
                     <svg width="24" height="24" viewBox="0 0 100 100" fill="none"><path d="M30 35H45L55 65H40L30 35Z" fill="white"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
                 </div>
                 <div>
@@ -156,21 +157,32 @@
                     <p id="user-display" class="text-[9px] font-bold text-ygsred uppercase"></p>
                 </div>
             </div>
-            <button onclick="fetchData()" class="text-gray-500 hover:text-ygsred p-2"><i data-lucide="refresh-cw" class="w-5 h-5"></i></button>
+            <div class="flex gap-1">
+                <button onclick="fetchData()" class="text-gray-500 p-2"><i data-lucide="refresh-cw" class="w-5 h-5"></i></button>
+            </div>
         </header>
 
         <main class="p-4 max-w-4xl mx-auto space-y-4">
             
             <!-- TAB: JADWAL -->
             <div id="view-list" class="animate-fade">
-                <div class="flex justify-center gap-2 mb-4 bg-gray-100 dark:bg-zinc-900 p-1.5 rounded-xl border border-gray-200 dark:border-zinc-800">
+                <div class="card-dark p-3 rounded-xl mb-4 flex items-center gap-3 border-l-4 border-l-ygsred">
+                    <div id="today-status-icon" class="p-2 rounded-full bg-red-100 text-red-600 dark:bg-red-950/30"></div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase text-gray-500">Status Hari Ini</p>
+                        <p id="today-status-text" class="text-xs font-bold uppercase">Memuat...</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-2 mb-4 bg-gray-100 dark:bg-zinc-900 p-1.5 rounded-xl">
                     <button onclick="setAgendaView('kalender')" id="btn-view-kalender" class="flex-1 text-[10px] font-bold uppercase px-4 py-2 rounded-lg bg-white dark:bg-black shadow text-ygsred">Kalender</button>
-                    <button onclick="setAgendaView('semua')" id="btn-view-semua" class="flex-1 text-[10px] font-bold uppercase px-4 py-2 rounded-lg text-gray-500">Semua</button>
+                    <button onclick="setAgendaView('semua')" id="btn-view-semua" class="flex-1 text-[10px] font-bold uppercase px-4 py-2 rounded-lg text-gray-500">Semua Event</button>
                     <button onclick="setAgendaView('saya')" id="btn-view-saya" class="flex-1 text-[10px] font-bold uppercase px-4 py-2 rounded-lg text-gray-500">Tugas Saya</button>
                 </div>
+
                 <div id="wrapper-kalender">
                     <div class="card-dark p-4 rounded-2xl mb-4 border-t-4 border-t-ygsred">
-                        <div class="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-zinc-800 pb-3">
+                        <div class="flex justify-between items-center mb-4 border-b dark:border-zinc-800 pb-3">
                             <button onclick="changeMonth(-1)"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                             <h2 id="cal-month-year" class="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">BULAN TAHUN</h2>
                             <button onclick="changeMonth(1)"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
@@ -181,19 +193,19 @@
                 <div id="project-container" class="space-y-3"></div>
             </div>
 
-            <!-- TAB: CREATE (FIXED TRANSPORTASI) -->
-            <div id="view-add" class="hidden animate-fade space-y-6 no-print">
+            <!-- TAB: CREATE (ADMIN) - LAYOUT VERSI 18/20 STYLE -->
+            <div id="view-add" class="hidden animate-fade space-y-6 pb-24 no-print">
                 <h2 id="form-title" class="text-lg font-black uppercase text-gray-900 dark:text-white border-b-2 border-ygsred pb-1 inline-block">Create Event Baru</h2>
                 <form id="event-form" class="space-y-6 pb-20">
                     <input type="hidden" id="edit-id" value="">
                     
                     <!-- 1. Informasi Dasar Event -->
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-ygsred">
-                        <h3 class="text-[10px] font-black text-ygsred uppercase tracking-[0.2em] mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2">1. Informasi Dasar Event</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pb-2">
+                        <h3 class="text-[10px] font-black text-ygsred uppercase tracking-[0.2em] mb-2 border-b dark:border-zinc-800 pb-2">1. Informasi Dasar Event</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div class="space-y-1">
                                 <label class="text-[9px] font-bold text-gray-500 uppercase">Status Event</label>
-                                <select id="evStatus" class="w-full p-2.5 rounded input-dark font-black text-xs appearance-none">
+                                <select id="evStatus" class="w-full p-2.5 rounded input-dark font-black text-xs">
                                     <option value="Tentative">🟡 Tentative</option>
                                     <option value="Confirmed">🟢 Confirmed</option>
                                     <option value="Completed">🔵 Completed</option>
@@ -201,35 +213,25 @@
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-2">
-                                <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Klien / EO</label><input type="text" id="clientName" placeholder="Nama Client" class="w-full p-2.5 rounded input-dark font-bold text-xs"></div>
+                                <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Klien / EO</label><input type="text" id="clientName" placeholder="Client" class="w-full p-2.5 rounded input-dark font-bold text-xs"></div>
                                 <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Kontak Klien</label><input type="text" id="clientPhone" placeholder="WhatsApp" class="w-full p-2.5 rounded input-dark font-bold text-xs"></div>
                             </div>
                         </div>
-
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Tgl Mulai</label><input type="date" id="startDate" required class="w-full p-2.5 rounded input-dark font-bold" onchange="generateDays()"></div>
                             <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Tgl Selesai</label><input type="date" id="endDate" required class="w-full p-2.5 rounded input-dark font-bold" onchange="generateDays()"></div>
                         </div>
-                        
-                        <input type="text" id="eventName" placeholder="Nama Event (Cth: Konser Merdeka)" required class="w-full p-2.5 rounded input-dark font-black text-sm text-ygsred">
+                        <input type="text" id="eventName" placeholder="Nama Event" required class="w-full p-2.5 rounded input-dark font-black text-sm text-ygsred">
                         <input type="text" id="artist" placeholder="Artist / Talent" required class="w-full p-2.5 rounded input-dark font-bold">
                         <input type="text" id="mapsLink" placeholder="Lokasi / URL Google Maps" class="w-full p-2.5 rounded input-dark font-bold">
                         
                         <div class="pt-2">
                             <p class="text-[9px] font-bold text-gray-500 uppercase mb-2">Transportasi Operasional</p>
                             <div class="flex flex-wrap gap-2">
-                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold">
-                                    <input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Grandmax"> Grandmax
-                                </label>
-                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold">
-                                    <input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Carry"> Carry
-                                </label>
-                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold">
-                                    <input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Omplong"> Omplong
-                                </label>
-                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold">
-                                    <input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Truck"> Truck
-                                </label>
+                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2.5 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold"><input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Grandmax"> Grandmax</label>
+                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2.5 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold"><input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Carry"> Carry</label>
+                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2.5 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold"><input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Omplong"> Omplong</label>
+                                <label class="flex items-center gap-1.5 text-[10px] bg-gray-50 dark:bg-zinc-900 p-2.5 rounded-lg border dark:border-zinc-800 cursor-pointer font-bold"><input type="checkbox" class="trans-check accent-ygsred w-3.5 h-3.5" value="Truck"> Truck</label>
                             </div>
                         </div>
                     </div>
@@ -238,585 +240,369 @@
 
                     <!-- 2. Spesifikasi Audio -->
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-blue-600">
-                        <h3 class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] border-b border-gray-200 dark:border-zinc-800 pb-2">2. Spesifikasi Audio</h3>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">PA System</p><button type="button" onclick="addDynRow('dyn-audio-pa')" class="text-[9px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-audio-pa" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Monitor System</p><button type="button" onclick="addDynRow('dyn-audio-monitor')" class="text-[9px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-audio-monitor" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Consoles</p><button type="button" onclick="addDynRow('dyn-audio-console')" class="text-[9px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-audio-console" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Microphone</p><button type="button" onclick="addDynRow('dyn-audio-mic')" class="text-[9px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-audio-mic" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Backline</p><button type="button" onclick="addDynRow('dyn-audio-backline')" class="text-[9px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-audio-backline" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Stand Mic</p><button type="button" onclick="addDynRow('dyn-audio-stand')" class="text-[9px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-audio-stand" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Cables</p><button type="button" onclick="addDynRow('dyn-audio-cable')" class="text-[9px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-audio-cable" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Others</p><button type="button" onclick="addDynRow('dyn-audio-others')" class="text-[9px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-audio-others" class="space-y-1.5"></div>
-                        </div>
+                        <h3 class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] border-b dark:border-zinc-800 pb-2">2. Spesifikasi Audio</h3>
+                        <div id="dyn-audio-container" class="space-y-3"></div>
                     </div>
 
-                    <!-- 3. Spesifikasi Lainnya -->
+                    <!-- 3. Spesifikasi Lighting -->
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-orange-500">
-                        <h3 class="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em] border-b border-gray-200 dark:border-zinc-800 pb-2">3. Spesifikasi Lainnya</h3>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Lighting</p><button type="button" onclick="addDynRow('dyn-lighting')" class="text-[9px] bg-orange-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-lighting" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">LED Screen</p><button type="button" onclick="addDynRow('dyn-led')" class="text-[9px] bg-orange-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-led" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Rigging & Stage</p><button type="button" onclick="addDynRow('dyn-rigging')" class="text-[9px] bg-orange-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-rigging" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Genset</p><button type="button" onclick="addDynRow('dyn-genset')" class="text-[9px] bg-orange-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-genset" class="space-y-1.5"></div>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border border-gray-200 dark:border-zinc-800/50">
-                            <div class="flex justify-between items-center mb-2 border-b border-gray-200 dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Barikade</p><button type="button" onclick="addDynRow('dyn-barikade')" class="text-[9px] bg-orange-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
-                            <div id="dyn-barikade" class="space-y-1.5"></div>
+                        <h3 class="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em] border-b dark:border-zinc-800 pb-2">3. Spesifikasi Lighting</h3>
+                        <div id="dyn-lighting-container" class="space-y-3"></div>
+                    </div>
+
+                    <!-- 4. Spesifikasi Pendukung -->
+                    <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-green-600">
+                        <h3 class="text-[10px] font-black text-green-600 uppercase tracking-[0.2em] border-b dark:border-zinc-800 pb-2">4. Spesifikasi Pendukung</h3>
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50">
+                                <div class="flex justify-between items-center mb-2 border-b dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">LED Screen</p><button type="button" onclick="addDynRow('dyn-led')" class="text-[9px] bg-green-600 text-white px-2 py-1 rounded shadow">+ Baris Posisi</button></div>
+                                <div id="dyn-led" class="space-y-1.5"></div>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50">
+                                <div class="flex justify-between items-center mb-2 border-b dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Rigging & Stage</p><button type="button" onclick="addDynRow('dyn-rigging')" class="text-[9px] bg-green-600 text-white px-2 py-1 rounded shadow">+ Baris Posisi</button></div>
+                                <div id="dyn-rigging" class="space-y-1.5"></div>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50">
+                                <div class="flex justify-between items-center mb-2 border-b dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Genset</p><button type="button" onclick="addDynRow('dyn-genset')" class="text-[9px] bg-green-600 text-white px-2 py-1 rounded shadow">+ Baris Genset</button></div>
+                                <div id="dyn-genset" class="space-y-1.5"></div>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50">
+                                <div class="flex justify-between items-center mb-2 border-b dark:border-zinc-800 pb-2"><p class="text-[10px] font-black uppercase">Barikade</p><button type="button" onclick="addDynRow('dyn-barikade')" class="text-[9px] bg-green-600 text-white px-2 py-1 rounded shadow">+ Baris Posisi</button></div>
+                                <div id="dyn-barikade" class="space-y-1.5"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- 4. Plotting Kru -->
+                    <!-- 5. Plotting Crew -->
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-zinc-500">
-                        <h3 class="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] border-b border-gray-200 dark:border-zinc-800 pb-2">4. Plotting Kru Lapangan</h3>
-                        <div class="mb-3 space-y-1"><p class="text-[9px] font-bold text-gray-500 uppercase">PIC Utama Event</p><input type="text" id="pic" list="list-crew" placeholder="PIC Event" class="w-full p-2.5 rounded-lg input-dark font-bold text-xs"></div>
+                        <h3 class="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] border-b dark:border-zinc-800 pb-2">5. Plotting Crew Lapangan</h3>
+                        <div class="mb-3 space-y-1"><p class="text-[9px] font-bold text-gray-500 uppercase">PIC Utama Event</p><input type="text" id="pic" list="list-crew" placeholder="Cari nama..." class="w-full p-2.5 rounded-lg input-dark font-bold text-xs"></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 space-y-2">
-                                <p class="text-ygsred font-black text-[10px] uppercase border-b border-gray-200 dark:border-zinc-800 pb-1 mb-2">AUDIO</p>
-                                <input type="text" id="c_a_se" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="SysEng: ">
-                                <input type="text" id="c_a_foh" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="FOH: ">
-                                <input type="text" id="c_a_moh" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="MOH: ">
-                                <input type="text" id="c_a_rf" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="RF Tech: ">
-                                <input type="text" id="c_a_stg" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="Stage Tech: ">
-                                <input type="text" id="c_a_ast" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 focus:ring-0 font-bold" placeholder="Asst: ">
+                            <div class="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border dark:border-zinc-800 space-y-2">
+                                <p class="text-ygsred font-black text-[10px] uppercase border-b dark:border-zinc-800 pb-1 mb-2">Divisi Audio</p>
+                                <input type="text" id="c_a_se" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="System Engineer: ">
+                                <input type="text" id="c_a_foh" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="FOH Mixer Engineer: ">
+                                <input type="text" id="c_a_moh" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Monitor Mixer Engineer: ">
+                                <input type="text" id="c_a_rf" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Radio Frequency Technician: ">
+                                <input type="text" id="c_a_stg" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Stage Technician: ">
+                                <input type="text" id="c_a_ast" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 font-bold" placeholder="Assistant Technician: ">
                             </div>
-                            <div class="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 space-y-2">
-                                <p class="text-blue-500 font-black text-[10px] uppercase border-b border-gray-200 dark:border-zinc-800 pb-1 mb-2">LIGHTING</p>
-                                <input type="text" id="c_l_ld" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="LD: ">
-                                <input type="text" id="c_l_ptc" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="Patcher: ">
-                                <input type="text" id="c_l_adr" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="Adresser: ">
-                                <input type="text" id="c_l_ast" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 focus:ring-0 font-bold" placeholder="Asst: ">
+                            <div class="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border dark:border-zinc-800 space-y-2">
+                                <p class="text-blue-500 font-black text-[10px] uppercase border-b dark:border-zinc-800 pb-1 mb-2">Divisi Lighting</p>
+                                <input type="text" id="c_l_ld" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Lighting Designer: ">
+                                <input type="text" id="c_l_ptc" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Patcher Lighting: ">
+                                <input type="text" id="c_l_adr" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Adresser Lighting: ">
+                                <input type="text" id="c_l_ast" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 font-bold" placeholder="Assistant Lighting: ">
                             </div>
-                            <div class="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 space-y-2">
-                                <p class="text-gray-900 dark:text-white font-black text-[10px] uppercase border-b border-gray-200 dark:border-zinc-800 pb-1 mb-2">ROADIES</p>
-                                <input type="text" id="c_r_head" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="Head: ">
-                                <input type="text" id="c_r_1" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="R1: ">
-                                <input type="text" id="c_r_2" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="R2: ">
-                                <input type="text" id="c_r_3" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="R3: ">
-                                <input type="text" id="c_r_4" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 focus:ring-0 font-bold" placeholder="R4: ">
+                            <div class="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border dark:border-zinc-800 space-y-2">
+                                <p class="text-gray-900 dark:text-white font-black text-[10px] uppercase border-b dark:border-zinc-800 pb-1 mb-2">Roadies Team</p>
+                                <input type="text" id="c_r_head" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Head Roadie: ">
+                                <input type="text" id="c_r_1" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Roadie 1: ">
+                                <input type="text" id="c_r_2" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Roadie 2: ">
+                                <input type="text" id="c_r_3" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Roadie 3: ">
+                                <input type="text" id="c_r_4" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 font-bold" placeholder="Roadie 4: ">
                             </div>
-                            <div class="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 space-y-2">
-                                <p class="text-gray-900 dark:text-white font-black text-[10px] uppercase border-b border-gray-200 dark:border-zinc-800 pb-1 mb-2">PENDUKUNG</p>
-                                <input type="text" id="c_s_rigging" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="Rigging: ">
-                                <input type="text" id="c_s_stage" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="Stage: ">
-                                <input type="text" id="c_s_genset" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 mb-1 focus:ring-0 font-bold" placeholder="Genset: ">
-                                <input type="text" id="c_s_barikade" list="list-crew" class="w-full bg-transparent border-b border-gray-200 dark:border-zinc-800 text-xs pb-1 focus:ring-0 font-bold" placeholder="Barikade: ">
+                            <div class="p-4 bg-gray-50 dark:bg-zinc-900 rounded-xl border dark:border-zinc-800 space-y-2">
+                                <p class="text-gray-900 dark:text-white font-black text-[10px] uppercase border-b dark:border-zinc-800 pb-1 mb-2">Tim Pendukung</p>
+                                <input type="text" id="c_s_rigging" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Rigging Team: ">
+                                <input type="text" id="c_s_stage" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Stage Support: ">
+                                <input type="text" id="c_s_genset" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Genset Operator: ">
+                                <input type="text" id="c_s_barikade" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 font-bold" placeholder="Barikade Team: ">
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full btn-red py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg">Publikasikan Event</button>
+                    <button type="submit" class="w-full btn-red py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-red-900/30 active:scale-[0.98] transition-all">Publikasikan Event</button>
                 </form>
             </div>
 
             <!-- TAB: CHAT -->
-            <div id="view-chat" class="hidden animate-fade flex flex-col h-[calc(100vh-140px)]">
-                <div class="flex justify-between items-center border-b-2 border-ygsred pb-1">
-                    <h2 class="text-lg font-black uppercase text-gray-900 dark:text-white">Grup Obrolan</h2>
-                </div>
-                <div id="chat-container" class="flex-1 overflow-y-auto space-y-3 pr-2 card-dark p-4 rounded-xl my-3"></div>
-                <form id="chat-form" class="flex gap-2 bg-white dark:bg-zinc-900 p-2 rounded-xl border border-gray-200 dark:border-zinc-800">
-                    <input type="text" id="chat-input" class="flex-1 bg-transparent border-none text-sm text-gray-900 dark:text-white focus:ring-0 px-2" placeholder="Ketik pesan..." required>
+            <div id="view-chat" class="hidden animate-fade flex flex-col h-[calc(100vh-160px)]">
+                <div id="chat-container" class="flex-1 overflow-y-auto space-y-3 card-dark p-4 rounded-xl my-3"></div>
+                <form id="chat-form" class="flex gap-2 bg-white dark:bg-zinc-900 p-2 rounded-xl border dark:border-zinc-800">
+                    <input type="text" id="chat-input" class="flex-1 bg-transparent border-none text-sm px-2 dark:text-white" placeholder="Ketik pesan..." required>
                     <button type="submit" class="bg-ygsred text-white p-2.5 rounded-lg"><i data-lucide="send" class="w-4 h-4"></i></button>
                 </form>
             </div>
 
-            <!-- TAB: ASET -->
+            <!-- TAB: ASSETS (USER MUTABLE) -->
             <div id="view-assets" class="hidden animate-fade space-y-4">
                 <div class="flex justify-between items-center border-b-2 border-ygsred pb-1">
                     <h2 class="text-lg font-black uppercase">Inventaris Aset</h2>
-                    <button class="text-[10px] bg-ygsred text-white px-3 py-1.5 rounded font-bold" onclick="openAssetModal()">+ Alat Baru</button>
+                    <button onclick="openAssetModal()" class="text-[10px] bg-ygsred text-white px-3 py-1.5 rounded font-bold">+ Tambah Alat</button>
                 </div>
-                <div class="card-dark rounded-xl overflow-hidden shadow-sm">
+                <div class="card-dark rounded-xl overflow-x-auto shadow-sm">
                     <table class="w-full text-left text-[10px]">
-                        <thead class="bg-gray-100 dark:bg-zinc-900 uppercase font-black">
-                            <tr><th class="p-3">Nama Alat</th><th class="p-3 text-center">Qty</th><th class="p-3 text-center">Status</th></tr>
+                        <thead class="bg-gray-100 dark:bg-zinc-900 font-black uppercase">
+                            <tr><th class="p-3">Alat</th><th class="p-3 text-center">Qty</th><th class="p-3 text-center">Status</th><th class="p-3">Catatan</th></tr>
                         </thead>
-                        <tbody id="asset-list" class="divide-y divide-gray-200 dark:divide-zinc-800"></tbody>
+                        <tbody id="asset-list" class="divide-y dark:divide-zinc-800"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB: TIM (ADMIN) -->
-            <div id="view-team" class="hidden animate-fade space-y-4">
-                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1 inline-block">Manajemen Gaji Tim</h2>
+            <!-- TAB: TEAM (ADMIN) -->
+            <div id="view-team" class="hidden animate-fade space-y-4 pb-10">
+                <h2 class="text-lg font-black uppercase border-b-2 border-ygsred pb-1">Manajemen Tim & Bon</h2>
+                <div id="bon-approval-container" class="space-y-2 mb-6">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Pengajuan Kas Bon Pending</p>
+                    <div id="bon-pending-list" class="space-y-2"></div>
+                </div>
                 <div class="grid gap-3" id="team-list"></div>
             </div>
 
             <!-- TAB: PROFIL -->
-            <div id="view-profile" class="hidden animate-fade space-y-6">
-                <div class="card-dark p-6 rounded-2xl border-t-4 border-t-ygsred flex flex-col items-center text-center shadow-sm">
-                    <div class="w-16 h-16 bg-gray-100 dark:bg-zinc-900 rounded-full flex items-center justify-center font-black text-2xl text-ygsred mb-4 uppercase" id="profile-initial"></div>
-                    <h3 id="profile-fullname" class="text-xl font-black uppercase mb-1"></h3>
-                    <p id="profile-position" class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6"></p>
-                    
-                    <div class="w-full grid grid-cols-3 gap-2 mb-6">
-                        <div class="bg-green-50 dark:bg-green-950/20 p-2 rounded-xl border border-green-100 dark:border-green-900/50">
-                            <p class="text-[8px] font-bold text-green-600 uppercase">Total Fee</p>
-                            <p id="prof-fee" class="text-[10px] font-black text-gray-900 dark:text-white">Rp 0</p>
-                        </div>
-                        <div class="bg-red-50 dark:bg-red-950/20 p-2 rounded-xl border border-red-100 dark:border-red-900/50">
-                            <p class="text-[8px] font-bold text-red-600 uppercase">Kas Bon</p>
-                            <p id="prof-bon" class="text-[10px] font-black text-gray-900 dark:text-white">Rp 0</p>
-                        </div>
-                        <div class="bg-blue-50 dark:bg-blue-950/20 p-2 rounded-xl border border-blue-100 dark:border-blue-900/50">
-                            <p class="text-[8px] font-bold text-blue-600 uppercase">Sisa</p>
-                            <p id="prof-sisa" class="text-[10px] font-black text-gray-900 dark:text-white">Rp 0</p>
-                        </div>
+            <div id="view-profile" class="hidden animate-fade space-y-6 pb-20">
+                <div class="card-dark p-6 rounded-2xl border-t-4 border-t-ygsred text-center relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 opacity-[0.03]">
+                        <svg width="200" height="200" viewBox="0 0 100 100" fill="red"><path d="M30 35H45L55 65H40L30 35Z"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
                     </div>
-
-                    <button onclick="logout()" class="w-full bg-red-50 dark:bg-red-950/20 text-ygsred py-3 rounded-xl font-black text-xs uppercase border border-red-200 dark:border-red-900/50">Logout</button>
+                    <div id="profile-initial" class="w-16 h-16 bg-gray-100 dark:bg-zinc-900 rounded-full mx-auto flex items-center justify-center font-black text-2xl text-ygsred mb-4 uppercase"></div>
+                    <h3 id="profile-fullname" class="text-xl font-black uppercase mb-1"></h3>
+                    <p id="profile-position" class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4"></p>
+                    <div class="bg-gray-50 dark:bg-zinc-900 p-3 rounded-xl mb-6 text-left border dark:border-zinc-800">
+                        <p class="text-[8px] font-black text-gray-400 uppercase mb-1">Rekening Gaji Terdaftar</p>
+                        <p id="prof-bank-info" class="text-[10px] font-bold dark:text-zinc-300"></p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mb-6 text-center">
+                        <div class="bg-green-50 dark:bg-green-950/20 p-2 rounded-xl border border-green-100 dark:border-green-900/50"><p class="text-[8px] font-bold text-green-600 uppercase">Total Fee</p><p id="prof-fee" class="text-[10px] font-black">Rp 0</p></div>
+                        <div class="bg-red-50 dark:bg-red-950/20 p-2 rounded-xl border border-red-100 dark:border-red-900/50"><p class="text-[8px] font-bold text-red-600 uppercase">Kas Bon</p><p id="prof-bon" class="text-[10px] font-black">Rp 0</p></div>
+                        <div class="bg-blue-50 dark:bg-blue-950/20 p-2 rounded-xl border border-blue-100 dark:border-blue-900/50"><p class="text-[8px] font-bold text-blue-600 uppercase">Sisa</p><p id="prof-sisa" class="text-[10px] font-black">Rp 0</p></div>
+                    </div>
+                    <button onclick="openBonModal()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black text-xs uppercase mb-2 shadow-lg shadow-blue-900/20">Ajukan Kas Bon</button>
+                    <button onclick="logout()" class="w-full bg-gray-100 dark:bg-zinc-900 text-red-600 py-3 rounded-xl font-black text-xs uppercase border dark:border-zinc-800">Logout</button>
                 </div>
-                <div class="card-dark p-4 rounded-2xl">
-                    <h3 class="text-[10px] font-black uppercase mb-3 text-gray-500">Rincian Per Event</h3>
-                    <div id="profile-history" class="space-y-2"></div>
-                </div>
+                <div class="card-dark p-4 rounded-2xl"><h3 class="text-[10px] font-black uppercase text-gray-500 mb-3 flex items-center gap-2"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Jadwal Kerja Saya</h3><div id="profile-history" class="space-y-2"></div></div>
             </div>
-
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t border-gray-200 dark:border-zinc-800 flex justify-around p-2 z-[100] backdrop-blur-md overflow-x-auto hide-scrollbar">
-            <button onclick="switchTab('list')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-list"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold">JADWAL</span></button>
-            <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-chat"><i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold">OBROLAN</span></button>
-            <button onclick="switchTab('add')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold">CREATE</span></button>
-            <button onclick="switchTab('assets')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-assets"><i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold">ASET</span></button>
-            <button onclick="switchTab('team')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold">TIM</span></button>
-            <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-profile"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[8px] font-bold">PROFIL</span></button>
+        <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t dark:border-zinc-800 flex justify-around p-2 z-[100] backdrop-blur-md">
+            <button onclick="switchTab('list')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-list"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Jadwal</span></button>
+            <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-chat"><i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Chat</span></button>
+            <button onclick="switchTab('add')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Buat</span></button>
+            <button onclick="switchTab('assets')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-assets"><i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Aset</span></button>
+            <button onclick="switchTab('team')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Tim</span></button>
+            <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2" id="nav-profile"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Profil</span></button>
         </nav>
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwP_6_lrVEYvDUpm-RUDh4TvwaiCYgeGx-LOIs6Ol966bjV9fn0KSbkP1rUf-Yfru2L/exec'; 
-        let currentUser = null;
-        let allProjects = [];
-        let allUsers = [];
-        let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
-        let activeAgendaView = 'kalender';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz6alw0e-EwkuHNc0g0L25WOUo-Dx_LyLsaf7DEBOVUGZlr7bTD6hJXWv66mFobfDM/exec'; 
+        let currentUser = null, allProjects = [], allUsers = [], currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear(), activeAgendaView = 'kalender';
 
         const MASTER_GROUPS = {
-            pa: ['Main PA', 'Subwoofer', 'Frontfill', 'Delay Fill', 'Outfill'],
-            monitor: ['Wedges', 'IEM', 'Sidefill', 'Sub sidefill', 'Sub drum', 'Talkback'],
-            console: ['FOH', 'MOH', 'Stagebox'],
-            mic: ['Wireless', 'Wired', 'DI Box'],
-            backline: ['Drum', 'Keyboard', 'Ampli Gitar', 'Ampli Bass', 'Ampli Keyboard', 'Stand Keys Double', 'Stand Keys single', 'Stand gitar', 'Stand book'],
-            stand: ['Stand Panjang', 'Stand Pendek', 'Claw'],
-            cable: ['Splitter input', 'Splitter output', 'Junction Box', 'Rumbai', 'Cables'],
-            lighting: ['Console', 'Moving beam', 'Parled', 'Frasnel', 'Minibrute', 'Stormy', 'Wallwasher', 'Follow spot', 'Hazer', 'Smoke gun', 'Tripod', 'Splitter']
+            audio: {
+                pa: 'PA System', monitor: 'Monitor System', console: 'Consoles', mic: 'Microphone', 
+                backline: 'Backline', stand: 'Stand Mic', cable: 'Cables', others: 'Audio Others'
+            },
+            lighting: [
+                'Consoles', 'Moving Beam', 'Parled', 'Fresnel', 'Minibrute', 'Stormy', 
+                'Wallwasher', 'Follow Spot', 'Penerangan', 'Tripod', 'Hazer', 'Smoke Gun', 'Splitter', 'Others'
+            ]
         };
 
-        function showLoading(show, text = 'Memproses...') {
-            document.getElementById('loading-text').innerText = text;
-            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
-        }
-
-        function showToast(msg, isError=false) {
+        function showLoading(show) { document.getElementById('loading-overlay').classList.toggle('hidden', !show); }
+        function showToast(msg, isErr=false) {
             const container = document.getElementById('toast-container'); const t = document.createElement('div');
-            t.className = `toast-show px-4 py-3 rounded-xl shadow-xl text-xs font-bold text-white flex items-center gap-2 pointer-events-auto ${isError ? 'bg-red-600' : 'bg-gray-900 dark:bg-zinc-800'}`;
-            t.innerHTML = `<i data-lucide="${isError?'alert-circle':'check-circle'}" class="w-4 h-4"></i> ${msg}`;
-            container.appendChild(t); if(typeof lucide!=='undefined') lucide.createIcons();
-            setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
+            t.className = `px-4 py-3 rounded-xl shadow-xl text-xs font-bold text-white flex items-center gap-2 animate-fade ${isErr ? 'bg-red-600' : 'bg-gray-900 dark:bg-zinc-800'}`;
+            t.innerHTML = `<i data-lucide="${isErr?'alert-circle':'check-circle'}" class="w-4 h-4"></i> ${msg}`;
+            container.appendChild(t); lucide.createIcons();
+            setTimeout(() => { t.remove(); }, 3000);
         }
-
-        function formatRp(v) { return "Rp " + (Number(v) || 0).toLocaleString('id-ID'); }
 
         async function apiCall(payload) {
-            try {
-                const res = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                return JSON.parse(await res.text());
-            } catch (e) { return { success: false, message: "Koneksi gagal" }; }
+            try { const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }); return JSON.parse(await res.text()); } 
+            catch (e) { return { success: false, message: "Koneksi Bermasalah" }; }
         }
 
-        window.onload = () => {
-            const saved = localStorage.getItem('ygsUserEx');
-            if(saved) { currentUser = JSON.parse(saved); initApp(); }
-            if(typeof lucide !== 'undefined') lucide.createIcons();
-        }
-
-        function toggleAuth(type) { 
-            document.getElementById('login-form').classList.toggle('hidden', type !== 'login'); 
-            document.getElementById('register-form').classList.toggle('hidden', type !== 'register'); 
-        }
+        window.onload = () => { const saved = localStorage.getItem('ygsUserEx'); if(saved) { currentUser = JSON.parse(saved); initApp(); } lucide.createIcons(); }
+        function toggleAuth(type) { document.getElementById('login-form').classList.toggle('hidden', type !== 'login'); document.getElementById('register-form').classList.toggle('hidden', type !== 'register'); }
 
         document.getElementById('login-form').onsubmit = async (e) => {
-            e.preventDefault(); showLoading(true, 'Login...');
+            e.preventDefault(); showLoading(true);
             const res = await apiCall({ action: 'LOGIN', payload: { username: document.getElementById('log-username').value.toLowerCase(), password: document.getElementById('log-password').value } });
             showLoading(false);
-            if(res && res.success) { currentUser = res.user; localStorage.setItem('ygsUserEx', JSON.stringify(currentUser)); initApp(); } 
+            if(res.success) { currentUser = res.user; localStorage.setItem('ygsUserEx', JSON.stringify(currentUser)); initApp(); } 
             else showToast(res.message, true);
         };
 
+        document.getElementById('register-form').onsubmit = async (e) => {
+            e.preventDefault();
+            if(document.getElementById('reg-password').value !== document.getElementById('reg-confirm').value) { showToast("Konfirmasi password salah!", true); return; }
+            showLoading(true);
+            const p = { username: document.getElementById('reg-username').value, password: document.getElementById('reg-password').value, fullName: document.getElementById('reg-fullname').value, nickname: document.getElementById('reg-nickname').value, position: document.getElementById('reg-position').value, phone: document.getElementById('reg-phone').value, bankName: document.getElementById('reg-bank-name').value, bankAcc: document.getElementById('reg-bank-acc').value };
+            const res = await apiCall({ action: 'REGISTER', payload: p });
+            showLoading(false); if(res.success) { showToast("Berhasil Daftar!"); toggleAuth('login'); } else showToast(res.message, true);
+        };
+
         function initApp() {
-            document.getElementById('view-auth').classList.add('hidden');
-            document.getElementById('app-content').classList.remove('hidden');
+            document.getElementById('view-auth').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden');
             document.getElementById('user-display').innerText = currentUser.nickname || currentUser.fullName;
             document.getElementById('profile-fullname').innerText = currentUser.fullName;
             document.getElementById('profile-position').innerText = currentUser.position;
             document.getElementById('profile-initial').innerText = (currentUser.nickname || currentUser.fullName).substring(0,2);
-            
-            if(currentUser.role === 'admin') {
-                document.getElementById('nav-add').classList.remove('hidden');
-                document.getElementById('nav-team').classList.remove('hidden');
-            }
-            fetchData();
-            switchTab('list');
-            initDynForms();
+            document.getElementById('prof-bank-info').innerText = currentUser.bankName ? `${currentUser.bankName} - ${currentUser.bankAcc}` : "Belum diatur";
+            if(currentUser.role === 'admin') { document.getElementById('nav-add').classList.remove('hidden'); document.getElementById('nav-team').classList.remove('hidden'); }
+            fetchData(); switchTab('list'); initDynForms();
         }
 
         function switchTab(tab) {
-            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-team', 'view-profile'].forEach(v => {
-                const el = document.getElementById(v); if(el) el.classList.add('hidden');
-            });
+            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-team', 'view-profile'].forEach(v => document.getElementById(v).classList.add('hidden'));
             document.getElementById('view-' + tab).classList.remove('hidden');
             ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-team', 'nav-profile'].forEach(n => {
                 const nav = document.getElementById(n); if(!nav) return;
                 nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
                 if(n === 'nav-' + tab) nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
             });
-            if(tab === 'chat') renderChat();
-            if(tab === 'assets') renderAssets();
-            if(tab === 'team') renderTeam();
-            if(tab === 'profile') renderProfileSchedule();
-            window.scrollTo(0,0);
+            if(tab === 'chat') renderChat(); if(tab === 'assets') renderAssets(); if(tab === 'team') renderTeam(); if(tab === 'profile') renderProfile();
         }
 
         async function fetchData() {
-            showLoading(true, 'Sync...');
-            const resData = await apiCall({ action: 'GET_DATA' });
-            const resUsers = await apiCall({ action: 'GET_USERS' });
-            showLoading(false);
-            if(resData && resData.success) { allProjects = resData.data; applyAgendaView(); }
-            if(resUsers && resUsers.success) { 
-                allUsers = resUsers.data; 
-                document.getElementById('list-crew').innerHTML = allUsers.map(u => `<option value="${u.nickname || u.fullName}">`).join('');
-            }
+            showLoading(true); const rD = await apiCall({ action: 'GET_DATA' }); const rU = await apiCall({ action: 'GET_USERS' }); showLoading(false);
+            if(rD.success) { allProjects = rD.data; applyAgendaView(); updateTodayStatus(); }
+            if(rU.success) { allUsers = rU.data; document.getElementById('list-crew').innerHTML = allUsers.map(u => `<option value="${u.nickname || u.fullName}">`).join(''); }
         }
 
-        // --- ASSETS ---
-        function openAssetModal() { document.getElementById('modal-asset').classList.remove('hidden'); }
-        function closeAssetModal() { document.getElementById('modal-asset').classList.add('hidden'); document.getElementById('form-asset').reset(); }
-        
-        document.getElementById('form-asset').onsubmit = async (e) => {
-            e.preventDefault();
-            const p = { name: document.getElementById('ast-name').value, cat: document.getElementById('ast-cat').value, qty: document.getElementById('ast-qty').value, status: 'Baik' };
-            showLoading(true); await apiCall({ action: 'SAVE_ASSET', payload: p }); showLoading(false);
-            closeAssetModal(); renderAssets();
-        };
-
-        async function updateAssetStatus(id, s) {
-            showLoading(true); await apiCall({ action: 'UPDATE_ASSET_STATUS', payload: { id, status: s } }); showLoading(false);
-        }
-
-        async function renderAssets() {
-            const list = document.getElementById('asset-list');
-            const res = await apiCall({ action: 'GET_ASSETS' });
-            if(!res || !res.success) return;
-            list.innerHTML = res.data.map(a => `
-                <tr class="border-b dark:border-zinc-800">
-                    <td class="p-3">
-                        <p class="font-bold uppercase">${a.name}</p>
-                        <p class="text-[8px] text-gray-500 uppercase">${a.cat}</p>
-                    </td>
-                    <td class="p-3 text-center font-black">${a.qty}</td>
-                    <td class="p-3 text-center">
-                        <select onchange="updateAssetStatus('${a.id}', this.value)" class="text-[9px] bg-transparent font-bold focus:ring-0 border-none outline-none ${a.status==='Baik'?'text-green-500':'text-red-500'}">
-                            <option value="Baik" ${a.status==='Baik'?'selected':''}>Baik</option>
-                            <option value="Rusak" ${a.status==='Rusak'?'selected':''}>Rusak</option>
-                            <option value="Service" ${a.status==='Service'?'selected':''}>Service</option>
-                            <option value="Hilang" ${a.status==='Hilang'?'selected':''}>Hilang</option>
-                        </select>
-                    </td>
-                </tr>`).join('') || '<tr><td colspan="3" class="p-4 text-center">Kosong</td></tr>';
-        }
-
-        // --- FORM DYNAMIC ---
-        function initDynForms() {
-            const keys = ['audio-pa','audio-monitor','audio-console','audio-mic','audio-backline','audio-stand','audio-cable','audio-others','lighting','led','rigging','genset','barikade'];
-            keys.forEach(k => {
-                const el = document.getElementById('dyn-'+k); if(el) el.innerHTML = '';
-                if(k.startsWith('audio-') && k !== 'audio-others') {
-                    const subKey = k.split('-')[1];
-                    MASTER_GROUPS[subKey].forEach(j => createGroupSubcat('dyn-'+k, j));
-                } else if(k === 'lighting') {
-                    MASTER_GROUPS.lighting.forEach(j => createGroupSubcat('dyn-lighting', j));
-                } else {
-                    addDynRow('dyn-'+k);
-                }
-            });
-        }
-
-        function createGroupSubcat(containerId, subcatName) {
-            const container = document.getElementById(containerId);
-            const safeId = containerId + '-' + subcatName.replace(/[\s\/]+/g, '-').toLowerCase();
-            const div = document.createElement('div'); div.className = 'mb-2 bg-white dark:bg-zinc-800 rounded border dark:border-zinc-700 overflow-hidden';
-            div.innerHTML = `<div class="bg-gray-100 dark:bg-zinc-900 px-2 py-1 flex justify-between items-center border-b dark:border-zinc-700"><span class="text-[9px] font-black uppercase text-ygsred">${subcatName}</span><button type="button" onclick="addDynRow('${safeId}', {jenis: '${subcatName}'}, true)" class="text-[8px] bg-white dark:bg-zinc-800 px-2 py-1 rounded shadow-sm">+ Baris</button></div><div id="${safeId}" class="p-2 space-y-1"></div>`;
-            container.appendChild(div); addDynRow(safeId, {jenis: subcatName}, true);
-        }
-
-        function addDynRow(containerId, defaults={jenis:'', brand:'', qty:''}, isFixed=false) {
-            const container = document.getElementById(containerId);
-            const div = document.createElement('div'); div.className = 'grid grid-cols-12 gap-1 dynamic-row items-center';
-            div.innerHTML = `
-                <input type="text" class="dyn-jenis ${isFixed?'hidden':'col-span-4'} p-2 rounded input-dark font-bold" placeholder="Item" value="${defaults.jenis||''}">
-                <input type="text" class="dyn-brand ${isFixed?'col-span-8':'col-span-5'} p-2 rounded input-dark font-bold" placeholder="Brand/Seri" value="${defaults.brand||''}">
-                <input type="text" class="dyn-qty ${isFixed?'col-span-3':'col-span-2'} p-2 rounded input-dark text-center font-bold" placeholder="Qty" value="${defaults.qty||''}">
-                <button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-red-500 flex justify-center"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-            `;
-            container.appendChild(div); lucide.createIcons();
-        }
-
-        function extractDynData(containerId) {
-            const arr = []; const el = document.getElementById(containerId); if(!el) return arr;
-            el.querySelectorAll('.dynamic-row').forEach(row => {
-                const j = row.querySelector('.dyn-jenis').value.trim();
-                const b = row.querySelector('.dyn-brand').value.trim();
-                const q = row.querySelector('.dyn-qty').value.trim();
-                if(j || b || q) arr.push({ jenis: j, brand: b, qty: q });
-            }); return arr;
-        }
-
-        function generateDays() {
-            const startVal = document.getElementById('startDate').value; const endVal = document.getElementById('endDate').value;
-            const container = document.getElementById('days-container'); if (!container) return; container.innerHTML = '';
-            if(!startVal || !endVal) return; let current = new Date(startVal); const end = new Date(endVal);
-            while(end.getTime() >= current.getTime()) {
-                const dateStr = current.toLocaleDateString('id-ID', { weekday: 'long', day:'numeric', month:'short' });
-                const isoDate = current.toISOString();
-                container.innerHTML += `
-                    <div class="day-row bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800" data-date="${isoDate}">
-                        <div class="flex justify-between items-center mb-3 border-b dark:border-zinc-800 pb-2"><span class="text-[10px] font-black uppercase text-ygsred">${dateStr}</span></div>
-                        <div class="grid grid-cols-2 gap-3 mb-3">
-                            <input type="time" class="time-start p-2 rounded input-dark font-bold" value="08:00">
-                            <input type="time" class="time-end p-2 rounded input-dark font-bold" value="23:00">
-                        </div>
-                        <div class="flex flex-wrap gap-1.5">${['Load In','Prep','Tuning','Soundcheck','Event','Load Out'].map(act => `<label class="text-[8px] bg-white dark:bg-zinc-800 px-2 py-1 rounded border dark:border-zinc-700 font-bold"><input type="checkbox" class="act-check" value="${act}"> ${act}</label>`).join('')}</div>
-                    </div>`;
-                current.setDate(current.getDate() + 1);
-            }
-        }
-
-        document.getElementById('event-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const days = [];
-            document.querySelectorAll('.day-row').forEach(row => {
-                days.push({ 
-                    date: row.dataset.date, 
-                    startTime: row.querySelector('.time-start').value, 
-                    endTime: row.querySelector('.time-end').value, 
-                    acts: Array.from(row.querySelectorAll('.act-check:checked')).map(c => c.value) 
-                });
-            });
-
-            const p = { 
-                id: document.getElementById('edit-id').value || 'YGS-' + Date.now(), 
-                eventName: document.getElementById('eventName').value, 
-                artist: document.getElementById('artist').value, 
-                eventDate: document.getElementById('startDate').value, 
-                status: document.getElementById('evStatus').value,
-                activities: days,
-                specDyn: {
-                    audio: { 
-                        pa: extractDynData('dyn-audio-pa'), monitor: extractDynData('dyn-audio-monitor'), 
-                        console: extractDynData('dyn-audio-console'), mic: extractDynData('dyn-audio-mic'),
-                        backline: extractDynData('dyn-audio-backline'), stand: extractDynData('dyn-audio-stand'),
-                        cable: extractDynData('dyn-audio-cable'), others: extractDynData('dyn-audio-others')
-                    },
-                    lighting: extractDynData('dyn-lighting'), led: extractDynData('dyn-led'),
-                    rigging: extractDynData('dyn-rigging'), genset: extractDynData('dyn-genset'), barikade: extractDynData('dyn-barikade')
-                },
-                manpower: { 
-                    pic: document.getElementById('pic').value,
-                    audio: { 
-                        se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value, 
-                        moh: document.getElementById('c_a_moh').value, rf: document.getElementById('c_a_rf').value,
-                        stg: document.getElementById('c_a_stg').value, ast: document.getElementById('c_a_ast').value
-                    },
-                    lighting: { 
-                        ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value, 
-                        adr: document.getElementById('c_l_adr').value, ast: document.getElementById('c_l_ast').value
-                    },
-                    roadies: { 
-                        head: document.getElementById('c_r_head').value, r1: document.getElementById('c_r_1').value, 
-                        r2: document.getElementById('c_r_2').value, r3: document.getElementById('c_r_3').value, r4: document.getElementById('c_r_4').value
-                    },
-                    support: { 
-                        rigging: document.getElementById('c_s_rigging').value, stage: document.getElementById('c_s_stage').value, 
-                        genset: document.getElementById('c_s_genset').value, barikade: document.getElementById('c_s_barikade').value
-                    }
-                }
-            };
-            showLoading(true, 'Menyimpan Event...'); await apiCall({ action: 'ADD_DATA', payload: p }); showLoading(false);
-            switchTab('list'); fetchData();
-        };
-
-        // --- FINANCE ---
-        function renderTeam() {
-            const list = document.getElementById('team-list');
-            list.innerHTML = allUsers.map(u => `
-            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl flex justify-between items-center border dark:border-zinc-800 shadow-sm">
-                <div><p class="font-black text-sm uppercase">${u.fullName}</p><p class="text-[10px] text-ygsred font-bold uppercase tracking-widest">${u.position}</p></div>
-                <button onclick="openFinanceModal('${u.nickname || u.fullName}')" class="text-blue-500 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg"><i data-lucide="wallet" class="w-5 h-5"></i></button>
-            </div>`).join('');
+        // CALENDAR & STATUS
+        function updateTodayStatus() {
+            const dStr = new Date().toISOString().split('T')[0], hasE = allProjects.some(p => p.eventDate === dStr);
+            const text = document.getElementById('today-status-text'), icon = document.getElementById('today-status-icon');
+            if(hasE) { text.innerText = "ADA EVENT HARI INI"; text.className = "text-xs font-bold text-green-600"; icon.className = "p-2 rounded-full bg-green-100 text-green-600"; icon.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5"></i>`; } 
+            else { text.innerText = "LIBUR / MAINTENANCE"; text.className = "text-xs font-bold text-red-500"; icon.className = "p-2 rounded-full bg-red-100 text-red-500"; icon.innerHTML = `<i data-lucide="calendar-off" class="w-5 h-5"></i>`; }
             lucide.createIcons();
-        }
-
-        function openFinanceModal(n) {
-            document.getElementById('finance-crew-name').innerText = n;
-            const container = document.getElementById('finance-modal-list');
-            const crewEvents = allProjects.filter(p => JSON.stringify(p.manpower || {}).includes(n));
-            container.innerHTML = crewEvents.map(p => {
-                const f = (p.finance && p.finance[n]) || { fee: 0, bon: 0 };
-                return `
-                <div class="bg-gray-50 dark:bg-zinc-900 p-3 rounded-xl finance-row" data-pid="${p.id}">
-                    <p class="text-[9px] font-black uppercase mb-2">${p.eventName}</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="space-y-1"><label class="text-[8px] font-bold text-gray-500 uppercase">Fee</label><input type="number" class="fin-fee w-full p-2 rounded input-dark" value="${f.fee}"></div>
-                        <div class="space-y-1"><label class="text-[8px] font-bold text-gray-500 uppercase">Bon</label><input type="number" class="fin-bon w-full p-2 rounded input-dark" value="${f.bon}"></div>
-                    </div>
-                </div>`;
-            }).join('') || '<p class="text-center text-xs py-10 font-bold text-gray-400">KRU BELUM TERDAFTAR DI EVENT APAPUN</p>';
-            document.getElementById('modal-finance').classList.remove('hidden');
-        }
-
-        function closeFinanceModal() { document.getElementById('modal-finance').classList.add('hidden'); }
-
-        async function saveFinance() {
-            const n = document.getElementById('finance-crew-name').innerText;
-            const data = [];
-            document.querySelectorAll('.finance-row').forEach(row => {
-                data.push({ projectId: row.dataset.pid, fee: row.querySelector('.fin-fee').value, bon: row.querySelector('.fin-bon').value });
-            });
-            showLoading(true); await apiCall({ action: 'UPDATE_FINANCE', payload: { crewName: n, data } }); showLoading(false);
-            closeFinanceModal(); fetchData();
-        }
-
-        function renderProfileSchedule() {
-            const n = currentUser.nickname || currentUser.fullName;
-            const matches = allProjects.filter(p => JSON.stringify(p.manpower || {}).includes(n));
-            let tFee = 0, tBon = 0;
-            const history = document.getElementById('profile-history');
-            history.innerHTML = matches.map(p => {
-                const f = (p.finance && p.finance[n]) || { fee: 0, bon: 0 };
-                tFee += Number(f.fee); tBon += Number(f.bon);
-                return `
-                <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg flex justify-between items-center text-[9px] font-bold border dark:border-zinc-800 shadow-sm">
-                    <div><p>${p.eventName}</p><p class="text-gray-500 text-[8px]">${p.eventDate}</p></div>
-                    <div class="text-right">
-                        <p class="text-green-600">+ ${formatRp(f.fee)}</p>
-                        <p class="text-red-500">- ${formatRp(f.bon)}</p>
-                    </div>
-                </div>`;
-            }).join('') || '<p class="text-center text-[8px] py-4 italic">Belum ada riwayat tugas</p>';
-            document.getElementById('prof-fee').innerText = formatRp(tFee);
-            document.getElementById('prof-bon').innerText = formatRp(tBon);
-            document.getElementById('prof-sisa').innerText = formatRp(tFee - tBon);
-        }
-
-        // --- JADWAL ---
-        function setAgendaView(m) { activeAgendaView = m; applyAgendaView(); }
-        function applyAgendaView() {
-            const wrap = document.getElementById('wrapper-kalender');
-            const cont = document.getElementById('project-container');
-            wrap.classList.toggle('hidden', activeAgendaView !== 'kalender');
-            if(activeAgendaView === 'kalender') renderCalendar();
-            else {
-                let filtered = allProjects;
-                if(activeAgendaView === 'saya') filtered = allProjects.filter(p => JSON.stringify(p.manpower || {}).includes(currentUser.nickname || currentUser.fullName));
-                cont.innerHTML = filtered.map(p => renderEventCard(p)).join('') || '<div class="text-center p-10 font-bold border-2 border-dashed dark:border-zinc-800 rounded-xl">KOSONG</div>';
-                lucide.createIcons();
-            }
-        }
-
-        function renderEventCard(p) {
-            return `
-            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred flex justify-between items-center shadow-sm hover:shadow-md cursor-pointer transition-all">
-                <div><h3 class="font-black text-sm uppercase">${p.eventName}</h3><p class="text-[10px] text-ygsred font-black uppercase tracking-widest">${p.artist}</p><p class="text-[8px] text-gray-500 font-bold mt-1">${p.eventDate}</p></div>
-                <div class="flex items-center gap-2">
-                    ${currentUser.role==='admin'?`<button onclick="deleteEvent('${p.id}')" class="text-red-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`:''}
-                    <i data-lucide="chevron-right" class="text-gray-400"></i>
-                </div>
-            </div>`;
-        }
-
-        async function deleteEvent(id) {
-            if(!confirm("Hapus event?")) return; showLoading(true);
-            await apiCall({ action: 'DELETE_DATA', payload: { id } }); showLoading(false); fetchData();
         }
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const dIM = new Date(currentYear, currentMonth + 1, 0).getDate(), tStr = new Date().toISOString().split('T')[0];
             document.getElementById('cal-month-year').innerText = new Date(currentYear, currentMonth).toLocaleDateString('id-ID', {month:'long', year:'numeric'});
-            for(let i=1; i<=daysInMonth; i++) {
+            for(let i=1; i<=dIM; i++) {
                 const dStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                const hasE = allProjects.some(p => p.eventDate === dStr);
-                grid.innerHTML += `<div class="cal-day ${hasE?'has-event':''}" onclick="showEventsOnDate('${dStr}')">${i}</div>`;
+                const evs = allProjects.filter(p => p.eventDate === dStr), isT = dStr === tStr, hasE = evs.length > 0;
+                const isM = JSON.stringify(evs).toLowerCase().includes('maintenance') || JSON.stringify(evs).toLowerCase().includes('prep');
+                let cls = "cal-day " + (hasE ? "cal-event-circle " + (isM ? "cal-blue" : "") : "cal-red");
+                if(isT) cls += " cal-today";
+                grid.innerHTML += `<div class="${cls}" onclick="showEventsOnDate('${dStr}')">${i}</div>`;
             }
         }
 
         function showEventsOnDate(d) {
             const f = allProjects.filter(p => p.eventDate === d);
-            document.getElementById('project-container').innerHTML = f.map(p => renderEventCard(p)).join('') || '<div class="text-center p-10 text-red-500 font-bold uppercase border-2 border-dashed border-red-500/20 rounded-xl bg-red-500/5">FREE</div>';
-            lucide.createIcons();
+            document.getElementById('project-container').innerHTML = f.map(p => `<div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred shadow-sm"><h3 class="font-black text-sm uppercase">${p.eventName}</h3><p class="text-[9px] text-gray-500 uppercase">${p.artist}</p></div>`).join('') || '<div class="p-10 text-center font-bold text-gray-400">LIBUR</div>';
         }
 
-        function changeMonth(v) { currentMonth += v; if(currentMonth>11){currentMonth=0;currentYear++} if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(); }
+        // CREATE FORM LOGIC
+        function initDynForms() {
+            const aC = document.getElementById('dyn-audio-container'), lC = document.getElementById('dyn-lighting-container');
+            if(!aC) return; aC.innerHTML = ''; lC.innerHTML = '';
+            
+            // Audio Sub-categories
+            Object.keys(MASTER_GROUPS.audio).forEach(key => {
+                const title = MASTER_GROUPS.audio[key];
+                const div = document.createElement('div'); div.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50 mb-2';
+                div.innerHTML = `<div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black uppercase">${title}</p><button type="button" onclick="addDynRow('dyn-audio-${key}', {jenis: '${title}'}, true)" class="text-[8px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div><div id="dyn-audio-${key}" class="space-y-1"></div>`;
+                aC.appendChild(div); addDynRow('dyn-audio-'+key, {jenis: title}, true);
+            });
 
-        // --- CHAT ---
-        async function renderChat() {
-            const cont = document.getElementById('chat-container');
-            const res = await apiCall({ action: 'GET_CHATS' });
-            if(!res || !res.success) return;
-            cont.innerHTML = res.data.map(c => {
-                const isMe = c.sender === (currentUser.nickname || currentUser.fullName);
-                return `<div class="flex flex-col ${isMe?'items-end':'items-start'} mb-2"><span class="text-[7px] font-bold text-gray-500 px-1">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold ${isMe?'bg-ygsred text-white rounded-tr-none':'bg-gray-100 dark:bg-zinc-800 rounded-tl-none'} shadow-sm">${c.msg}</div></div>`;
-            }).join('');
-            cont.scrollTop = cont.scrollHeight;
+            // Lighting Sub-categories
+            MASTER_GROUPS.lighting.forEach(sub => {
+                const div = document.createElement('div'); div.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50 mb-2';
+                const safeId = sub.replace(/\s+/g,'');
+                div.innerHTML = `<div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black uppercase">${sub}</p><button type="button" onclick="addDynRow('dyn-light-${safeId}', {jenis: '${sub}'}, true)" class="text-[8px] bg-orange-600 text-white px-2 py-1 rounded shadow">+ Brand</button></div><div id="dyn-light-${safeId}" class="space-y-1"></div>`;
+                lC.appendChild(div); addDynRow('dyn-light-'+safeId, {jenis: sub}, true);
+            });
+
+            // Default Dynamic Rows for Others
+            addDynRow('dyn-led', {jenis: 'Main Stage'}); addDynRow('dyn-rigging', {jenis: 'Main Stage'}); 
+            addDynRow('dyn-genset', {jenis: 'Genset Audio'}); addDynRow('dyn-barikade', {jenis: 'Rowing Stage'});
         }
 
-        document.getElementById('chat-form').onsubmit = async (e) => {
-            e.preventDefault(); const i = document.getElementById('chat-input');
-            const p = { sender: currentUser.nickname || currentUser.fullName, msg: i.value, time: new Date().toISOString() };
-            i.value = ''; await apiCall({ action: 'ADD_CHAT', payload: p }); renderChat();
+        function addDynRow(cId, def={jenis:'', brand:'', qty:''}, isF=false) {
+            const c = document.getElementById(cId); if(!c) return; 
+            const div = document.createElement('div'); div.className = 'grid grid-cols-12 gap-1 dynamic-row items-center mb-1';
+            let ph = {j:'Posisi', b:'Brand/Tipe', q:'Qty'}; 
+            if(cId==='dyn-genset') ph={j:'Kegunaan', b:'KVA', q:'Unit'}; 
+            if(cId.includes('led')) ph={j:'Posisi', b:'Brand', q:'Meter'};
+            
+            div.innerHTML = `
+                <input type="text" class="dyn-jenis col-span-4 p-2 rounded input-dark font-bold" placeholder="${ph.j}" value="${def.jenis}" ${isF?'readonly':''}>
+                <input type="text" class="dyn-brand col-span-5 p-2 rounded input-dark font-bold text-xs" placeholder="${ph.b}" value="${def.brand}">
+                <input type="text" class="dyn-qty col-span-2 p-2 rounded input-dark text-center font-bold" placeholder="${ph.q}" value="${def.qty}">
+                <button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-red-500 flex justify-center"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+            c.appendChild(div); lucide.createIcons();
+        }
+
+        function generateDays() {
+            const sV = document.getElementById('startDate').value, eV = document.getElementById('endDate').value, c = document.getElementById('days-container'); if(!c || !sV || !eV) return; c.innerHTML = '';
+            let cur = new Date(sV), end = new Date(eV);
+            while(end >= cur) {
+                const dStr = cur.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'short'}), iso = cur.toISOString().split('T')[0];
+                c.innerHTML += `<div class="day-row bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800" data-date="${iso}"><p class="text-[10px] font-black uppercase text-ygsred mb-3 border-b dark:border-zinc-800 pb-1">${dStr}</p><div class="grid grid-cols-2 gap-3 mb-3"><input type="time" class="time-start p-2 rounded input-dark font-bold" value="08:00"><input type="time" class="time-end p-2 rounded input-dark font-bold" value="23:00"></div><div class="flex flex-wrap gap-1.5">${['Load In','Prep','Tuning','Soundcheck','Event','Load Out'].map(a => `<label class="text-[8px] bg-white dark:bg-zinc-800 px-2 py-1 rounded border dark:border-zinc-700 font-bold"><input type="checkbox" class="act-check accent-ygsred" value="${a}"> ${a}</label>`).join('')}</div></div>`;
+                cur.setDate(cur.getDate()+1);
+            }
+        }
+
+        document.getElementById('event-form').onsubmit = async (e) => {
+            e.preventDefault(); showLoading(true);
+            const days = []; document.querySelectorAll('.day-row').forEach(r => days.push({ date: r.dataset.date, startTime: r.querySelector('.time-start').value, endTime: r.querySelector('.time-end').value, acts: Array.from(r.querySelectorAll('.act-check:checked')).map(x => x.value) }));
+            
+            const audioData = {}; Object.keys(MASTER_GROUPS.audio).forEach(k => audioData[k] = extractDynData('dyn-audio-'+k));
+            const lightData = MASTER_GROUPS.lighting.map(s => ({ sub: s, data: extractDynData('dyn-light-'+s.replace(/\s+/g,'')) }));
+
+            const p = { 
+                id: 'YGS-'+Date.now(), eventName: document.getElementById('eventName').value, artist: document.getElementById('artist').value, eventDate: document.getElementById('startDate').value, status: document.getElementById('evStatus').value, 
+                activities: days, transportasi: Array.from(document.querySelectorAll('.trans-check:checked')).map(x => x.value),
+                specDyn: { audio: audioData, lighting: lightData, led: extractDynData('dyn-led'), rigging: extractDynData('dyn-rigging'), genset: extractDynData('dyn-genset'), barikade: extractDynData('dyn-barikade') },
+                manpower: { 
+                    pic: document.getElementById('pic').value, 
+                    audio: { se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value, moh: document.getElementById('c_a_moh').value, rf: document.getElementById('c_a_rf').value, stg: document.getElementById('c_a_stg').value, ast: document.getElementById('c_a_ast').value }, 
+                    lighting: { ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value, adr: document.getElementById('c_l_adr').value, ast: document.getElementById('c_l_ast').value }, 
+                    roadies: { head: document.getElementById('c_r_head').value, r1: document.getElementById('c_r_1').value, r2: document.getElementById('c_r_2').value, r3: document.getElementById('c_r_3').value, r4: document.getElementById('c_r_4').value }, 
+                    support: { rigging: document.getElementById('c_s_rigging').value, stage: document.getElementById('c_s_stage').value, genset: document.getElementById('c_s_genset').value, barikade: document.getElementById('c_s_barikade').value } 
+                } 
+            };
+            const r = await apiCall({ action: 'ADD_DATA', payload: p }); showLoading(false); if(r.success) { switchTab('list'); fetchData(); }
         };
 
+        function extractDynData(id) { const arr = []; const el = document.getElementById(id); if(!el) return arr; el.querySelectorAll('.dynamic-row').forEach(r => { const j = r.querySelector('.dyn-jenis').value, b = r.querySelector('.dyn-brand').value, q = r.querySelector('.dyn-qty').value; if(j||b||q) arr.push({jenis:j, brand:b, qty:q}); }); return arr; }
+
+        // ASSETS & BON
+        async function renderAssets() {
+            const r = await apiCall({ action: 'GET_ASSETS' }); if(!r.success) return;
+            document.getElementById('asset-list').innerHTML = r.data.map(a => `<tr class="border-b dark:border-zinc-800"><td class="p-3 uppercase font-bold">${a.name}</td><td class="p-3 text-center font-black">${a.qty}</td><td class="p-3 text-center"><select onchange="updateAssetField('${a.id}', 'status', this.value)" class="bg-transparent font-black ${a.status==='Baik'?'text-green-500':'text-red-500'}"><option value="Baik" ${a.status==='Baik'?'selected':''}>Baik</option><option value="Rusak" ${a.status==='Rusak'?'selected':''}>Rusak</option></select></td><td class="p-3"><input type="text" onblur="updateAssetField('${a.id}', 'note', this.value)" class="bg-transparent text-[8px] italic w-full border-none focus:ring-0" placeholder="..." value="${a.note||''}"></td></tr>`).join('');
+        }
+        async function updateAssetField(id, f, v) { await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id, field: f, value: v } }); }
+
+        function openBonModal() { document.getElementById('modal-bon').classList.remove('hidden'); }
+        function closeBonModal() { document.getElementById('modal-bon').classList.add('hidden'); }
+        document.getElementById('form-bon').onsubmit = async (e) => {
+            e.preventDefault(); showLoading(true); await apiCall({ action: 'REQUEST_BON', payload: { amount: document.getElementById('bon-amount').value, note: document.getElementById('bon-note').value, user: currentUser.nickname||currentUser.fullName, time: new Date().toISOString() } });
+            showLoading(false); closeBonModal(); showToast("Pengajuan terkirim!");
+        };
+
+        async function renderTeam() {
+            const r = await apiCall({ action: 'GET_BON_REQUESTS' });
+            if(r.success) { document.getElementById('bon-pending-list').innerHTML = r.data.filter(b => b.status === 'pending').map(b => `<div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl flex justify-between items-center"><div><p class="text-[9px] font-black uppercase">${b.user}</p><p class="text-xs font-black text-blue-600">Rp ${Number(b.amount).toLocaleString()}</p></div><button onclick="approveBon('${b.id}')" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-[9px] font-black">APPROVE</button></div>`).join('') || '<p class="text-center text-[8px] text-gray-500 py-4">Tidak ada pengajuan bon</p>'; }
+            document.getElementById('team-list').innerHTML = allUsers.map(u => `<div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800 flex justify-between items-center shadow-sm"><div><p class="font-black text-sm uppercase">${u.fullName}</p><p class="text-[10px] text-ygsred font-bold uppercase tracking-widest">${u.position}</p></div><div class="text-[9px] text-right font-bold text-gray-500">${u.bankName||'N/A'}<br>${u.bankAcc||''}</div></div>`).join('');
+        }
+        async function approveBon(id) { showLoading(true); await apiCall({ action: 'APPROVE_BON', payload: { id } }); showLoading(false); fetchData(); renderTeam(); }
+
+        function renderProfile() {
+            const n = currentUser.nickname||currentUser.fullName, m = allProjects.filter(p => JSON.stringify(p.manpower||{}).includes(n));
+            let tF=0, tB=0; document.getElementById('profile-history').innerHTML = m.map(p => { const f = (p.finance && p.finance[n]) || {fee:0, bon:0}; tF+=Number(f.fee); tB+=Number(f.bon); return `<div class="bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl flex justify-between items-center text-[9px] font-bold"><div><p class="uppercase font-black text-ygsred">${p.eventName}</p><p class="text-gray-500">${p.eventDate}</p></div><div class="text-green-600">+ Rp ${Number(f.fee).toLocaleString()}</div></div>`; }).join('') || '<p class="text-center text-[8px] py-4 italic text-gray-400">Belum ada riwayat tugas</p>';
+            document.getElementById('prof-fee').innerText = "Rp "+tF.toLocaleString(); document.getElementById('prof-bon').innerText = "Rp "+tB.toLocaleString(); document.getElementById('prof-sisa').innerText = "Rp "+(tF-tB).toLocaleString();
+        }
+
+        // UTILS
         function logout() { localStorage.removeItem('ygsUserEx'); location.reload(); }
+        function setAgendaView(v) { activeAgendaView = v; applyAgendaView(); }
+        function applyAgendaView() { const w = document.getElementById('wrapper-kalender'), c = document.getElementById('project-container'); w.classList.toggle('hidden', activeAgendaView !== 'kalender'); if(activeAgendaView==='kalender') renderCalendar(); else { let f = activeAgendaView === 'saya' ? allProjects.filter(p => JSON.stringify(p.manpower||{}).includes(currentUser.nickname||currentUser.fullName)) : allProjects; c.innerHTML = f.map(p => `<div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred shadow-sm animate-fade"><h3 class="font-black text-sm uppercase">${p.eventName}</h3><p class="text-[9px] text-ygsred font-black uppercase">${p.artist}</p><p class="text-[8px] text-gray-500 mt-1">${p.eventDate}</p></div>`).join('') || '<p class="p-10 text-center font-bold text-gray-400">TIDAK ADA DATA</p>'; } }
+        async function renderChat() { const r = await apiCall({ action: 'GET_CHATS' }); if(!r.success) return; document.getElementById('chat-container').innerHTML = r.data.map(c => { const isM = c.sender === (currentUser.nickname||currentUser.fullName); return `<div class="flex flex-col ${isM?'items-end':'items-start'} animate-fade"><span class="text-[7px] font-bold text-gray-500 px-1">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold ${isM?'bg-ygsred text-white':'bg-gray-100 dark:bg-zinc-800'} shadow-sm">${c.msg}</div></div>`; }).join(''); document.getElementById('chat-container').scrollTop = 99999; }
+        document.getElementById('chat-form').onsubmit = async (e) => { e.preventDefault(); const i = document.getElementById('chat-input'), p = { sender: currentUser.nickname||currentUser.fullName, msg: i.value, time: new Date().toISOString() }; i.value = ''; await apiCall({ action: 'ADD_CHAT', payload: p }); renderChat(); };
+        function changeMonth(v) { currentMonth += v; if(currentMonth>11){currentMonth=0;currentYear++} if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(); }
+        function openAssetModal() { document.getElementById('modal-asset').classList.remove('hidden'); }
+        function closeAssetModal() { document.getElementById('modal-asset').classList.add('hidden'); }
+        document.getElementById('form-asset').onsubmit = async (e) => { e.preventDefault(); showLoading(true); await apiCall({ action: 'SAVE_ASSET', payload: { name: document.getElementById('ast-name').value, cat: document.getElementById('ast-cat').value, qty: document.getElementById('ast-qty').value, status: 'Baik', note: '' } }); showLoading(false); closeAssetModal(); renderAssets(); };
     </script>
 </body>
 </html>
