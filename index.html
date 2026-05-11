@@ -1219,7 +1219,7 @@
         function extractDynData(id) { const arr = []; const el = document.getElementById(id); if(!el) return arr; el.querySelectorAll('.dynamic-row').forEach(r => { const j = r.querySelector('.dyn-jenis').value, b = r.querySelector('.dyn-brand').value, q = r.querySelector('.dyn-qty').value; if(j||b||q) arr.push({jenis:j, brand:b, qty:q}); }); return arr; }
 
         function renderAssets() {
-            const isAdmin = currentUser.role === 'admin';
+            const isAdmin = currentUser?.role === 'admin';
             document.getElementById('asset-list').innerHTML = allAssets.map(a => `
                 <tr class="border-b dark:border-zinc-800">
                     <td class="p-3 uppercase font-bold">${a.name}</td>
@@ -1382,6 +1382,7 @@
         // ==========================================
         function renderProfile() {
             const u = currentUser;
+            if (!u) return;
             const trxs = allTransactions.filter(t => t.id_kru === u.username).sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
             
             let runningSaldo = 0;
@@ -1444,6 +1445,7 @@
 
         document.getElementById('eval-form').onsubmit = async (e) => {
             e.preventDefault();
+            if (!currentUser) return;
             const eid = document.getElementById('eval-event-id').value;
             const eventName = allProjects.find(p => p.id === eid)?.eventName || "Unknown";
             const msg = document.getElementById('eval-msg').value;
@@ -1462,14 +1464,28 @@
             if(activeAgendaView==='kalender') {
                 renderCalendar(); showEventsOnDate(new Date().toISOString().split('T')[0]);
             } else { 
-                let f = activeAgendaView === 'saya' ? allProjects.filter(p => JSON.stringify(p.manpower).includes(currentUser.nickname||currentUser.fullName)) : allProjects; 
+                let f = activeAgendaView === 'saya' && currentUser ? allProjects.filter(p => JSON.stringify(p.manpower).includes(currentUser.nickname||currentUser.fullName)) : allProjects; 
                 c.innerHTML = f.map(p => getEventCardHTML(p, null)).join('') || '<p class="p-10 text-center font-bold text-xs">KOSONG</p>';
                 lucide.createIcons();
             } 
         }
         
-        function renderChat() { document.getElementById('chat-container').innerHTML = allChats.map(c => `<div class="flex flex-col ${c.sender === (currentUser.nickname||currentUser.fullName)?'items-end':'items-start'}"><span class="text-[7px] font-bold text-gray-500">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold ${c.sender === (currentUser.nickname||currentUser.fullName)?'bg-ygsred text-white':'bg-gray-100 dark:bg-zinc-800'}">${c.msg}</div></div>`).join(''); document.getElementById('chat-container').scrollTop = 99999; }
-        document.getElementById('chat-form').onsubmit = async (e) => { e.preventDefault(); const i = document.getElementById('chat-input'), p = { sender: currentUser.nickname||currentUser.fullName, msg: i.value, time: new Date().toISOString() }; i.value = ''; await apiCall({ action: 'ADD_CHAT', payload: p }); fetchData(); };
+        function renderChat() { 
+            if (!currentUser) return;
+            const myName = currentUser.nickname || currentUser.fullName;
+            document.getElementById('chat-container').innerHTML = allChats.map(c => `<div class="flex flex-col ${c.sender === myName ?'items-end':'items-start'}"><span class="text-[7px] font-bold text-gray-500">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold ${c.sender === myName ?'bg-ygsred text-white':'bg-gray-100 dark:bg-zinc-800'}">${c.msg}</div></div>`).join(''); 
+            document.getElementById('chat-container').scrollTop = 99999; 
+        }
+
+        document.getElementById('chat-form').onsubmit = async (e) => { 
+            e.preventDefault(); 
+            if (!currentUser) return;
+            const i = document.getElementById('chat-input'), p = { sender: currentUser.nickname||currentUser.fullName, msg: i.value, time: new Date().toISOString() }; 
+            i.value = ''; 
+            await apiCall({ action: 'ADD_CHAT', payload: p }); 
+            fetchData(); 
+        };
+        
         function changeMonth(v) { currentMonth += v; if(currentMonth>11){currentMonth=0;currentYear++} if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(); }
         function openAssetModal() { document.getElementById('modal-asset').classList.remove('hidden'); }
         function closeAssetModal() { document.getElementById('modal-asset').classList.add('hidden'); }
