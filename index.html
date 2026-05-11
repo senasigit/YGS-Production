@@ -208,9 +208,25 @@
         <div class="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 w-full max-w-4xl mx-auto" id="detail-content"></div>
     </div>
 
+    <!-- MODAL QUOTES (POIN 3) -->
+    <div id="modal-quote" class="fixed inset-0 bg-black/80 z-[900] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
+        <div class="bg-white dark:bg-[#111] p-6 rounded-3xl w-full max-w-sm space-y-4 border dark:border-zinc-800 shadow-2xl text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-ygsred"></div>
+            <div class="mx-auto w-12 h-12 bg-red-50 dark:bg-red-950/30 text-ygsred rounded-full flex items-center justify-center mb-2">
+                <i data-lucide="quote" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-[10px] font-black uppercase text-gray-500 tracking-widest">Pesan Hari Ini</h3>
+            <p id="quote-text" class="text-[11px] font-bold text-gray-800 dark:text-gray-200 italic leading-relaxed px-2">"Quote goes here"</p>
+            <div class="pt-4">
+                <button onclick="closeQuoteModal()" class="w-full py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px] shadow-lg shadow-red-900/30 transition hover:bg-red-700">Siap Laksanakan!</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container" class="fixed top-20 right-4 z-[800] space-y-2 flex flex-col items-end pointer-events-none"></div>
     <datalist id="list-crew"></datalist>
     <datalist id="list-events"></datalist>
+    <datalist id="list-inventory"></datalist>
 
     <!-- AUTH SECTION -->
     <div id="view-auth" class="fixed inset-0 bg-gray-100 dark:bg-black z-[400] flex flex-col justify-center items-center p-6 no-print overflow-y-auto">
@@ -301,7 +317,14 @@
                     <p id="user-display" class="text-[9px] font-bold text-ygsred uppercase"></p>
                 </div>
             </div>
-            <div class="flex gap-1">
+            <div class="flex gap-1 items-center">
+                <div class="relative">
+                    <button onclick="toggleNotifications()" class="text-gray-500 hover:text-ygsred p-2 transition relative"><i data-lucide="bell" class="w-5 h-5"></i><span id="badge-notif" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-black animate-pulse"></span></button>
+                    <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border dark:border-zinc-800 p-3 max-h-64 overflow-y-auto z-[200]">
+                        <p class="text-[10px] font-black uppercase border-b dark:border-zinc-800 pb-2 mb-2">Notifikasi</p>
+                        <div id="notif-list" class="space-y-2"></div>
+                    </div>
+                </div>
                 <button onclick="toggleTheme()" class="text-gray-500 hover:text-ygsred p-2 transition"><i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i><i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i></button>
                 <button onclick="fetchData()" class="text-gray-500 hover:text-ygsred p-2 transition"><i data-lucide="refresh-cw" class="w-5 h-5"></i></button>
             </div>
@@ -367,7 +390,7 @@
                         </div>
                         <input type="text" id="eventName" placeholder="Nama Event" required class="w-full p-2.5 rounded input-dark font-black text-sm text-ygsred">
                         <input type="text" id="artist" placeholder="Artist / Talent" required class="w-full p-2.5 rounded input-dark font-bold">
-                        <input type="text" id="mapsLink" placeholder="Lokasi / URL Google Maps" class="w-full p-2.5 rounded input-dark font-bold">
+                        <input type="text" id="mapsLink" placeholder="Cari nama lokasi (G-Maps) ATAU Paste Link URL" class="w-full p-2.5 rounded input-dark font-bold">
                         
                         <div class="pt-2">
                             <p class="text-[9px] font-bold text-gray-500 uppercase mb-2">Transportasi Operasional</p>
@@ -447,6 +470,11 @@
                                 <input type="text" id="c_s_genset" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 mb-2 font-bold" placeholder="Genset PIC: ">
                                 <input type="text" id="c_s_barikade" list="list-crew" class="w-full bg-transparent border-b dark:border-zinc-800 text-xs pb-1 font-bold" placeholder="Barikade PIC: ">
                             </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label class="text-[9px] font-bold text-gray-500 uppercase">Catatan Tambahan Lapangan (Opsional)</label>
+                            <textarea id="crewNote" class="w-full p-2.5 rounded-xl input-dark font-bold text-xs mt-1" rows="2" placeholder="Tuliskan pesan / info khusus untuk kru lapangan..."></textarea>
                         </div>
                     </div>
 
@@ -650,13 +678,14 @@
         // Fitur Toggle Password Show/Hide
         function togglePassword(inputId, btn) {
             const inp = document.getElementById(inputId);
-            const icon = btn.querySelector('i');
+            const iconClass = inputId.startsWith('log') ? 'w-4 h-4' : 'w-3.5 h-3.5';
+            
             if(inp.type === 'password') {
                 inp.type = 'text';
-                icon.setAttribute('data-lucide', 'eye-off');
+                btn.innerHTML = `<i data-lucide="eye-off" class="${iconClass}"></i>`;
             } else {
                 inp.type = 'password';
-                icon.setAttribute('data-lucide', 'eye');
+                btn.innerHTML = `<i data-lucide="eye" class="${iconClass}"></i>`;
             }
             lucide.createIcons();
         }
@@ -668,7 +697,7 @@
             mic: ['Wireless', 'Wired', 'DI Box', 'Others'],
             backline: ['Drum Kit', 'Keyboard', 'Ampli Gitar', 'Ampli Bass', 'Ampli Keys', 'Stand Gitar', 'Stand Keys', 'Others'],
             stand: ['Stand Panjang', 'Stand Pendek', 'Stand Speaker', 'Claw', 'Others'],
-            cable: ['Splitter', 'Junction Box', 'Rumbai', 'Multicore', 'XLR Cables', 'TS Cables', 'Others'],
+            cable: ['Splitter', 'Junction Box', 'Rumbai', 'Multicore', 'XLR Cables', 'TS Cables', 'LAN', 'Kabel Protector', 'Others'],
             lighting: ['Consoles', 'Moving Beam', 'Parled', 'Fresnel', 'Minibrute', 'Stormy', 'Wallwasher', 'Follow Spot', 'Penerangan', 'Tripod', 'Hazer', 'Smoke Gun', 'Splitter', 'Others']
         };
 
@@ -718,11 +747,52 @@
         
         function toggleAuth(type) { document.getElementById('login-form').classList.toggle('hidden', type !== 'login'); document.getElementById('register-form').classList.toggle('hidden', type !== 'register'); }
 
+        let myNotifications = [];
+        function toggleNotifications() {
+            document.getElementById('notif-dropdown').classList.toggle('hidden');
+            document.getElementById('badge-notif').classList.add('hidden');
+        }
+        function addNotification(msg) {
+            myNotifications.unshift({ msg, time: new Date() });
+            if (myNotifications.length > 20) myNotifications.pop();
+            const badge = document.getElementById('badge-notif');
+            if(badge) badge.classList.remove('hidden');
+            const list = document.getElementById('notif-list');
+            if(list) list.innerHTML = myNotifications.map(n => `<div class="p-2 bg-gray-50 dark:bg-zinc-800/50 rounded border dark:border-zinc-700/50"><p class="text-[9px] font-bold text-gray-700 dark:text-gray-300">${n.msg}</p><p class="text-[7px] text-gray-500 mt-1">${n.time.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}</p></div>`).join('');
+        }
+
+        // LOGIKA QUOTES ACAK (POIN 3)
+        const crewQuotes = [
+            "Rawatlah barang seperti milikmu sendiri. Walaupun tidak membuatmu kaya, setidaknya ia bisa menjadi jalan untuk mencari rezeki yang halal.",
+            "Rawatlah alat kerjamu seperti milik sendiri. Walau tak serta-merta membuatmu kaya, darinyalah jalan rezeki halal bermula.",
+            "Alat kerja kita mungkin benda mati, tapi dari merekalah dapur kita tetap hidup. Rawatlah dengan hati.",
+            "Bukan seberapa mahal alat yang kita pakai, tapi seberapa besar rasa tanggung jawab kita menjaganya. Berkah rezeki ada pada cara kita merawat perantaranya.",
+            "Kabel yang digulung rapi dan alat yang dijaga hari ini, adalah jaminan kelancaran kerja kita esok hari.",
+            "Karya yang besar tidak dibangun oleh satu orang yang hebat, tapi oleh tim yang peduli pada hal-hal kecil dan saling menjaga.",
+            "Lelah di lapangan itu wajar, tapi menyerah pada kecerobohan jangan sampai terjadi. Jaga diri, jaga alat, jaga kekompakan.",
+            "Kita berangkat sama-sama, kerja keras sama-sama, dan pulang bawa rezeki sama-sama. Jaga ritme, turunkan ego.",
+            "Bekerja keras di belakang layar mungkin jarang mendapat tepuk tangan, tapi percayalah, keringat yang halal tidak pernah salah alamat.",
+            "Nama baik tim kita bukan cuma dari hasil akhir yang memukau, tapi dari kedisiplinan dan cara kita menghargai proses di lapangan."
+        ];
+
+        function showQuote() {
+            const randomIndex = Math.floor(Math.random() * crewQuotes.length);
+            document.getElementById('quote-text').innerText = `"${crewQuotes[randomIndex]}"`;
+            document.getElementById('modal-quote').classList.remove('hidden');
+            document.getElementById('modal-quote').classList.add('flex');
+            lucide.createIcons();
+        }
+        
+        function closeQuoteModal() {
+            document.getElementById('modal-quote').classList.add('hidden');
+            document.getElementById('modal-quote').classList.remove('flex');
+        }
+
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault(); showLoading(true);
             const res = await apiCall({ action: 'LOGIN', payload: { username: document.getElementById('log-username').value.toLowerCase(), password: document.getElementById('log-password').value } });
             showLoading(false);
-            if(res.success) { currentUser = res.user; initApp(); } 
+            if(res.success) { currentUser = res.user; initApp(); showQuote(); } 
             else showToast(res.message, true);
         };
 
@@ -742,7 +812,7 @@
             document.getElementById('profile-position').innerText = currentUser.position;
             document.getElementById('profile-initial').innerText = (currentUser.nickname || currentUser.fullName).substring(0,2);
             
-            document.getElementById('prof-phone').innerText = currentUser.phone || "-";
+            document.getElementById('prof-phone').innerText = currentUser.phone ? (currentUser.phone.toString().startsWith('0') || currentUser.phone.toString().startsWith('+') ? currentUser.phone : '0' + currentUser.phone) : "-";
             document.getElementById('prof-username').innerText = currentUser.username || "-";
             document.getElementById('prof-nickname').innerText = currentUser.nickname || "-";
             document.getElementById('prof-address').innerText = currentUser.address || "-";
@@ -786,6 +856,20 @@
                 const rD = await apiCall({ action: 'GET_DATA' });
                 if(rD.success) {
                     const pStr = JSON.stringify(rD.data);
+                    
+                    if (!isFirstLoad && currentUser && pStr !== cachedCounts.projects) {
+                        const myName = currentUser.nickname || currentUser.fullName;
+                        rD.data.forEach(newP => {
+                            const oldP = allProjects.find(op => op.id === newP.id);
+                            const involvesMe = JSON.stringify(newP.manpower).includes(myName);
+                            if (!oldP && involvesMe) {
+                                addNotification(`Event Baru: Anda ditugaskan di "${newP.eventName}"`);
+                            } else if (oldP && involvesMe && JSON.stringify(oldP) !== JSON.stringify(newP)) {
+                                addNotification(`Update Event: Terdapat perubahan data pada event "${newP.eventName}".`);
+                            }
+                        });
+                    }
+
                     if(!isFirstLoad && silent && pStr !== cachedCounts.projects && activeTab !== 'list') showBadge('list');
                     cachedCounts.projects = pStr;
                     allProjects = rD.data; 
@@ -843,9 +927,18 @@
                 const rA = await apiCall({ action: 'GET_ASSETS' });
                 if(rA.success) {
                     const aStr = JSON.stringify(rA.data);
+                    
+                    if(!isFirstLoad && allAssets.length > 0 && aStr !== cachedCounts.assets) {
+                         addNotification("Terdapat pembaruan data/status pada Inventaris Alat.");
+                    }
+
                     if(!isFirstLoad && silent && aStr !== cachedCounts.assets && activeTab !== 'assets') showBadge('assets');
                     cachedCounts.assets = aStr;
                     allAssets = rA.data;
+
+                    const dlInv = document.getElementById('list-inventory');
+                    if(dlInv) dlInv.innerHTML = allAssets.map(a => `<option value="${a.name}">`).join('');
+
                     if(activeTab === 'assets' && !isFirstLoad) renderAssets();
                 }
                 
@@ -949,7 +1042,6 @@
             lucide.createIcons();
         }
         
-        // --- HELPER UI SPESIFIKASI (DIKURANGI UNTUK MENGHEMAT BARIS, LOGIKA SAMA) ---
         function buildUnifiedSpecTable(p) {
             if (!p.specDyn) return ''; let tableRows = ''; let romanCounter = 1; const romans = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
             const addCategory = (catName, itemsArr) => {
@@ -994,7 +1086,7 @@
             const m = p.manpower || {};
             const audioCrews = [{pos: 'System Engineer', name: m.audio?.se}, {pos: 'FOH Engineer', name: m.audio?.foh}, {pos: 'Monitor Engineer', name: m.audio?.moh}, {pos: 'RF Technician', name: m.audio?.rf}, {pos: 'Stage Technician', name: m.audio?.stg}, {pos: 'Assistant', name: m.audio?.ast}];
             const lightCrews = [{pos: 'Lighting Designer', name: m.lighting?.ld}, {pos: 'Patcher Lighting', name: m.lighting?.ptc}, {pos: 'Adresser Lighting', name: m.lighting?.adr}, {pos: 'Assistant Lighting', name: m.lighting?.ast}];
-            const roadies = [m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].filter(x => x && x !== '-').join(', ');
+            const roadies = [m.roadies?.head, m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].filter(x => x && x !== '-').join(', ');
             const supportCrews = [{pos: 'Head Roadie', name: m.roadies?.head}, {pos: 'Roadies Team', name: roadies}, {pos: 'Rigging Team', name: m.support?.rigging}, {pos: 'Genset Operator', name: m.support?.genset}, {pos: 'Barikade Team', name: m.support?.barikade}];
             
             let crewHTML = buildCrewDiv('Divisi Audio', audioCrews) + buildCrewDiv('Divisi Lighting', lightCrews) + buildCrewDiv('Pendukung & Roadies', supportCrews);
@@ -1006,7 +1098,9 @@
                         <div><span class="text-[8px] text-gray-500 block">STATUS</span>${p.status}</div>
                         <div><span class="text-[8px] text-gray-500 block">TALENT</span>${p.artist}</div>
                         ${(p.clientName && p.clientName !== '-') ? `<div class="col-span-2"><span class="text-[8px] text-gray-500 block">KLIEN</span>${p.clientName} ${p.clientPhone ? `(${p.clientPhone})` : ''}</div>` : ''}
-                        ${(p.mapsLink && p.mapsLink !== '-') ? `<div class="col-span-2"><span class="text-[8px] text-gray-500 block">LOKASI</span><a href="${p.mapsLink}" target="_blank" class="text-blue-500 underline break-all">${p.mapsLink}</a></div>` : ''}
+                        
+                        <!-- Perbaikan Poin 2: Link Pintar Google Maps (Autodetect) -->
+                        ${(p.mapsLink && p.mapsLink !== '-') ? `<div class="col-span-2"><span class="text-[8px] text-gray-500 block">LOKASI</span><a href="${p.mapsLink.startsWith('http') ? p.mapsLink : 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.mapsLink)}" target="_blank" class="text-blue-500 hover:text-blue-400 underline break-words flex items-start gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 mt-0.5 shrink-0"></i> ${p.mapsLink}</a></div>` : ''}
                     </div>
                 </div>`;
 
@@ -1015,7 +1109,14 @@
             }
 
             if(crewHTML || (p.manpower?.pic && p.manpower?.pic !== '-')) {
-                c += `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800"><div class="flex justify-between items-center border-b dark:border-zinc-800 pb-1 mb-3"><h4 class="text-[10px] font-black uppercase text-ygsred">Plotting Crew Lapangan</h4>${p.manpower?.pic && p.manpower?.pic !== '-' ? `<span class="text-[9px] font-black text-gray-700 dark:text-white bg-gray-200 dark:bg-zinc-800 px-2 py-0.5 rounded">PIC: <span class="text-ygsred">${p.manpower.pic}</span></span>` : ''}</div><div class="grid grid-cols-1 sm:grid-cols-3 gap-3">${crewHTML}</div></div>`;
+                c += `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+                        <div class="flex justify-between items-center border-b dark:border-zinc-800 pb-2 mb-3">
+                            <h4 class="text-[10px] font-black uppercase text-ygsred">Plotting Crew Lapangan</h4>
+                            ${p.manpower?.pic && p.manpower?.pic !== '-' ? `<div class="flex items-center gap-1 bg-gray-200 dark:bg-zinc-800 px-2 py-0.5 rounded border border-gray-300 dark:border-zinc-700"><i data-lucide="user-check" class="w-3 h-3 text-ygsred"></i><span class="text-[8px] font-bold text-gray-500 uppercase">PIC:</span><span class="text-[9px] font-black text-gray-900 dark:text-white uppercase">${p.manpower.pic}</span></div>` : ''}
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">${crewHTML}</div>
+                        ${p.manpower?.note ? `<div class="mt-3 p-2.5 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-lg shadow-sm"><span class="text-[8px] font-black text-yellow-600 dark:text-yellow-500 uppercase block mb-1"><i data-lucide="info" class="w-3 h-3 inline align-top"></i> Catatan Khusus Kru:</span><p class="text-[10px] font-bold text-gray-700 dark:text-gray-300 italic">"${p.manpower.note}"</p></div>` : ''}
+                      </div>`;
             }
                 
             c += buildUnifiedSpecTable(p);
@@ -1036,38 +1137,89 @@
             });
         }
 
+        // FITUR EXPORT PDF DETAIL EVENT LENGKAP (POIN 1)
         function exportPDF(id) { 
             const p = allProjects.find(x => x.id === id); if(!p) return;
             showLoading(true);
-            
-            // Generate HTML Container Khusus untuk PDF
+
+            // 1. Generate Jadwal Kegiatan
+            let actHTML = '';
+            if(p.activities && p.activities.length) {
+                actHTML = `<div class="mt-3 pt-3 border-t border-gray-300"><span class="text-[10px] text-gray-500 block mb-1.5 uppercase font-bold">Jadwal Kegiatan</span><ul class="list-disc pl-4 space-y-1">`;
+                p.activities.forEach(a => { actHTML += `<li class="text-gray-800 text-[10px]">${a.date} <span class="text-blue-600 font-black">(${a.startTime}-${a.endTime})</span>: ${(a.acts||[]).join(', ')}</li>`; });
+                actHTML += `</ul></div>`;
+            }
+
+            // 2. Generate Crew Lapangan
+            const buildCrewDiv = (title, arr) => {
+                const valid = arr.filter(x => x.name && x.name !== '-' && x.name.trim() !== ''); if(valid.length === 0) return '';
+                return `<div class="border border-gray-300 rounded-lg overflow-hidden mb-3 shadow-sm bg-white"><table class="w-full text-left text-[9px] text-gray-800"><thead class="bg-gray-100 uppercase text-[8px] text-gray-600"><tr><th class="p-2 w-[50%] border-b border-gray-300">${title}</th><th class="p-2 border-b border-gray-300">Nama Crew</th></tr></thead><tbody>${valid.map(x => `<tr class="border-b border-gray-200 last:border-0"><td class="p-2 font-bold uppercase text-[8px] text-gray-600 border-r border-gray-200">${x.pos}</td><td class="p-2 text-blue-600 font-black uppercase tracking-wider">${x.name}</td></tr>`).join('')}</tbody></table></div>`;
+            };
+            const m = p.manpower || {};
+            const audioCrews = [{pos: 'System Engineer', name: m.audio?.se}, {pos: 'FOH Engineer', name: m.audio?.foh}, {pos: 'Monitor Engineer', name: m.audio?.moh}, {pos: 'RF Technician', name: m.audio?.rf}, {pos: 'Stage Technician', name: m.audio?.stg}, {pos: 'Assistant', name: m.audio?.ast}];
+            const lightCrews = [{pos: 'Lighting Designer', name: m.lighting?.ld}, {pos: 'Patcher Lighting', name: m.lighting?.ptc}, {pos: 'Adresser Lighting', name: m.lighting?.adr}, {pos: 'Assistant Lighting', name: m.lighting?.ast}];
+            const roadies = [m.roadies?.head, m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].filter(x => x && x !== '-').join(', ');
+            const supportCrews = [{pos: 'Head Roadie', name: m.roadies?.head}, {pos: 'Roadies Team', name: roadies}, {pos: 'Rigging Team', name: m.support?.rigging}, {pos: 'Genset Operator', name: m.support?.genset}, {pos: 'Barikade Team', name: m.support?.barikade}];
+            let crewHTML = buildCrewDiv('Divisi Audio', audioCrews) + buildCrewDiv('Divisi Lighting', lightCrews) + buildCrewDiv('Pendukung & Roadies', supportCrews);
+
+            // 3. Merangkai Struktur HTML Secara Lengkap (Menyalin visual Detail Event ke versi PDF/Print)
+            let c = `<div class="space-y-4 font-sans">
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-300">
+                    <h4 class="text-[12px] font-black uppercase text-[#e50914] mb-2 border-b border-gray-300 pb-1">Informasi Dasar</h4>
+                    <div class="grid grid-cols-2 gap-2 text-[11px] font-bold text-gray-800">
+                        <div><span class="text-[9px] text-gray-500 block">STATUS</span>${p.status}</div>
+                        <div><span class="text-[9px] text-gray-500 block">TALENT</span>${p.artist}</div>
+                        ${(p.clientName && p.clientName !== '-') ? `<div class="col-span-2"><span class="text-[9px] text-gray-500 block">KLIEN</span>${p.clientName} ${p.clientPhone ? `(${p.clientPhone})` : ''}</div>` : ''}
+                        ${(p.mapsLink && p.mapsLink !== '-') ? `<div class="col-span-2"><span class="text-[9px] text-gray-500 block">LOKASI</span><span class="text-blue-600 break-words">${p.mapsLink}</span></div>` : ''}
+                    </div>
+                </div>`;
+
+            if((p.transportasi && p.transportasi.length) || actHTML) {
+                c += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-300"><h4 class="text-[12px] font-black uppercase text-[#e50914] mb-2 border-b border-gray-300 pb-1">Operasional & Jadwal</h4><div class="text-[11px] font-bold text-gray-800">${p.transportasi && p.transportasi.length ? `<div><span class="text-[9px] text-gray-500 block mb-1 uppercase">Transportasi</span><span>${p.transportasi.join(', ')}</span></div>` : ''}${actHTML}</div></div>`;
+            }
+
+            if(crewHTML || (p.manpower?.pic && p.manpower?.pic !== '-')) {
+                c += `<div class="bg-gray-50 p-4 rounded-xl border border-gray-300">
+                        <div class="flex justify-between items-center border-b border-gray-300 pb-2 mb-3">
+                            <h4 class="text-[12px] font-black uppercase text-[#e50914]">Plotting Crew Lapangan</h4>
+                            ${p.manpower?.pic && p.manpower?.pic !== '-' ? `<div class="flex items-center gap-1 bg-gray-200 px-2 py-0.5 rounded border border-gray-300"><span class="text-[9px] font-bold text-gray-600 uppercase">PIC:</span><span class="text-[10px] font-black text-gray-900 uppercase">${p.manpower.pic}</span></div>` : ''}
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">${crewHTML}</div>
+                        ${p.manpower?.note ? `<div class="mt-3 p-2.5 bg-yellow-50 border border-yellow-200 rounded-lg"><span class="text-[9px] font-black text-yellow-700 uppercase block mb-1">Catatan Khusus Kru:</span><p class="text-[11px] font-bold text-gray-800 italic">"${p.manpower.note}"</p></div>` : ''}
+                      </div>`;
+            }
+                
+            // Menambahkan Tabel Spesifikasi Alat
+            c += buildUnifiedSpecTable(p);
+            c += `</div>`;
+
+            // Membuat Kontainer Utama PDF dengan Injeksi Override CSS agar support pada Mode Gelap
             const element = document.createElement('div');
             element.className = 'p-8 bg-white text-black font-sans';
             element.innerHTML = `
-                <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e50914; padding-bottom: 10px;">
-                    <img src="https://raw.githubusercontent.com/senasigit/YGS-Production/c6fc931f0285b1de9178bc14e3d912e65b2ca1eb/logo%20ygs%202.PNG" style="width: 150px; margin: 0 auto; display: block;">
-                    <h2 style="font-size: 20px; font-weight: 900; margin-top: 15px; color: #111;">YGS PRODUCTION - EVENT REPORT</h2>
+                <style>
+                    .pdf-container * { color: #1f2937 !important; border-color: #d1d5db !important; }
+                    .pdf-container .bg-gray-50, .pdf-container .bg-white { background-color: #f9fafb !important; }
+                    .pdf-container .text-ygsred { color: #e50914 !important; }
+                    .pdf-container .text-blue-500, .pdf-container .text-blue-600 { color: #2563eb !important; }
+                    .pdf-container .bg-blue-100 { background-color: #dbeafe !important; }
+                    .pdf-container .bg-orange-400, .pdf-container .bg-orange-600 { background-color: #ea580c !important; }
+                    .pdf-container .text-white { color: #ffffff !important; }
+                </style>
+                <div class="pdf-container">
+                    <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e50914; padding-bottom: 10px;">
+                        <img src="https://raw.githubusercontent.com/senasigit/YGS-Production/c6fc931f0285b1de9178bc14e3d912e65b2ca1eb/logo%20ygs%202.PNG" style="width: 150px; margin: 0 auto; display: block;">
+                        <h2 style="font-size: 20px; font-weight: 900; margin-top: 15px; color: #111 !important;">EVENT REPORT & CREW CALL</h2>
+                    </div>
+                    ${c}
+                    <p style="font-size: 10px; color: gray !important; text-align: center; margin-top: 50px; border-top: 1px dashed #eee; padding-top:10px;">&copy; 2026 YGS Production. Generated by System.</p>
                 </div>
-                <div style="margin-bottom: 20px; font-size: 14px;">
-                    <p style="margin-bottom: 5px;"><strong>NAMA EVENT :</strong> <span style="color:#e50914; font-weight:bold;">${p.eventName}</span></p>
-                    <p style="margin-bottom: 5px;"><strong>TALENT :</strong> ${p.artist}</p>
-                    <p style="margin-bottom: 5px;"><strong>TANGGAL :</strong> ${p.eventDate}</p>
-                    <p style="margin-bottom: 5px;"><strong>LOKASI :</strong> ${p.mapsLink && p.mapsLink !== '-' ? p.mapsLink : 'TBA'}</p>
-                    <p style="margin-bottom: 5px;"><strong>STATUS :</strong> ${p.status}</p>
-                </div>
-                <div style="margin-bottom: 20px; font-size: 14px;">
-                    <h3 style="font-size: 16px; font-weight: bold; border-bottom: 1px solid #ccc; margin-bottom: 8px;">Kru Bertugas</h3>
-                    <p><strong>PIC Utama :</strong> ${p.manpower?.pic || '-'}</p>
-                    <p><strong>FOH Engineer :</strong> ${p.manpower?.audio?.foh || '-'}</p>
-                    <p><strong>Lighting Designer :</strong> ${p.manpower?.lighting?.ld || '-'}</p>
-                </div>
-                <p style="font-size: 10px; color: gray; text-align: center; margin-top: 50px; border-top: 1px dashed #eee; padding-top:10px;">&copy; 2026 YGS Production. Generated by System.</p>
             `;
             
             // Opsi konversi HTML2PDF (Library sudah di-import di head)
             const opt = {
                 margin:       [0.5, 0.5],
-                filename:     `Event_${p.eventName.replace(/\\s+/g, '_')}.pdf`,
+                filename:     `Event_${p.eventName.replace(/\s+/g, '_')}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
@@ -1079,7 +1231,31 @@
             });
         }
         
-        function shareWA(id) { showToast("Fitur Share WA disederhanakan dalam demo.", false); }
+        // FITUR SHARE CREW CALL VIA WHATSAPP (POIN 2)
+        function shareWA(id) { 
+            const p = allProjects.find(x => x.id === id); if(!p) return;
+            
+            let actText = '';
+            if(p.activities && p.activities.length) {
+                p.activities.forEach(a => { actText += `- *${a.date}* (${a.startTime}-${a.endTime}) : ${(a.acts||[]).join(', ')}\n`; });
+            } else { actText = '- Belum ada jadwal spesifik\n'; }
+
+            const m = p.manpower || {};
+            let crewText = '';
+            if(m.pic && m.pic !== '-') crewText += `- PIC: ${m.pic}\n`;
+            const audio = [m.audio?.se, m.audio?.foh, m.audio?.moh, m.audio?.rf, m.audio?.stg, m.audio?.ast].filter(x => x && x !== '-').join(', ');
+            if(audio) crewText += `- Audio: ${audio}\n`;
+            const lighting = [m.lighting?.ld, m.lighting?.ptc, m.lighting?.adr, m.lighting?.ast].filter(x => x && x !== '-').join(', ');
+            if(lighting) crewText += `- Lighting: ${lighting}\n`;
+            const roadies = [m.roadies?.head, m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].filter(x => x && x !== '-').join(', ');
+            if(roadies) crewText += `- Roadies: ${roadies}\n`;
+            const support = [m.support?.rigging, m.support?.stage, m.support?.genset, m.support?.barikade].filter(x => x && x !== '-').join(', ');
+            if(support) crewText += `- Pendukung: ${support}\n`;
+
+            const text = `*CREW CALL YGS PRODUCTION* 📢\n\n*📌 Event:* ${p.eventName}\n*👤 Talent:* ${p.artist}\n*📍 Lokasi:* ${p.mapsLink !== '-' ? p.mapsLink : 'TBA'}\n*🟢 Status:* ${p.status}\n\n*🗓️ JADWAL KEGIATAN:*\n${actText}\n*👥 TIM BERTUGAS:*\n${crewText ? crewText : '- Belum diplot\n'}${m.note ? '\n*📝 Catatan Kru:*\n_' + m.note + '_\n' : ''}\nMohon standby tepat waktu dan pastikan perlengkapan siap. Safety first! 🚀`;
+
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+        }
 
         function editEvent(id) {
             const p = allProjects.find(x => x.id === id); if(!p) return;
@@ -1139,6 +1315,9 @@
                 document.getElementById('c_s_stage').value = p.manpower.support?.stage || '';
                 document.getElementById('c_s_genset').value = p.manpower.support?.genset || '';
                 document.getElementById('c_s_barikade').value = p.manpower.support?.barikade || '';
+                
+                const noteEl = document.getElementById('crewNote');
+                if(noteEl) noteEl.value = p.manpower.note || '';
             }
             
             if (p.specDyn) {
@@ -1151,10 +1330,26 @@
                         if (targetRow) { targetRow.querySelector('.dyn-brand').value = item.brand || ''; targetRow.querySelector('.dyn-qty').value = item.qty || ''; } 
                         else {
                             let pNode = container; const mRow = rows.find(r => r.querySelector('.dyn-jenis').value === item.jenis); if(mRow) pNode = mRow.parentElement;
-                            const div = document.createElement('div'); div.className = 'grid grid-cols-12 gap-1 dynamic-row items-center mb-1';
-                            let ph = {j:'Posisi', b:'Brand/Tipe', q:'Qty'}; if(cId.includes('genset')) ph={j:'Kegunaan', b:'KVA', q:'Unit'}; if(cId.includes('led')) ph={j:'Posisi', b:'Brand', q:'Meter'};
-                            const isF = !!mRow && mRow.querySelector('.dyn-jenis').readOnly;
-                            div.innerHTML = `<input type="text" class="dyn-jenis col-span-4 p-2 rounded input-dark font-bold" placeholder="${ph.j}" value="${item.jenis || ''}" ${isF?'readonly':''}><input type="text" class="dyn-brand col-span-5 p-2 rounded input-dark font-bold" placeholder="${ph.b}" value="${item.brand || ''}"><input type="text" class="dyn-qty col-span-2 p-2 rounded input-dark text-center font-bold" placeholder="${ph.q}" value="${item.qty || ''}"><button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                            const div = document.createElement('div'); div.className = 'flex items-center gap-1.5 dynamic-row mb-1.5 pb-1 border-b border-gray-200 dark:border-zinc-800/50 last:border-0';
+                            
+                            const isAudioOrLight = cId.includes('dyn-audio') || cId.includes('dyn-light');
+                            const jenisHTML = isAudioOrLight 
+                                ? `<input type="hidden" class="dyn-jenis" value="${item.jenis || ''}">` 
+                                : `<input type="text" class="dyn-jenis flex-[3] p-1.5 bg-transparent text-[9px] font-black uppercase text-gray-500 focus:outline-none placeholder-gray-400 border border-gray-200 dark:border-zinc-700 rounded" placeholder="Peruntukan/Posisi" value="${item.jenis || ''}">`;
+
+                            let qtyPlaceholder = "Jmlh";
+                            if(cId.includes('dyn-led') || cId.includes('dyn-rigging') || cId.includes('dyn-barikade')) qtyPlaceholder = "Meter";
+                            if(cId.includes('dyn-genset')) qtyPlaceholder = "Unit/KVA";
+                            if(cId.includes('dyn-audio-cable') || cId.includes('dyn-audio-stand') || cId.includes('dyn-audio-mic')) qtyPlaceholder = "Pcs";
+                            if(cId.includes('dyn-audio-backline')) qtyPlaceholder = "Set";
+                            if(cId.includes('dyn-audio-pa') || cId.includes('dyn-audio-monitor') || cId.includes('dyn-audio-console') || cId.includes('dyn-light')) qtyPlaceholder = "Unit";
+
+                            div.innerHTML = `
+                                ${jenisHTML}
+                                <input type="text" list="list-inventory" class="dyn-brand flex-[4] p-1.5 bg-transparent text-[10px] font-bold text-gray-900 dark:text-white focus:outline-none focus:border-b-ygsred transition-all placeholder-gray-400" placeholder="Ketik/Cari Brand..." value="${item.brand || ''}">
+                                <input type="text" class="dyn-qty flex-[2] p-1.5 bg-transparent text-[10px] font-black text-center focus:outline-none placeholder-gray-400 border-b border-transparent focus:border-ygsred transition-all" placeholder="${qtyPlaceholder}" value="${item.qty || ''}">
+                                <button type="button" onclick="this.parentElement.remove()" class="text-gray-300 hover:text-red-500 transition px-1"><i data-lucide="x" class="w-3 h-3"></i></button>
+                            `;
                             pNode.appendChild(div);
                         }
                     });
@@ -1281,8 +1476,26 @@
 
         function addDynRow(cId, def={jenis:'', brand:'', qty:''}, isF=false) {
             const c = document.getElementById(cId); if(!c) return; 
-            const div = document.createElement('div'); div.className = 'grid grid-cols-12 gap-1 dynamic-row items-center mb-1';
-            div.innerHTML = `<input type="text" class="dyn-jenis col-span-4 p-2 rounded input-dark font-bold" placeholder="Jenis" value="${def.jenis || ''}" ${isF?'readonly':''}><input type="text" class="dyn-brand col-span-5 p-2 rounded input-dark font-bold" placeholder="Brand" value="${def.brand || ''}"><input type="text" class="dyn-qty col-span-2 p-2 rounded input-dark text-center font-bold" placeholder="Qty" value="${def.qty || ''}"><button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+            const div = document.createElement('div'); div.className = 'flex items-center gap-1.5 dynamic-row mb-1.5 pb-1 border-b border-gray-200 dark:border-zinc-800/50 last:border-0';
+            
+            const isAudioOrLight = cId.includes('dyn-audio') || cId.includes('dyn-light');
+            const jenisHTML = isAudioOrLight 
+                ? `<input type="hidden" class="dyn-jenis" value="${def.jenis || ''}">` 
+                : `<input type="text" class="dyn-jenis flex-[3] p-1.5 bg-transparent text-[9px] font-black uppercase text-gray-500 focus:outline-none placeholder-gray-400 border border-gray-200 dark:border-zinc-700 rounded" placeholder="Peruntukan/Posisi" value="${def.jenis || ''}">`;
+
+            let qtyPlaceholder = "Jmlh";
+            if(cId.includes('dyn-led') || cId.includes('dyn-rigging') || cId.includes('dyn-barikade')) qtyPlaceholder = "Meter";
+            if(cId.includes('dyn-genset')) qtyPlaceholder = "Unit/KVA";
+            if(cId.includes('dyn-audio-cable') || cId.includes('dyn-audio-stand') || cId.includes('dyn-audio-mic')) qtyPlaceholder = "Pcs";
+            if(cId.includes('dyn-audio-backline')) qtyPlaceholder = "Set";
+            if(cId.includes('dyn-audio-pa') || cId.includes('dyn-audio-monitor') || cId.includes('dyn-audio-console') || cId.includes('dyn-light')) qtyPlaceholder = "Unit";
+
+            div.innerHTML = `
+                ${jenisHTML}
+                <input type="text" list="list-inventory" class="dyn-brand flex-[4] p-1.5 bg-transparent text-[10px] font-bold text-gray-900 dark:text-white focus:outline-none focus:border-b-ygsred transition-all placeholder-gray-400" placeholder="Ketik/Cari Brand..." value="${def.brand || ''}">
+                <input type="text" class="dyn-qty flex-[2] p-1.5 bg-transparent text-[10px] font-black text-center focus:outline-none placeholder-gray-400 border-b border-transparent focus:border-ygsred transition-all" placeholder="${qtyPlaceholder}" value="${def.qty || ''}">
+                <button type="button" onclick="this.parentElement.remove()" class="text-gray-300 hover:text-red-500 transition px-1"><i data-lucide="x" class="w-3 h-3"></i></button>
+            `;
             c.appendChild(div); lucide.createIcons();
         }
 
@@ -1300,13 +1513,23 @@
             c.innerHTML = htmlBuffer;
         }
 
-        function resetEventForm() { document.getElementById('event-form').reset(); document.getElementById('edit-id').value = ''; document.getElementById('days-container').innerHTML = ''; initDynForms(); }
+        function resetEventForm() { 
+            document.getElementById('event-form').reset(); 
+            document.getElementById('edit-id').value = ''; 
+            document.getElementById('days-container').innerHTML = ''; 
+            const noteEl = document.getElementById('crewNote');
+            if(noteEl) noteEl.value = '';
+            initDynForms(); 
+        }
 
         document.getElementById('event-form').onsubmit = async (e) => {
             e.preventDefault(); showLoading(true);
             const editId = document.getElementById('edit-id').value;
             const days = []; document.querySelectorAll('.day-row').forEach(r => days.push({ date: r.dataset.date, startTime: r.querySelector('.time-start').value, endTime: r.querySelector('.time-end').value, acts: Array.from(r.querySelectorAll('.act-check:checked')).map(x => x.value) }));
             
+            const noteEl = document.getElementById('crewNote');
+            const noteValue = noteEl ? noteEl.value : '';
+
             const p = { 
                 id: editId || ('YGS-'+Date.now()), 
                 eventName: document.getElementById('eventName').value, 
@@ -1320,7 +1543,14 @@
                 finance: {}, // DIABAIKAN. Gaji kini masuk ke Tabel Transaksi Ledger
                 transportasi: Array.from(document.querySelectorAll('.trans-check:checked')).map(x => x.value),
                 specDyn: { audio: { pa: extractDynData('dyn-audio-pa'), monitor: extractDynData('dyn-audio-monitor'), console: extractDynData('dyn-audio-console'), mic: extractDynData('dyn-audio-mic'), backline: extractDynData('dyn-audio-backline'), stand: extractDynData('dyn-audio-stand'), cable: extractDynData('dyn-audio-cable'), others: extractDynData('dyn-audio-others') }, lighting: MASTER_GROUPS.lighting.map(s => ({ sub: s, data: extractDynData('dyn-light-'+s.replace(/\s+/g,'')) })), led: extractDynData('dyn-led'), rigging: extractDynData('dyn-rigging'), genset: extractDynData('dyn-genset'), barikade: extractDynData('dyn-barikade') },
-                manpower: { pic: document.getElementById('pic').value, audio: { se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value, moh: document.getElementById('c_a_moh').value, rf: document.getElementById('c_a_rf').value, stg: document.getElementById('c_a_stg').value, ast: document.getElementById('c_a_ast').value }, lighting: { ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value, adr: document.getElementById('c_l_adr').value, ast: document.getElementById('c_l_ast').value }, roadies: { head: document.getElementById('c_r_head').value, r1: document.getElementById('c_r_1').value, r2: document.getElementById('c_r_2').value, r3: document.getElementById('c_r_3').value, r4: document.getElementById('c_r_4').value }, support: { rigging: document.getElementById('c_s_rigging').value, stage: document.getElementById('c_s_stage').value, genset: document.getElementById('c_s_genset').value, barikade: document.getElementById('c_s_barikade').value } }
+                manpower: { 
+                    pic: document.getElementById('pic').value, 
+                    audio: { se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value, moh: document.getElementById('c_a_moh').value, rf: document.getElementById('c_a_rf').value, stg: document.getElementById('c_a_stg').value, ast: document.getElementById('c_a_ast').value }, 
+                    lighting: { ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value, adr: document.getElementById('c_l_adr').value, ast: document.getElementById('c_l_ast').value }, 
+                    roadies: { head: document.getElementById('c_r_head').value, r1: document.getElementById('c_r_1').value, r2: document.getElementById('c_r_2').value, r3: document.getElementById('c_r_3').value, r4: document.getElementById('c_r_4').value }, 
+                    support: { rigging: document.getElementById('c_s_rigging').value, stage: document.getElementById('c_s_stage').value, genset: document.getElementById('c_s_genset').value, barikade: document.getElementById('c_s_barikade').value },
+                    note: noteValue
+                }
             };
             
             await apiCall({ action: 'ADD_DATA', payload: p });
@@ -1377,6 +1607,7 @@
                         <div>
                             <p class="font-black text-sm uppercase group-hover:text-ygsred transition">${u.fullName}</p>
                             <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">${u.position} • @${u.username}</p>
+                            <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5"><i data-lucide="phone" class="w-3 h-3 inline-block align-middle mr-1"></i> ${u.phone ? (u.phone.toString().startsWith('0') || u.phone.toString().startsWith('+') ? u.phone : '0' + u.phone) : '-'}</p>
                             <p class="text-[9px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest mt-1"><i data-lucide="credit-card" class="w-3 h-3 inline-block align-middle mr-1"></i> ${u.bankName || '-'} - ${u.bankAcc || '-'}</p>
                         </div>
                         <div class="w-8 h-8 bg-red-50 dark:bg-red-950/30 rounded-full flex items-center justify-center font-black text-[10px] text-ygsred border border-red-100 dark:border-red-900/50">
@@ -1584,12 +1815,25 @@
             } 
         }
         
+        // PERBAIKAN POIN 1: Logika Format Waktu Chat (Hari ini, Kemarin, Tgl Lengkap)
         function renderChat() { 
             if (!currentUser) return;
             const myName = currentUser.nickname || currentUser.fullName;
+            const today = new Date();
+            const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+
             document.getElementById('chat-container').innerHTML = allChats.map(c => {
-                const timeStr = new Date(c.time).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
-                return `<div class="flex flex-col ${c.sender === myName ?'items-end':'items-start'} mb-1"><span class="text-[7px] font-bold text-gray-500 mb-0.5">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold flex items-end gap-2 ${c.sender === myName ?'bg-ygsred text-white':'bg-gray-100 dark:bg-zinc-800'}"><span>${c.msg}</span> <span class="text-[7px] opacity-70 mb-0.5 font-normal">${timeStr}</span></div></div>`;
+                const cDate = new Date(c.time);
+                let timeStr = cDate.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+                if (cDate.toDateString() === today.toDateString()) {
+                    // Hanya jam (sudah di set oleh timeStr)
+                } else if (cDate.toDateString() === yesterday.toDateString()) {
+                    timeStr = `Kemarin, ${timeStr}`;
+                } else {
+                    timeStr = `${cDate.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})}, ${timeStr}`;
+                }
+
+                return `<div class="flex flex-col ${c.sender === myName ?'items-end':'items-start'} mb-1"><span class="text-[7px] font-bold text-gray-500 mb-0.5">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold flex flex-col gap-1 shadow-sm ${c.sender === myName ?'bg-ygsred text-white':'bg-gray-100 dark:bg-zinc-800'}"><span>${c.msg}</span> <span class="text-[7px] ${c.sender === myName ? 'text-red-200':'text-gray-400'} font-normal self-end">${timeStr}</span></div></div>`;
             }).join(''); 
             document.getElementById('chat-container').scrollTop = 99999; 
         }
