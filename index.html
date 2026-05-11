@@ -655,23 +655,42 @@
             document.getElementById('modal-app-info').classList.remove('flex');
         }
 
-        // Fitur Add to Home Screen (A2HS)
+        // Fitur Add to Home Screen (A2HS) - Support Android & iOS
         let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const banner = document.getElementById('a2hs-banner');
-            if(banner) banner.classList.remove('hidden');
-        });
+        const a2hsBanner = document.getElementById('a2hs-banner');
+        const btnA2hs = document.getElementById('btn-a2hs');
+        
+        // Deteksi apakah user menggunakan iOS (iPhone/iPad)
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        // Deteksi apakah aplikasi sudah diinstall (berjalan di mode standalone)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+        // Jika aplikasi belum diinstall ke Home Screen
+        if (!isStandalone) {
+            if (isIOS) {
+                // Tampilan khusus untuk iPhone (Apple tidak support auto-prompt, harus manual)
+                if (a2hsBanner) {
+                    a2hsBanner.classList.remove('hidden');
+                    a2hsBanner.querySelector('p.text-xs').innerText = "Install YGS di iPhone";
+                    a2hsBanner.querySelector('p.text-\\[9px\\]').innerText = "Tekan ikon 'Share' (Kotak Panah Atas) di bawah layar Safari ➔ pilih 'Add to Home Screen'";
+                    if(btnA2hs) btnA2hs.classList.add('hidden'); // Sembunyikan tombol karena iOS harus dari menu Safari
+                }
+            } else {
+                // Standar Android (Chrome/Samsung Internet/dll)
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    if (a2hsBanner) a2hsBanner.classList.remove('hidden');
+                });
+            }
+        }
 
         document.addEventListener('click', async (e) => {
-            if(e.target && e.target.id === 'btn-a2hs') {
-                if(deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if(outcome === 'accepted') document.getElementById('a2hs-banner').classList.add('hidden');
-                    deferredPrompt = null;
-                }
+            if (e.target && e.target.id === 'btn-a2hs' && deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted' && a2hsBanner) a2hsBanner.classList.add('hidden');
+                deferredPrompt = null;
             }
         });
 
