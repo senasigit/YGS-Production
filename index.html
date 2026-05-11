@@ -55,9 +55,37 @@
 </head>
 <body class="min-h-screen pb-24 relative">
 
-    <div id="loading-overlay" class="fixed inset-0 bg-white/90 dark:bg-black/90 z-[600] hidden flex flex-col justify-center items-center backdrop-blur-sm">
+    <div id="loading-overlay" class="fixed inset-0 bg-white/90 dark:bg-black/90 z-[700] hidden flex flex-col justify-center items-center backdrop-blur-sm">
         <div class="w-12 h-12 border-4 border-ygsred border-t-transparent rounded-full animate-spin mb-4"></div>
         <p class="text-xs font-bold text-gray-600 dark:text-gray-300 tracking-widest uppercase">Memproses...</p>
+    </div>
+
+    <!-- MODAL APP INFO -->
+    <div id="modal-app-info" class="fixed inset-0 bg-black/80 z-[700] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade" onclick="if(event.target===this) closeAppInfo()">
+        <div class="bg-white dark:bg-[#111] p-8 rounded-3xl w-full max-w-sm space-y-5 border dark:border-zinc-800 shadow-2xl text-center relative">
+            <button onclick="closeAppInfo()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="mx-auto w-20 h-20 bg-ygsred rounded-2xl flex items-center justify-center shadow-lg shadow-red-900/20 mb-2">
+                <svg width="45" height="45" viewBox="0 0 100 100" fill="none"><path d="M30 35H45L55 65H40L30 35Z" fill="white"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
+            </div>
+            <h2 class="text-xl font-black text-gray-900 dark:text-white uppercase tracking-widest">YGS PRODUCTION</h2>
+            <div class="bg-gray-50 dark:bg-zinc-900/50 rounded-xl p-4 space-y-2 border dark:border-zinc-800/50">
+                <p class="text-xs font-bold text-gray-500 uppercase">Aplikasi Manajemen Produksi</p>
+                <p class="text-sm font-black text-ygsred">Versi 1.0</p>
+            </div>
+            <div class="space-y-1 pt-2">
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Developer</p>
+                <p class="text-xs font-black text-gray-800 dark:text-gray-200 uppercase">Sena Sigit</p>
+            </div>
+            <div class="space-y-1">
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Kontak / Instagram</p>
+                <a href="https://instagram.com/ygsproductionest.1989" target="_blank" class="inline-flex items-center justify-center gap-1.5 text-xs font-black text-blue-600 dark:text-blue-400 hover:underline">
+                    <i data-lucide="instagram" class="w-4 h-4"></i> @ygsproductionest.1989
+                </a>
+            </div>
+            <div class="pt-4">
+                <button onclick="closeAppInfo()" class="w-full py-3 rounded-xl bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px] transition hover:bg-gray-200 dark:hover:bg-zinc-700">Tutup</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL CUSTOM CONFIRMATION -->
@@ -80,7 +108,7 @@
         <form id="form-finance" class="bg-white dark:bg-[#111] p-6 rounded-2xl w-full max-w-sm space-y-4 border dark:border-zinc-800 shadow-2xl">
             <input type="hidden" id="fin-event-id">
             <h3 class="text-sm font-black uppercase text-gray-900 dark:text-white border-b dark:border-zinc-800 pb-2 truncate" id="fin-event-title">Gaji Crew</h3>
-            <p class="text-[9px] text-gray-500 uppercase font-bold">Input gaji untuk crew di event ini. Saldo akan otomatis masuk ke dompet crew.</p>
+            <p class="text-[9px] text-gray-500 uppercase font-bold">Input gaji untuk crew di event ini. Saldo otomatis masuk ke dompet crew.</p>
             <div id="fin-crew-list" class="space-y-2 max-h-[50vh] overflow-y-auto pr-1"></div>
             <div class="flex gap-3 pt-2">
                 <button type="button" onclick="closeFinanceModal()" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px]">Batal</button>
@@ -121,18 +149,16 @@
         </form>
     </div>
 
-    <!-- MODAL DETAIL EVENT -->
-    <div id="modal-event-detail" class="fixed inset-0 bg-black/80 z-[550] hidden flex flex-col justify-end sm:justify-center items-center sm:p-4 backdrop-blur-sm animate-fade">
-        <div class="bg-white dark:bg-[#111] w-full max-w-lg h-[85vh] sm:h-auto sm:max-h-[90vh] rounded-t-2xl sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden border dark:border-zinc-800">
-            <div class="p-4 border-b dark:border-zinc-800 flex justify-between items-center bg-gray-50 dark:bg-zinc-900 shrink-0">
-                <h3 class="text-sm font-black uppercase text-ygsred truncate pr-2" id="detail-title">Detail Event</h3>
-                <button onclick="closeEventDetail()" class="text-gray-500 hover:text-red-500 bg-gray-200 dark:bg-zinc-800 p-1.5 rounded-lg transition"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="p-5 overflow-y-auto space-y-4 flex-1 w-full" id="detail-content"></div>
+    <!-- MODAL DETAIL EVENT (FULLSCREEN) -->
+    <div id="modal-event-detail" class="fixed inset-0 bg-gray-100 dark:bg-[#000] z-[600] hidden flex-col animate-fade overflow-hidden">
+        <div class="p-4 sm:p-5 border-b dark:border-zinc-800 flex justify-between items-center bg-white dark:bg-zinc-900 shrink-0 shadow-sm z-10 relative">
+            <h3 class="text-base font-black uppercase text-ygsred truncate pr-2 tracking-widest" id="detail-title">Detail Event</h3>
+            <button onclick="closeEventDetail()" class="text-gray-500 hover:text-red-500 bg-gray-100 dark:bg-zinc-800 p-2.5 rounded-xl transition shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
+        <div class="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 w-full max-w-4xl mx-auto" id="detail-content"></div>
     </div>
 
-    <div id="toast-container" class="fixed top-20 right-4 z-[550] space-y-2 flex flex-col items-end pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-20 right-4 z-[800] space-y-2 flex flex-col items-end pointer-events-none"></div>
     <datalist id="list-crew"></datalist>
 
     <!-- AUTH SECTION -->
@@ -191,7 +217,7 @@
     <div id="app-content" class="hidden min-h-screen pt-4">
         <header class="p-4 flex justify-between items-center bg-white/90 dark:bg-black/90 border-b dark:border-zinc-800 sticky top-0 z-[100] no-print backdrop-blur-md">
             <div class="flex items-center gap-3">
-                <div class="flex items-center">
+                <div class="flex items-center cursor-pointer" onclick="openAppInfo()">
                     <img src="logo ygs.PNG" alt="YGS Logo" class="hidden dark:block h-8 sm:h-10 w-auto object-contain" onerror="this.style.display='none'; document.getElementById('header-fallback-logo').classList.remove('hidden'); document.getElementById('header-fallback-logo').classList.add('flex');">
                     <img src="logo ygs 2.PNG" alt="YGS Logo" class="block dark:hidden h-8 sm:h-10 w-auto object-contain" onerror="this.style.display='none'; document.getElementById('header-fallback-logo').classList.remove('hidden'); document.getElementById('header-fallback-logo').classList.add('flex');">
                     
@@ -199,7 +225,7 @@
                         <div class="bg-ygsred p-1.5 rounded-lg">
                             <svg width="24" height="24" viewBox="0 0 100 100" fill="none"><path d="M30 35H45L55 65H40L30 35Z" fill="white"/><path d="M55 35H70L60 65H45L55 35Z" fill="black"/></svg>
                         </div>
-                        <h1 class="text-xs sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">YGS PRODUCTION</h1>
+                        <h1 class="text-xs sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest hover:text-ygsred transition">YGS PRODUCTION</h1>
                     </div>
                 </div>
                 <div>
@@ -466,19 +492,38 @@
         </main>
 
         <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t dark:border-zinc-800 flex justify-around p-2 z-[100] backdrop-blur-md">
-            <button onclick="switchTab('list')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-list"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Jadwal</span></button>
-            <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-chat"><i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Chat</span></button>
+            <button onclick="switchTab('list')" class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-list">
+                <i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Jadwal</span>
+                <span id="badge-list" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
+            </button>
+            <button onclick="switchTab('chat')" class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-chat">
+                <i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Chat</span>
+                <span id="badge-chat" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
+            </button>
             <button onclick="resetEventForm(); switchTab('add')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Buat</span></button>
-            <button onclick="switchTab('assets')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-assets"><i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Aset</span></button>
-            <button onclick="switchTab('eval')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-eval"><i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Eval</span></button>
+            <button onclick="switchTab('assets')" class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-assets">
+                <i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Aset</span>
+                <span id="badge-assets" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
+            </button>
+            <button onclick="switchTab('eval')" class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-eval">
+                <i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Eval</span>
+                <span id="badge-eval" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
+            </button>
             <button onclick="switchTab('team')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Tim</span></button>
             <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-profile"><i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase">Dompet</span></button>
         </nav>
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2AsWL-tu9wv9M_HyvDXrtGFPlH5YIPgYqQBKRnRu31yZi5rFqBnF77kcLk4YugzRL/exec'; 
-        let currentUser = null, allProjects = [], allUsers = [], currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear(), activeAgendaView = 'kalender';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxd8H9CR5zB83GQpnUW6tkqfcHlq2y_2auxmA3i_d1GCNsoY-vI9oAlZ1bUiHFc6HcX/exec'; 
+        let currentUser = null, activeAgendaView = 'kalender';
+        let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
+        
+        // Cache management
+        let allProjects = [], allUsers = [], allChats = [], allEvals = [], allAssets = [];
+        let cachedCounts = { projects: "", chats: "", evals: "", assets: "" };
+        let isFirstLoad = true;
+        let activeTab = 'list';
 
         function formatIDR(val) {
             let num = Number(val || 0);
@@ -487,10 +532,18 @@
             return (isMinus ? "-Rp " : "Rp ") + formatted;
         }
 
-        // Removed localStorage usage as per iFrame sandbox constraints. 
-        // Replaced logic with pure in-memory state.
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
+        }
+        
+        function openAppInfo() {
+            document.getElementById('modal-app-info').classList.remove('hidden');
+            document.getElementById('modal-app-info').classList.add('flex');
+            lucide.createIcons();
+        }
+        function closeAppInfo() {
+            document.getElementById('modal-app-info').classList.add('hidden');
+            document.getElementById('modal-app-info').classList.remove('flex');
         }
 
         const MASTER_GROUPS = {
@@ -507,13 +560,15 @@
         function showLoading(show) { document.getElementById('loading-overlay').classList.toggle('hidden', !show); }
         function showToast(msg, isErr=false) {
             const container = document.getElementById('toast-container'); const t = document.createElement('div');
-            t.className = `px-4 py-3 rounded-xl shadow-xl text-xs font-bold text-white flex items-center gap-2 ${isErr ? 'bg-red-600' : 'bg-gray-900 dark:bg-zinc-800'}`;
+            t.className = `px-4 py-3 rounded-xl shadow-xl text-xs font-bold text-white flex items-center gap-2 ${isErr ? 'bg-red-600' : 'bg-gray-900 dark:bg-zinc-800'} transition-all`;
             t.innerHTML = `<i data-lucide="${isErr?'alert-circle':'check-circle'}" class="w-4 h-4"></i> ${msg}`;
             container.appendChild(t); if(typeof lucide!=='undefined') lucide.createIcons();
             setTimeout(() => { t.remove(); }, 3000);
         }
+        
+        function showBadge(tab) { document.getElementById('badge-'+tab)?.classList.remove('hidden'); }
+        function hideBadge(tab) { document.getElementById('badge-'+tab)?.classList.add('hidden'); }
 
-        // Custom Confirm Logic (Replacing standard confirm)
         let confirmAction = null;
         function showCustomConfirm(title, msg, onConfirm) {
             document.getElementById('confirm-title').innerText = title;
@@ -543,7 +598,6 @@
 
         window.onload = () => { 
             lucide.createIcons(); 
-            // In-memory initialization forces user login every refresh
             document.getElementById('view-auth').classList.remove('hidden');
         }
         
@@ -585,7 +639,9 @@
                 document.getElementById('btn-add-asset').classList.remove('hidden'); 
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
             }
-            fetchData(); switchTab('list'); initDynForms();
+            fetchData(); initDynForms();
+            
+            setInterval(() => fetchData(true), 30000);
         }
 
         function switchTab(tab) {
@@ -596,20 +652,73 @@
                 nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
                 if(n === 'nav-' + tab) nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
             });
-            if(tab === 'chat') renderChat(); if(tab === 'assets') renderAssets(); if(tab === 'team') renderTeam(); if(tab === 'profile') renderProfile(); if(tab === 'eval') renderEvaluations();
+            
+            activeTab = tab;
+            hideBadge(tab);
+            
+            if(tab === 'list') { applyAgendaView(); updateTodayStatus(); }
+            if(tab === 'chat') renderChat(); 
+            if(tab === 'assets') renderAssets(); 
+            if(tab === 'team') renderTeam(); 
+            if(tab === 'profile') renderProfile(); 
+            if(tab === 'eval') renderEvaluations();
         }
 
-        async function fetchData() {
-            showLoading(true); const rD = await apiCall({ action: 'GET_DATA' }); const rU = await apiCall({ action: 'GET_USERS' }); showLoading(false);
-            if(rD.success) { allProjects = rD.data; applyAgendaView(); updateTodayStatus(); updateEvalDropdown(); }
-            if(rU.success) { 
-                allUsers = rU.data; 
-                document.getElementById('list-crew').innerHTML = allUsers.map(u => `<option value="${u.nickname || u.fullName}">`).join(''); 
-                if(currentUser) {
-                    const updatedMe = allUsers.find(u => u.username === currentUser.username);
-                    if(updatedMe) currentUser = updatedMe;
+        async function fetchData(silent = false) {
+            if(!silent) showLoading(true);
+            try {
+                const rD = await apiCall({ action: 'GET_DATA' });
+                if(rD.success) {
+                    const pStr = JSON.stringify(rD.data);
+                    if(!isFirstLoad && silent && pStr !== cachedCounts.projects && activeTab !== 'list') showBadge('list');
+                    cachedCounts.projects = pStr;
+                    allProjects = rD.data; 
+                    if(activeTab === 'list' && !isFirstLoad) { applyAgendaView(); updateTodayStatus(); updateEvalDropdown(); }
                 }
-            }
+
+                const rU = await apiCall({ action: 'GET_USERS' });
+                if(rU.success) {
+                    allUsers = rU.data; 
+                    document.getElementById('list-crew').innerHTML = allUsers.map(u => `<option value="${u.nickname || u.fullName}">`).join(''); 
+                    if(currentUser) currentUser = allUsers.find(u => u.username === currentUser.username) || currentUser;
+                    if(activeTab === 'team' && !isFirstLoad) renderTeam();
+                    if(activeTab === 'profile' && !isFirstLoad) renderProfile();
+                }
+
+                const rC = await apiCall({ action: 'GET_CHATS' });
+                if(rC.success) {
+                    const cStr = JSON.stringify(rC.data);
+                    if(!isFirstLoad && silent && cStr !== cachedCounts.chats && activeTab !== 'chat') showBadge('chat');
+                    cachedCounts.chats = cStr;
+                    allChats = rC.data;
+                    if(activeTab === 'chat' && !isFirstLoad) renderChat();
+                }
+
+                const rE = await apiCall({ action: 'GET_EVALS' });
+                if(rE.success) {
+                    const eStr = JSON.stringify(rE.data);
+                    if(!isFirstLoad && silent && eStr !== cachedCounts.evals && activeTab !== 'eval') showBadge('eval');
+                    cachedCounts.evals = eStr;
+                    allEvals = rE.data;
+                    if(activeTab === 'eval' && !isFirstLoad) renderEvaluations();
+                }
+
+                const rA = await apiCall({ action: 'GET_ASSETS' });
+                if(rA.success) {
+                    const aStr = JSON.stringify(rA.data);
+                    if(!isFirstLoad && silent && aStr !== cachedCounts.assets && activeTab !== 'assets') showBadge('assets');
+                    cachedCounts.assets = aStr;
+                    allAssets = rA.data;
+                    if(activeTab === 'assets' && !isFirstLoad) renderAssets();
+                }
+                
+                if (isFirstLoad) {
+                    isFirstLoad = false;
+                    switchTab('list'); 
+                    updateEvalDropdown();
+                }
+            } catch(e) {}
+            if(!silent) showLoading(false);
         }
 
         function updateTodayStatus() {
@@ -693,45 +802,145 @@
             document.getElementById('project-container').innerHTML = f.map(p => getEventCardHTML(p, d)).join('') || '<div class="p-10 text-center font-bold text-gray-400 text-xs">LIBUR / KOSONG</div>';
             lucide.createIcons();
         }
+        
+        // --- HELPER UNTUK UI TABEL SPESIFIKASI ---
+        function buildUnifiedSpecTable(p) {
+            if (!p.specDyn) return '';
+            let tableRows = '';
+            let romanCounter = 1;
+            const romans = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV'];
+
+            const addCategory = (catName, itemsArr) => {
+                if (!itemsArr || itemsArr.length === 0) return;
+                const validItems = itemsArr.filter(i => i.brand || i.qty);
+                if (validItems.length === 0) return;
+
+                tableRows += `
+                <tr class="bg-blue-100 dark:bg-blue-900/40 border-b border-gray-300 dark:border-zinc-700">
+                    <td class="p-1.5 font-black text-[10px] text-gray-800 dark:text-gray-100 text-center">${romans[romanCounter-1] || romanCounter}</td>
+                    <td colspan="3" class="p-1.5 font-black text-[10px] uppercase text-gray-800 dark:text-gray-100">${catName}</td>
+                </tr>`;
+                romanCounter++;
+
+                let grouped = {};
+                validItems.forEach(item => {
+                    let eq = item.jenis || '-';
+                    if (!grouped[eq]) grouped[eq] = [];
+                    grouped[eq].push(item);
+                });
+
+                let itemCounter = 1;
+                Object.keys(grouped).forEach(eq => {
+                    let eqItems = grouped[eq];
+                    eqItems.forEach((item, idx) => {
+                        let noStr = idx === 0 ? itemCounter : '';
+                        let eqStr = idx === 0 ? eq : '';
+                        let qtyVal = item.qty || '';
+                        let match = qtyVal.toString().trim().match(/^([\d\.]+)\s*(.*)$/);
+                        let qNum = match ? match[1] : qtyVal;
+                        let qUom = (match && match[2]) ? match[2] : (qNum ? 'unit' : '');
+
+                        tableRows += `
+                        <tr class="border-b border-gray-200 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/50">
+                            <td class="p-1.5 text-center font-bold text-gray-600 dark:text-gray-400 text-[9px] border-r border-gray-200 dark:border-zinc-800/50">${noStr}</td>
+                            <td class="p-1.5 font-bold text-gray-800 dark:text-gray-200 text-[9px] border-r border-gray-200 dark:border-zinc-800/50">${eqStr}</td>
+                            <td class="p-1.5 font-medium text-gray-700 dark:text-gray-300 text-[9px] border-r border-gray-200 dark:border-zinc-800/50">${item.brand}</td>
+                            <td class="p-1.5 text-center font-black text-gray-900 dark:text-white text-[9px]">${qNum} <span class="font-normal text-[7px] text-gray-500">${qUom}</span></td>
+                        </tr>`;
+                    });
+                    itemCounter++;
+                });
+            };
+
+            if(p.specDyn.audio) {
+                addCategory('PA SYSTEM', p.specDyn.audio.pa);
+                addCategory('CONSOLE', p.specDyn.audio.console);
+                addCategory('MONITOR', p.specDyn.audio.monitor);
+                addCategory('MICROPHONE', p.specDyn.audio.mic);
+                addCategory('BACKLINE', p.specDyn.audio.backline);
+                addCategory('STAND', p.specDyn.audio.stand);
+                addCategory('CABLE', p.specDyn.audio.cable);
+                addCategory('AUDIO OTHERS', p.specDyn.audio.others);
+            }
+            if(p.specDyn.lighting) {
+                let combinedLighting = [];
+                p.specDyn.lighting.forEach(l => {
+                    if(l.data) {
+                        l.data.forEach(item => {
+                            if(item.brand || item.qty) {
+                                combinedLighting.push({ ...item, jenis: l.sub });
+                            }
+                        });
+                    }
+                });
+                addCategory('LIGHTING', combinedLighting);
+            }
+            addCategory('LED SCREEN', p.specDyn.led);
+            addCategory('RIGGING & STAGE', p.specDyn.rigging);
+            addCategory('GENSET', p.specDyn.genset);
+            addCategory('BARIKADE', p.specDyn.barikade);
+
+            if (!tableRows) return '';
+
+            return `
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+                <h4 class="text-[10px] font-black uppercase text-ygsred mb-3 border-b dark:border-zinc-800 pb-1">Spesifikasi Produksi (Detail)</h4>
+                <div class="border border-gray-300 dark:border-zinc-700 rounded-lg overflow-hidden shadow-sm">
+                    <table class="w-full text-left">
+                        <thead class="bg-orange-400 dark:bg-orange-600 text-black dark:text-white uppercase text-[9px]">
+                            <tr>
+                                <th class="p-2 w-8 text-center border-r border-orange-300 dark:border-orange-500">No</th>
+                                <th class="p-2 w-1/3 border-r border-orange-300 dark:border-orange-500">Equipment</th>
+                                <th class="p-2 border-r border-orange-300 dark:border-orange-500">Brand/Type</th>
+                                <th class="p-2 w-16 text-center">Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
 
         function showEventDetail(id) {
             const p = allProjects.find(x => x.id === id); if(!p) return;
             document.getElementById('detail-title').innerText = p.eventName;
             
-            let transHTML = p.transportasi && p.transportasi.length ? p.transportasi.join(', ') : '-';
+            // Jadwal Kegiatan
             let actHTML = '';
             if(p.activities && p.activities.length) {
-                actHTML = `<div class="mt-2 pt-2 border-t dark:border-zinc-800"><span class="text-[8px] text-gray-400 block mb-1 uppercase">Jadwal Kegiatan</span><ul class="list-disc pl-4 space-y-1">`;
+                actHTML = `<div class="mt-3 pt-3 border-t dark:border-zinc-800"><span class="text-[8px] text-gray-400 block mb-1.5 uppercase">Jadwal Kegiatan</span><ul class="list-disc pl-4 space-y-1">`;
                 p.activities.forEach(a => {
-                    actHTML += `<li class="text-gray-700 dark:text-gray-300">${a.date} (${a.startTime}-${a.endTime}): ${(a.acts||[]).join(', ')}</li>`;
+                    actHTML += `<li class="text-gray-700 dark:text-gray-300">${a.date} <span class="text-blue-500 dark:text-blue-400 font-black">(${a.startTime}-${a.endTime})</span>: ${(a.acts||[]).join(', ')}</li>`;
                 });
                 actHTML += `</ul></div>`;
             }
 
-            let specHTML = '';
-            if(p.specDyn) {
-                const buildTableRows = (title, items) => {
-                    if(!items || !items.length) return '';
-                    return items.map(i => `<tr class="border-b dark:border-zinc-800/50"><td class="p-1.5 font-bold uppercase text-[8px] text-gray-500">${title}</td><td class="p-1.5">${i.brand} ${i.jenis ? `(${i.jenis})` : ''}</td><td class="p-1.5 text-center font-black">${i.qty}</td></tr>`).join('');
-                };
-
-                let audioRows = '';
-                if(p.specDyn.audio) Object.keys(p.specDyn.audio).forEach(k => { audioRows += buildTableRows(k, p.specDyn.audio[k]); });
-
-                let lightRows = '';
-                if(p.specDyn.lighting) p.specDyn.lighting.forEach(l => { lightRows += buildTableRows(l.sub, l.data); });
-
-                let otherRows = '';
-                ['led', 'rigging', 'genset', 'barikade'].forEach(k => { if(p.specDyn[k]) otherRows += buildTableRows(k, p.specDyn[k]); });
-
-                const wrapTable = (title, rows, color) => rows ? `<div class="mb-3"><span class="text-[9px] font-black text-${color}-600 block mb-1 uppercase">${title}</span><div class="border dark:border-zinc-800 rounded-lg overflow-hidden"><table class="w-full text-left text-[9px] text-gray-700 dark:text-gray-300"><thead class="bg-gray-100 dark:bg-zinc-800/50 uppercase text-[7px] text-gray-500"><tr><th class="p-1.5 w-1/3">Kategori</th><th class="p-1.5">Alat / Item</th><th class="p-1.5 text-center w-12">Qty</th></tr></thead><tbody>${rows}</tbody></table></div></div>` : '';
-
-                specHTML = `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
-                    <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Spesifikasi Produksi</h4>
-                    ${wrapTable('Audio', audioRows, 'blue')}${wrapTable('Lighting', lightRows, 'orange')}${wrapTable('Pendukung', otherRows, 'green')}
-                    ${(!audioRows && !lightRows && !otherRows) ? '<p class="text-[9px] text-gray-500 italic">Belum ada data spesifikasi terlampir.</p>' : ''}
+            // Crew Lapangan
+            const buildCrewDiv = (title, arr) => {
+                const valid = arr.filter(x => x.name && x.name !== '-' && x.name.trim() !== '');
+                if(valid.length === 0) return '';
+                return `
+                <div class="border dark:border-zinc-800/50 rounded-lg overflow-hidden mb-3 shadow-sm bg-white dark:bg-zinc-900">
+                    <table class="w-full text-left text-[9px] text-gray-700 dark:text-gray-300">
+                        <thead class="bg-gray-100 dark:bg-zinc-800/50 uppercase text-[7px] text-gray-500">
+                            <tr><th class="p-2 w-[50%] border-b dark:border-zinc-800/50">${title}</th><th class="p-2 border-b dark:border-zinc-800/50">Nama Crew</th></tr>
+                        </thead>
+                        <tbody>
+                            ${valid.map(x => `<tr class="border-b dark:border-zinc-800/50 last:border-0"><td class="p-2 font-bold uppercase text-[8px] text-gray-500 border-r dark:border-zinc-800/50">${x.pos}</td><td class="p-2 text-blue-600 dark:text-blue-400 font-black uppercase tracking-wider">${x.name}</td></tr>`).join('')}
+                        </tbody>
+                    </table>
                 </div>`;
-            }
+            };
+
+            const m = p.manpower || {};
+            const audioCrews = [{pos: 'System Engineer', name: m.audio?.se}, {pos: 'FOH Engineer', name: m.audio?.foh}, {pos: 'Monitor Engineer', name: m.audio?.moh}, {pos: 'RF Technician', name: m.audio?.rf}, {pos: 'Stage Technician', name: m.audio?.stg}, {pos: 'Assistant', name: m.audio?.ast}];
+            const lightCrews = [{pos: 'Lighting Designer', name: m.lighting?.ld}, {pos: 'Patcher Lighting', name: m.lighting?.ptc}, {pos: 'Adresser Lighting', name: m.lighting?.adr}, {pos: 'Assistant Lighting', name: m.lighting?.ast}];
+            const roadies = [m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].filter(x => x && x !== '-').join(', ');
+            const supportCrews = [{pos: 'Head Roadie', name: m.roadies?.head}, {pos: 'Roadies Team', name: roadies}, {pos: 'Rigging Team', name: m.support?.rigging}, {pos: 'Genset Operator', name: m.support?.genset}, {pos: 'Barikade Team', name: m.support?.barikade}];
+            
+            let crewHTML = buildCrewDiv('Divisi Audio', audioCrews) + buildCrewDiv('Divisi Lighting', lightCrews) + buildCrewDiv('Pendukung & Roadies', supportCrews);
 
             let c = `<div class="space-y-4">
                 <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
@@ -739,51 +948,34 @@
                     <div class="grid grid-cols-2 gap-2 text-[10px] font-bold">
                         <div><span class="text-[8px] text-gray-500 block">STATUS</span>${p.status}</div>
                         <div><span class="text-[8px] text-gray-500 block">TALENT</span>${p.artist}</div>
-                        <div class="col-span-2"><span class="text-[8px] text-gray-500 block">KLIEN</span>${p.clientName || '-'} (${p.clientPhone || '-'})</div>
-                        <div class="col-span-2"><span class="text-[8px] text-gray-500 block">LOKASI</span><a href="${p.mapsLink}" target="_blank" class="text-blue-500 underline break-all">${p.mapsLink || '-'}</a></div>
+                        ${(p.clientName && p.clientName !== '-') ? `<div class="col-span-2"><span class="text-[8px] text-gray-500 block">KLIEN</span>${p.clientName} ${p.clientPhone ? `(${p.clientPhone})` : ''}</div>` : ''}
+                        ${(p.mapsLink && p.mapsLink !== '-') ? `<div class="col-span-2"><span class="text-[8px] text-gray-500 block">LOKASI</span><a href="${p.mapsLink}" target="_blank" class="text-blue-500 underline break-all">${p.mapsLink}</a></div>` : ''}
                     </div>
-                </div>
+                </div>`;
 
-                <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+            if((p.transportasi && p.transportasi.length) || actHTML) {
+                c += `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
                     <h4 class="text-[10px] font-black uppercase text-ygsred mb-2 border-b dark:border-zinc-800 pb-1">Operasional & Jadwal</h4>
                     <div class="text-[10px] font-bold">
-                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase">Transportasi</span><span class="text-gray-700 dark:text-gray-300">${transHTML}</span></div>
+                        ${p.transportasi && p.transportasi.length ? `<div><span class="text-[8px] text-gray-400 block mb-1 uppercase">Transportasi</span><span class="text-gray-700 dark:text-gray-300">${p.transportasi.join(', ')}</span></div>` : ''}
                         ${actHTML}
                     </div>
-                </div>
+                </div>`;
+            }
 
-                <div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
-                    <div class="flex justify-between items-center border-b dark:border-zinc-800 pb-1 mb-2">
-                        <h4 class="text-[10px] font-black uppercase text-ygsred">Plotting Crew</h4>
-                        <span class="text-[9px] font-black text-gray-700 dark:text-white bg-gray-200 dark:bg-zinc-800 px-2 py-0.5 rounded">PIC: ${p.manpower?.pic || '-'}</span>
+            if(crewHTML || (p.manpower?.pic && p.manpower?.pic !== '-')) {
+                c += `<div class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800">
+                    <div class="flex justify-between items-center border-b dark:border-zinc-800 pb-1 mb-3">
+                        <h4 class="text-[10px] font-black uppercase text-ygsred">Plotting Crew Lapangan</h4>
+                        ${p.manpower?.pic && p.manpower?.pic !== '-' ? `<span class="text-[9px] font-black text-gray-700 dark:text-white bg-gray-200 dark:bg-zinc-800 px-2 py-0.5 rounded">PIC: <span class="text-ygsred">${p.manpower.pic}</span></span>` : ''}
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-[9px] font-bold text-gray-700 dark:text-gray-300">
-                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase border-b dark:border-zinc-800/50 pb-0.5">Divisi Audio</span>
-                            SE: ${p.manpower?.audio?.se || '-'}<br>
-                            FOH: ${p.manpower?.audio?.foh || '-'}<br>
-                            MOH: ${p.manpower?.audio?.moh || '-'}<br>
-                            RF: ${p.manpower?.audio?.rf || '-'}<br>
-                            Stage: ${p.manpower?.audio?.stg || '-'}<br>
-                            Ast: ${p.manpower?.audio?.ast || '-'}
-                        </div>
-                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase border-b dark:border-zinc-800/50 pb-0.5">Divisi Lighting</span>
-                            LD: ${p.manpower?.lighting?.ld || '-'}<br>
-                            PTC: ${p.manpower?.lighting?.ptc || '-'}<br>
-                            Adr: ${p.manpower?.lighting?.adr || '-'}<br>
-                            Ast: ${p.manpower?.lighting?.ast || '-'}
-                        </div>
-                        <div><span class="text-[8px] text-gray-400 block mb-1 uppercase border-b dark:border-zinc-800/50 pb-0.5">Roadies & Support</span>
-                            Head: ${p.manpower?.roadies?.head || '-'}<br>
-                            Roadies: ${[p.manpower?.roadies?.r1, p.manpower?.roadies?.r2, p.manpower?.roadies?.r3, p.manpower?.roadies?.r4].filter(Boolean).join(', ') || '-'}<br>
-                            Rigging: ${p.manpower?.support?.rigging || '-'}<br>
-                            Genset: ${p.manpower?.support?.genset || '-'}<br>
-                            Barikade: ${p.manpower?.support?.barikade || '-'}
-                        </div>
-                    </div>
-                </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">${crewHTML}</div>
+                </div>`;
+            }
                 
-                ${specHTML}
-            </div>`;
+            c += buildUnifiedSpecTable(p);
+            c += `</div>`;
+            
             document.getElementById('detail-content').innerHTML = c;
             document.getElementById('modal-event-detail').classList.remove('hidden');
             document.getElementById('modal-event-detail').classList.add('flex');
@@ -802,20 +994,96 @@
         // --- Helper: Format HTML List Spesifikasi khusus untuk ekspor PDF ---
         function getSpecHTMLForPDF(p) {
             if (!p.specDyn) return '<p>Tidak ada spesifikasi terlampir.</p>';
-            
-            const buildTableRows = (title, items) => {
-                if(!items || !items.length) return '';
-                return items.map(i => `<tr><td style="padding:4px; border:1px solid #ddd; text-transform:uppercase; font-size:10px;">${title}</td><td style="padding:4px; border:1px solid #ddd;">${i.brand} ${i.jenis ? `(${i.jenis})` : ''}</td><td style="padding:4px; border:1px solid #ddd; text-align:center; font-weight:bold;">${i.qty}</td></tr>`).join('');
+            let tableRows = '';
+            let romanCounter = 1;
+            const romans = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV'];
+
+            const addCategory = (catName, itemsArr) => {
+                if (!itemsArr || itemsArr.length === 0) return;
+                const validItems = itemsArr.filter(i => i.brand || i.qty);
+                if (validItems.length === 0) return;
+
+                tableRows += `
+                <tr style="background-color:#c9daf8; page-break-inside: avoid; border-bottom: 1px solid #000;">
+                    <td style="padding:4px; font-weight:bold; font-size:11px; text-align:center; border-right: 1px solid #000;">${romans[romanCounter-1] || romanCounter}</td>
+                    <td colspan="3" style="padding:4px; font-weight:bold; font-size:11px; text-transform:uppercase;">${catName}</td>
+                </tr>`;
+                romanCounter++;
+
+                let grouped = {};
+                validItems.forEach(item => {
+                    let eq = item.jenis || '-';
+                    if (!grouped[eq]) grouped[eq] = [];
+                    grouped[eq].push(item);
+                });
+
+                let itemCounter = 1;
+                Object.keys(grouped).forEach(eq => {
+                    let eqItems = grouped[eq];
+                    eqItems.forEach((item, idx) => {
+                        let noStr = idx === 0 ? itemCounter : '';
+                        let eqStr = idx === 0 ? eq : '';
+                        let qtyVal = item.qty || '';
+                        let match = qtyVal.toString().trim().match(/^([\d\.]+)\s*(.*)$/);
+                        let qNum = match ? match[1] : qtyVal;
+                        let qUom = (match && match[2]) ? match[2] : (qNum ? 'unit' : '');
+
+                        tableRows += `
+                        <tr style="page-break-inside: avoid; border-bottom: 1px solid #000;">
+                            <td style="padding:4px; text-align:center; font-size:10px; border-right: 1px solid #000;">${noStr}</td>
+                            <td style="padding:4px; font-size:10px; border-right: 1px solid #000;">${eqStr}</td>
+                            <td style="padding:4px; font-size:10px; border-right: 1px solid #000;">${item.brand}</td>
+                            <td style="padding:4px; text-align:center; font-weight:bold; font-size:10px;">${qNum} <span style="font-weight:normal; font-size:8px;">${qUom}</span></td>
+                        </tr>`;
+                    });
+                    itemCounter++;
+                });
             };
 
-            const wrapTable = (title, rows, color) => rows ? `<h4 style="margin:10px 0 5px 0; color:${color}; font-size:12px; text-transform:uppercase;">${title}</h4><table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:10px;"><tr style="background:#f4f4f5;"><th style="padding:4px; border:1px solid #ddd; text-align:left; width:30%;">Kategori</th><th style="padding:4px; border:1px solid #ddd; text-align:left;">Alat / Item</th><th style="padding:4px; border:1px solid #ddd; text-align:center; width:15%;">Qty</th></tr>${rows}</table>` : '';
+            if(p.specDyn.audio) {
+                addCategory('PA SYSTEM', p.specDyn.audio.pa);
+                addCategory('CONSOLE', p.specDyn.audio.console);
+                addCategory('MONITOR', p.specDyn.audio.monitor);
+                addCategory('MICROPHONE', p.specDyn.audio.mic);
+                addCategory('BACKLINE', p.specDyn.audio.backline);
+                addCategory('STAND', p.specDyn.audio.stand);
+                addCategory('CABLE', p.specDyn.audio.cable);
+                addCategory('AUDIO OTHERS', p.specDyn.audio.others);
+            }
+            if(p.specDyn.lighting) {
+                let combinedLighting = [];
+                p.specDyn.lighting.forEach(l => {
+                    if(l.data) {
+                        l.data.forEach(item => {
+                            if(item.brand || item.qty) {
+                                combinedLighting.push({ ...item, jenis: l.sub });
+                            }
+                        });
+                    }
+                });
+                addCategory('LIGHTING', combinedLighting);
+            }
+            addCategory('LED SCREEN', p.specDyn.led);
+            addCategory('RIGGING & STAGE', p.specDyn.rigging);
+            addCategory('GENSET', p.specDyn.genset);
+            addCategory('BARIKADE', p.specDyn.barikade);
 
-            let audioRows = ''; if(p.specDyn.audio) Object.keys(p.specDyn.audio).forEach(k => { audioRows += buildTableRows(k, p.specDyn.audio[k]); });
-            let lightRows = ''; if(p.specDyn.lighting) p.specDyn.lighting.forEach(l => { lightRows += buildTableRows(l.sub, l.data); });
-            let otherRows = ''; ['led', 'rigging', 'genset', 'barikade'].forEach(k => { if(p.specDyn[k]) otherRows += buildTableRows(k, p.specDyn[k]); });
+            if (!tableRows) return '<p style="font-size:11px; color:#888;">Tidak ada rincian alat.</p>';
 
-            let h = wrapTable('Audio', audioRows, '#3b82f6') + wrapTable('Lighting', lightRows, '#f97316') + wrapTable('Pendukung', otherRows, '#10b981');
-            return h || '<p>Tidak ada rincian alat.</p>';
+            return `
+            <table style="width:100%; border-collapse:collapse; font-size:11px; margin-top:10px; border: 1px solid #000; page-break-inside: auto;">
+                <thead style="background-color:#f6b26b; color:#000;">
+                    <tr style="border-bottom: 1px solid #000; page-break-inside: avoid;">
+                        <th style="padding:5px; text-align:center; width:5%; border-right: 1px solid #000;">No</th>
+                        <th style="padding:5px; text-align:left; width:35%; border-right: 1px solid #000;">Equipment</th>
+                        <th style="padding:5px; text-align:left; border-right: 1px solid #000;">Brand/Type</th>
+                        <th style="padding:5px; text-align:center; width:15%;">Qty/UOM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>`;
         }
 
         function exportPDF(id) {
@@ -824,13 +1092,16 @@
             let transHTML = p.transportasi && p.transportasi.length ? p.transportasi.join(', ') : '-';
             let actHTML = '';
             if(p.activities && p.activities.length) {
-                actHTML = `<table style="width:100%; border-collapse: collapse; margin-top: 10px; font-size: 12px;">
-                    <tr style="background:#f4f4f5;"><th style="padding:5px; border:1px solid #ddd; text-align:left;">Tanggal</th><th style="padding:5px; border:1px solid #ddd; text-align:left;">Waktu</th><th style="padding:5px; border:1px solid #ddd; text-align:left;">Kegiatan</th></tr>`;
+                actHTML = `<table style="width:100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; page-break-inside: auto;">
+                    <tr style="background:#f4f4f5; page-break-inside: avoid;"><th style="padding:5px; border:1px solid #ddd; text-align:left;">Tanggal</th><th style="padding:5px; border:1px solid #ddd; text-align:left;">Waktu</th><th style="padding:5px; border:1px solid #ddd; text-align:left;">Kegiatan</th></tr>`;
                 p.activities.forEach(a => {
-                    actHTML += `<tr><td style="padding:5px; border:1px solid #ddd;">${a.date}</td><td style="padding:5px; border:1px solid #ddd;">${a.startTime} - ${a.endTime}</td><td style="padding:5px; border:1px solid #ddd;">${(a.acts||[]).join(', ')}</td></tr>`;
+                    actHTML += `<tr style="page-break-inside: avoid;"><td style="padding:5px; border:1px solid #ddd;">${a.date}</td><td style="padding:5px; border:1px solid #ddd;">${a.startTime} - ${a.endTime}</td><td style="padding:5px; border:1px solid #ddd;">${(a.acts||[]).join(', ')}</td></tr>`;
                 });
                 actHTML += `</table>`;
             }
+
+            const formatCrewPDF = (name) => name && name !== '-' ? `<b style="color:#2563eb;">${name}</b>` : '<span style="color:#aaa;">-</span>';
+            const m = p.manpower || {};
 
             const div = document.createElement('div');
             div.style.padding = '20px';
@@ -849,70 +1120,62 @@
                     </div>
                 </div>
 
-                <h2 style="text-transform:uppercase; margin-bottom: 5px; font-size: 18px;">${p.eventName}</h2>
-                <div style="font-size: 12px; margin-bottom: 20px; line-height: 1.6;">
+                <h2 style="text-transform:uppercase; margin-bottom: 5px; font-size: 18px; page-break-after: avoid;">${p.eventName}</h2>
+                <div style="font-size: 12px; margin-bottom: 20px; line-height: 1.6; page-break-inside: avoid;">
                     <b>Talent:</b> ${p.artist} <br>
                     <b>Status:</b> ${p.status} <br>
-                    <b>Klien/EO:</b> ${p.clientName || '-'} (${p.clientPhone || '-'}) <br>
-                    <b>Lokasi:</b> ${p.mapsLink || '-'} <br>
+                    ${p.clientName && p.clientName !== '-' ? `<b>Klien/EO:</b> ${p.clientName} (${p.clientPhone || '-'}) <br>` : ''}
+                    ${p.mapsLink && p.mapsLink !== '-' ? `<b>Lokasi:</b> ${p.mapsLink} <br>` : ''}
                     <b>Tanggal:</b> ${p.eventDate} <br>
                 </div>
 
-                <h3 style="font-size: 14px; color: #e50914; border-bottom: 1px solid #eee; padding-bottom: 5px;">1. Operasional & Jadwal</h3>
-                <p style="font-size: 12px;"><b>Transportasi:</b> ${transHTML}</p>
+                <h3 style="font-size: 14px; color: #e50914; border-bottom: 1px solid #eee; padding-bottom: 5px; page-break-after: avoid;">1. Operasional & Jadwal</h3>
+                ${p.transportasi && p.transportasi.length ? `<p style="font-size: 12px; page-break-inside: avoid;"><b>Transportasi:</b> ${transHTML}</p>` : ''}
                 ${actHTML}
 
-                <h3 style="font-size: 14px; color: #e50914; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px;">2. Plotting Crew</h3>
-                <p style="font-size: 12px;"><b>PIC Utama:</b> ${p.manpower?.pic || '-'}</p>
-                <div style="display: flex; gap: 20px; font-size: 12px; margin-top: 10px;">
-                    <div style="flex: 1;">
-                        <b style="color:#555;">AUDIO:</b><br>
-                        <table style="width:100%; font-size:11px;">
-                            <tr><td style="width:40%">SE</td><td>: ${p.manpower?.audio?.se || '-'}</td></tr>
-                            <tr><td>FOH</td><td>: ${p.manpower?.audio?.foh || '-'}</td></tr>
-                            <tr><td>MOH</td><td>: ${p.manpower?.audio?.moh || '-'}</td></tr>
-                            <tr><td>RF</td><td>: ${p.manpower?.audio?.rf || '-'}</td></tr>
-                            <tr><td>Stage</td><td>: ${p.manpower?.audio?.stg || '-'}</td></tr>
-                            <tr><td>Ast</td><td>: ${p.manpower?.audio?.ast || '-'}</td></tr>
-                        </table>
-                    </div>
-                    <div style="flex: 1;">
-                        <b style="color:#555;">LIGHTING:</b><br>
-                        <table style="width:100%; font-size:11px;">
-                            <tr><td style="width:40%">LD</td><td>: ${p.manpower?.lighting?.ld || '-'}</td></tr>
-                            <tr><td>Patcher</td><td>: ${p.manpower?.lighting?.ptc || '-'}</td></tr>
-                            <tr><td>Adr</td><td>: ${p.manpower?.lighting?.adr || '-'}</td></tr>
-                            <tr><td>Ast</td><td>: ${p.manpower?.lighting?.ast || '-'}</td></tr>
-                        </table>
-                    </div>
-                    <div style="flex: 1;">
-                        <b style="color:#555;">ROADIES & PENDUKUNG:</b><br>
-                        <table style="width:100%; font-size:11px;">
-                            <tr><td style="width:40%">Head</td><td>: ${p.manpower?.roadies?.head || '-'}</td></tr>
-                            <tr><td valign="top">Roadies</td><td>: ${[p.manpower?.roadies?.r1, p.manpower?.roadies?.r2, p.manpower?.roadies?.r3, p.manpower?.roadies?.r4].filter(Boolean).join(', ') || '-'}</td></tr>
-                            <tr><td>Rigging</td><td>: ${p.manpower?.support?.rigging || '-'}</td></tr>
-                            <tr><td>Genset</td><td>: ${p.manpower?.support?.genset || '-'}</td></tr>
-                            <tr><td>Barikade</td><td>: ${p.manpower?.support?.barikade || '-'}</td></tr>
-                        </table>
-                    </div>
-                </div>
+                <h3 style="font-size: 14px; color: #e50914; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px; page-break-after: avoid;">2. Plotting Crew Lapangan</h3>
+                ${m.pic && m.pic !== '-' ? `<p style="font-size: 12px; page-break-inside: avoid;"><b>PIC Utama:</b> ${formatCrewPDF(m.pic)}</p>` : ''}
+                
+                <table style="width:100%; font-size:12px; margin-top:10px; page-break-inside: avoid; border-collapse: collapse;">
+                    <tr>
+                        <td valign="top" style="width:33%; padding-right:10px; border-right: 1px solid #eee;">
+                            <div style="background:#f4f4f5; padding:4px; font-weight:bold; color:#555; text-align:center; margin-bottom:5px;">AUDIO</div>
+                            <table style="width:100%; font-size:10px; border-collapse:collapse;">
+                                ${[{pos:'System Engineer', val:m.audio?.se}, {pos:'FOH Engineer', val:m.audio?.foh}, {pos:'Monitor Engineer', val:m.audio?.moh}, {pos:'RF Technician', val:m.audio?.rf}, {pos:'Stage Technician', val:m.audio?.stg}, {pos:'Assistant', val:m.audio?.ast}].filter(x => x.val && x.val !== '-').map(x => `<tr><td style="width:45%; padding:3px; border-bottom:1px solid #f0f0f0; color:#666;">${x.pos}</td><td style="padding:3px; border-bottom:1px solid #f0f0f0;">${formatCrewPDF(x.val)}</td></tr>`).join('') || '<tr><td style="color:#aaa; text-align:center; padding:5px;">-</td></tr>'}
+                            </table>
+                        </td>
+                        <td valign="top" style="width:33%; padding:0 10px; border-right: 1px solid #eee;">
+                            <div style="background:#f4f4f5; padding:4px; font-weight:bold; color:#555; text-align:center; margin-bottom:5px;">LIGHTING</div>
+                            <table style="width:100%; font-size:10px; border-collapse:collapse;">
+                                ${[{pos:'Lighting Designer', val:m.lighting?.ld}, {pos:'Patcher Lighting', val:m.lighting?.ptc}, {pos:'Adresser Lighting', val:m.lighting?.adr}, {pos:'Assistant Lighting', val:m.lighting?.ast}].filter(x => x.val && x.val !== '-').map(x => `<tr><td style="width:50%; padding:3px; border-bottom:1px solid #f0f0f0; color:#666;">${x.pos}</td><td style="padding:3px; border-bottom:1px solid #f0f0f0;">${formatCrewPDF(x.val)}</td></tr>`).join('') || '<tr><td style="color:#aaa; text-align:center; padding:5px;">-</td></tr>'}
+                            </table>
+                        </td>
+                        <td valign="top" style="width:34%; padding-left:10px;">
+                            <div style="background:#f4f4f5; padding:4px; font-weight:bold; color:#555; text-align:center; margin-bottom:5px;">PENDUKUNG</div>
+                            <table style="width:100%; font-size:10px; border-collapse:collapse;">
+                                ${[{pos:'Head Roadie', val:m.roadies?.head}, {pos:'Roadies Team', val:[m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].filter(Boolean).join(', ')}, {pos:'Rigging Team', val:m.support?.rigging}, {pos:'Genset Operator', val:m.support?.genset}, {pos:'Barikade Team', val:m.support?.barikade}].filter(x => x.val && x.val !== '-').map(x => `<tr><td style="width:45%; padding:3px; border-bottom:1px solid #f0f0f0; color:#666;" valign="top">${x.pos}</td><td style="padding:3px; border-bottom:1px solid #f0f0f0;">${formatCrewPDF(x.val)}</td></tr>`).join('') || '<tr><td style="color:#aaa; text-align:center; padding:5px;">-</td></tr>'}
+                            </table>
+                        </td>
+                    </tr>
+                </table>
 
-                <h3 style="font-size: 14px; color: #e50914; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px;">3. Spesifikasi Produksi</h3>
+                <h3 style="font-size: 14px; color: #e50914; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 20px; page-break-after: avoid;">3. Spesifikasi Produksi</h3>
                 <div style="font-size: 12px;">
                     ${getSpecHTMLForPDF(p)}
                 </div>
 
-                <div style="margin-top: 40px; text-align: center; color: #888; font-size: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                <div style="margin-top: 30px; text-align: center; color: #888; font-size: 10px; border-top: 1px solid #eee; padding-top: 10px; page-break-inside: avoid;">
                     Generated by YGS Production App V32
                 </div>
             `;
 
             html2pdf().set({
-                margin: 10,
+                margin: [15, 10, 15, 10], // Margin diperbesar agar teks di bawah tidak terpotong
                 filename: `YGS_Event_${p.eventName.replace(/\s+/g,'_')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['css', 'legacy'] } // Memastikan page-break tidak memaksa scaling
             }).from(div).save();
         }
 
@@ -925,26 +1188,26 @@
             let waCrew = `*PIC:* ${getVal(m.pic) || '-'}\n\n`;
             
             waCrew += `*AUDIO:*\n`;
-            if(getVal(m.audio?.se)) waCrew += `- SE: ${m.audio.se}\n`;
-            if(getVal(m.audio?.foh)) waCrew += `- FOH: ${m.audio.foh}\n`;
-            if(getVal(m.audio?.moh)) waCrew += `- MOH: ${m.audio.moh}\n`;
-            if(getVal(m.audio?.rf)) waCrew += `- RF: ${m.audio.rf}\n`;
-            if(getVal(m.audio?.stg)) waCrew += `- Stage: ${m.audio.stg}\n`;
-            if(getVal(m.audio?.ast)) waCrew += `- Ast: ${m.audio.ast}\n`;
+            if(getVal(m.audio?.se)) waCrew += `- System Engineer: ${m.audio.se}\n`;
+            if(getVal(m.audio?.foh)) waCrew += `- FOH Engineer: ${m.audio.foh}\n`;
+            if(getVal(m.audio?.moh)) waCrew += `- Monitor Engineer: ${m.audio.moh}\n`;
+            if(getVal(m.audio?.rf)) waCrew += `- RF Technician: ${m.audio.rf}\n`;
+            if(getVal(m.audio?.stg)) waCrew += `- Stage Technician: ${m.audio.stg}\n`;
+            if(getVal(m.audio?.ast)) waCrew += `- Assistant: ${m.audio.ast}\n`;
             
             waCrew += `\n*LIGHTING:*\n`;
-            if(getVal(m.lighting?.ld)) waCrew += `- LD: ${m.lighting.ld}\n`;
-            if(getVal(m.lighting?.ptc)) waCrew += `- Patcher: ${m.lighting.ptc}\n`;
-            if(getVal(m.lighting?.adr)) waCrew += `- Adr: ${m.lighting.adr}\n`;
-            if(getVal(m.lighting?.ast)) waCrew += `- Ast: ${m.lighting.ast}\n`;
+            if(getVal(m.lighting?.ld)) waCrew += `- Lighting Designer: ${m.lighting.ld}\n`;
+            if(getVal(m.lighting?.ptc)) waCrew += `- Patcher Lighting: ${m.lighting.ptc}\n`;
+            if(getVal(m.lighting?.adr)) waCrew += `- Adresser Lighting: ${m.lighting.adr}\n`;
+            if(getVal(m.lighting?.ast)) waCrew += `- Assistant Lighting: ${m.lighting.ast}\n`;
 
             waCrew += `\n*ROADIES & PENDUKUNG:*\n`;
-            if(getVal(m.roadies?.head)) waCrew += `- Head: ${m.roadies.head}\n`;
-            [m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].forEach((r,i) => { if(getVal(r)) waCrew += `- R${i+1}: ${r}\n` });
-            if(getVal(m.support?.rigging)) waCrew += `- Rigging: ${m.support.rigging}\n`;
-            if(getVal(m.support?.stage)) waCrew += `- Stage: ${m.support.stage}\n`;
-            if(getVal(m.support?.genset)) waCrew += `- Genset: ${m.support.genset}\n`;
-            if(getVal(m.support?.barikade)) waCrew += `- Barikade: ${m.support.barikade}\n`;
+            if(getVal(m.roadies?.head)) waCrew += `- Head Roadie: ${m.roadies.head}\n`;
+            [m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].forEach((r,i) => { if(getVal(r)) waCrew += `- Roadies Team ${i+1}: ${r}\n` });
+            if(getVal(m.support?.rigging)) waCrew += `- Rigging Team: ${m.support.rigging}\n`;
+            if(getVal(m.support?.stage)) waCrew += `- Stage Technician: ${m.support.stage}\n`;
+            if(getVal(m.support?.genset)) waCrew += `- Genset Operator: ${m.support.genset}\n`;
+            if(getVal(m.support?.barikade)) waCrew += `- Barikade Team: ${m.support.barikade}\n`;
 
             let txt = `*CREW CALL YGS PRODUCTION*\n\nEvent: *${p.eventName}*\nArtist: ${p.artist}\nTanggal: ${p.eventDate}\nLokasi: ${p.mapsLink || '-'}\n\n*MANPOWER PLOTTING:*\n${waCrew}\n_Dimohon standby di lokasi tepat waktu._`;
             
@@ -1120,7 +1383,6 @@
                 p.finance[inp.dataset.crew] = Number(inp.value) || 0;
             });
             
-            // Mengirim ulang data project secara utuh beserta object finance yang baru update
             await apiCall({ action: 'ADD_DATA', payload: p }); 
             
             showLoading(false);
@@ -1179,7 +1441,6 @@
             const editId = document.getElementById('edit-id').value;
             const days = []; document.querySelectorAll('.day-row').forEach(r => days.push({ date: r.dataset.date, startTime: r.querySelector('.time-start').value, endTime: r.querySelector('.time-end').value, acts: Array.from(r.querySelectorAll('.act-check:checked')).map(x => x.value) }));
             
-            // Pertahankan nilai finance gaji jika sedang mode edit, agar tidak hilang saat diupdate
             let existingFinance = {};
             if(editId) {
                 const existingEvent = allProjects.find(x => x.id === editId);
@@ -1202,7 +1463,6 @@
                 manpower: { pic: document.getElementById('pic').value, audio: { se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value, moh: document.getElementById('c_a_moh').value, rf: document.getElementById('c_a_rf').value, stg: document.getElementById('c_a_stg').value, ast: document.getElementById('c_a_ast').value }, lighting: { ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value, adr: document.getElementById('c_l_adr').value, ast: document.getElementById('c_l_ast').value }, roadies: { head: document.getElementById('c_r_head').value, r1: document.getElementById('c_r_1').value, r2: document.getElementById('c_r_2').value, r3: document.getElementById('c_r_3').value, r4: document.getElementById('c_r_4').value }, support: { rigging: document.getElementById('c_s_rigging').value, stage: document.getElementById('c_s_stage').value, genset: document.getElementById('c_s_genset').value, barikade: document.getElementById('c_s_barikade').value } }
             };
             
-            // Backend ADD_DATA sekarang akan otomatis melakukan update (upsert) jika ID sudah ada
             await apiCall({ action: 'ADD_DATA', payload: p });
             
             showLoading(false); resetEventForm(); switchTab('list'); fetchData(); showToast(editId ? "Terupdate!" : "Berhasil ditambah!");
@@ -1210,10 +1470,9 @@
 
         function extractDynData(id) { const arr = []; const el = document.getElementById(id); if(!el) return arr; el.querySelectorAll('.dynamic-row').forEach(r => { const j = r.querySelector('.dyn-jenis').value, b = r.querySelector('.dyn-brand').value, q = r.querySelector('.dyn-qty').value; if(j||b||q) arr.push({jenis:j, brand:b, qty:q}); }); return arr; }
 
-        async function renderAssets() {
-            const r = await apiCall({ action: 'GET_ASSETS' }); if(!r.success) return;
+        function renderAssets() {
             const isAdmin = currentUser.role === 'admin';
-            document.getElementById('asset-list').innerHTML = r.data.map(a => `
+            document.getElementById('asset-list').innerHTML = allAssets.map(a => `
                 <tr class="border-b dark:border-zinc-800">
                     <td class="p-3 uppercase font-bold">${a.name}</td>
                     <td class="p-3 uppercase text-gray-500 font-bold">${a.cat}</td>
@@ -1235,7 +1494,7 @@
         async function deleteAsset(id) { 
             showCustomConfirm("Hapus Aset", "Hapus aset ini secara permanen?", async () => {
                 showLoading(true); await apiCall({ action: 'DELETE_ASSET', payload: { id } }); 
-                showLoading(false); renderAssets(); 
+                showLoading(false); fetchData(); showToast("Aset dihapus."); 
             });
         }
 
@@ -1252,12 +1511,12 @@
             return total;
         }
 
-        async function renderTeam() {
+        function renderTeam() {
             document.getElementById('team-list').innerHTML = allUsers.map(u => {
                 const totalGajiEvent = calculateUserTotalFee(u.username, u.nickname, u.fullName);
-                const feeMaster = Number(u.fee || 0); // Manual tambahan dari admin
-                const totalBon = Number(u.bon || 0);  // Total bon manual input admin
-                const totalPencairan = Number(u.pencairan || 0); // Total Pencairan
+                const feeMaster = Number(u.fee || 0); 
+                const totalBon = Number(u.bon || 0);  
+                const totalPencairan = Number(u.pencairan || 0); 
                 const saldoAktif = (totalGajiEvent + feeMaster) - totalBon - totalPencairan;
 
                 return `
@@ -1303,14 +1562,29 @@
             const f = document.getElementById(`fee-${username}`).value;
             const b = document.getElementById(`bon-${username}`).value;
             const pC = document.getElementById(`pencairan-${username}`).value;
+            
+            // Optimistic Update UI
+            const userIndex = allUsers.findIndex(u => u.username === username);
+            if(userIndex !== -1) {
+                allUsers[userIndex].fee = f;
+                allUsers[userIndex].bon = b;
+                allUsers[userIndex].pencairan = pC;
+            }
+            if (currentUser && currentUser.username === username) {
+                currentUser.fee = f;
+                currentUser.bon = b;
+                currentUser.pencairan = pC;
+            }
+            
+            renderTeam(); // instant visual update
+
+            // Save to backend without blocking the UI initially
             showLoading(true);
             await apiCall({ action: 'UPDATE_USER_FINANCE', payload: { username, fee: f, bon: b, pencairan: pC } });
             
-            // Fix: Await fetchData agar data terbaru dari database masuk sebelum render
-            await fetchData(); 
+            await fetchData(true); // silent refetch
             showLoading(false); 
             showToast("Akuntansi Terupdate ke Database!"); 
-            renderTeam();
         }
 
         function renderProfile() {
@@ -1321,7 +1595,6 @@
             const totalPencairan = Number(u.pencairan || 0);
             const saldoAktif = (totalGajiEvent + feeMaster) - totalBon - totalPencairan;
 
-            // Update dompet view based on current real data
             document.getElementById('prof-fee').innerText = formatIDR(totalGajiEvent + feeMaster); 
             document.getElementById('prof-bon').innerText = formatIDR(totalBon); 
             document.getElementById('prof-pencairan').innerText = formatIDR(totalPencairan); 
@@ -1354,35 +1627,31 @@
             select.innerHTML = allProjects.map(p => `<option value="${p.id}">${p.eventName}</option>`).join('');
         }
 
-        async function renderEvaluations() {
-            const r = await apiCall({ action: 'GET_EVALS' });
-            if(r.success) {
-                // Kelompokkan eval per event agar rapi
-                const groupedEvals = {};
-                r.data.forEach(e => {
-                    if(!groupedEvals[e.eventName]) groupedEvals[e.eventName] = [];
-                    groupedEvals[e.eventName].push(e);
-                });
+        function renderEvaluations() {
+            const groupedEvals = {};
+            allEvals.forEach(e => {
+                if(!groupedEvals[e.eventName]) groupedEvals[e.eventName] = [];
+                groupedEvals[e.eventName].push(e);
+            });
 
-                let html = '';
-                for (const event in groupedEvals) {
-                    html += `<div class="bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl border dark:border-zinc-800">
-                                <h4 class="text-[10px] font-black text-ygsred uppercase mb-3 border-b dark:border-zinc-800 pb-1">${event}</h4>
-                                <div class="space-y-3">`;
-                    groupedEvals[event].forEach(e => {
-                        html += `
-                        <div class="bg-white dark:bg-zinc-800 p-3 rounded-lg shadow-sm border dark:border-zinc-700/50">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[9px] font-bold text-gray-900 dark:text-gray-100 uppercase">${e.sender}</span>
-                                <span class="text-[7px] font-bold text-gray-400">${new Date(e.time).toLocaleDateString('id-ID')}</span>
-                            </div>
-                            <p class="text-[10px] font-medium text-gray-600 dark:text-gray-300 italic">"${e.msg}"</p>
-                        </div>`;
-                    });
-                    html += `</div></div>`;
-                }
-                document.getElementById('eval-container').innerHTML = html || '<p class="text-center text-[8px] italic text-gray-500">Belum ada evaluasi tersimpan.</p>';
+            let html = '';
+            for (const event in groupedEvals) {
+                html += `<div class="bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl border dark:border-zinc-800">
+                            <h4 class="text-[10px] font-black text-ygsred uppercase mb-3 border-b dark:border-zinc-800 pb-1">${event}</h4>
+                            <div class="space-y-3">`;
+                groupedEvals[event].forEach(e => {
+                    html += `
+                    <div class="bg-white dark:bg-zinc-800 p-3 rounded-lg shadow-sm border dark:border-zinc-700/50">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[9px] font-bold text-gray-900 dark:text-gray-100 uppercase">${e.sender}</span>
+                            <span class="text-[7px] font-bold text-gray-400">${new Date(e.time).toLocaleDateString('id-ID')}</span>
+                        </div>
+                        <p class="text-[10px] font-medium text-gray-600 dark:text-gray-300 italic">"${e.msg}"</p>
+                    </div>`;
+                });
+                html += `</div></div>`;
             }
+            document.getElementById('eval-container').innerHTML = html || '<p class="text-center text-[8px] italic text-gray-500">Belum ada evaluasi tersimpan.</p>';
         }
 
         document.getElementById('eval-form').onsubmit = async (e) => {
@@ -1393,7 +1662,7 @@
             showLoading(true);
             await apiCall({ action: 'ADD_EVAL', payload: { eventId: eid, eventName, msg, sender: currentUser.nickname||currentUser.fullName, time: new Date().toISOString() } });
             document.getElementById('eval-msg').value = '';
-            showLoading(false); showToast("Terima kasih atas evaluasinya!"); renderEvaluations();
+            showLoading(false); showToast("Terima kasih atas evaluasinya!"); fetchData();
         };
 
         function logout() { 
@@ -1414,16 +1683,16 @@
             } 
         }
         
-        async function renderChat() { const r = await apiCall({ action: 'GET_CHATS' }); if(!r.success) return; document.getElementById('chat-container').innerHTML = r.data.map(c => `<div class="flex flex-col ${c.sender === (currentUser.nickname||currentUser.fullName)?'items-end':'items-start'}"><span class="text-[7px] font-bold text-gray-500">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold ${c.sender === (currentUser.nickname||currentUser.fullName)?'bg-ygsred text-white':'bg-gray-100 dark:bg-zinc-800'}">${c.msg}</div></div>`).join(''); document.getElementById('chat-container').scrollTop = 99999; }
+        function renderChat() { document.getElementById('chat-container').innerHTML = allChats.map(c => `<div class="flex flex-col ${c.sender === (currentUser.nickname||currentUser.fullName)?'items-end':'items-start'}"><span class="text-[7px] font-bold text-gray-500">${c.sender}</span><div class="px-3 py-2 rounded-xl text-xs font-bold ${c.sender === (currentUser.nickname||currentUser.fullName)?'bg-ygsred text-white':'bg-gray-100 dark:bg-zinc-800'}">${c.msg}</div></div>`).join(''); document.getElementById('chat-container').scrollTop = 99999; }
         
-        document.getElementById('chat-form').onsubmit = async (e) => { e.preventDefault(); const i = document.getElementById('chat-input'), p = { sender: currentUser.nickname||currentUser.fullName, msg: i.value, time: new Date().toISOString() }; i.value = ''; await apiCall({ action: 'ADD_CHAT', payload: p }); renderChat(); };
+        document.getElementById('chat-form').onsubmit = async (e) => { e.preventDefault(); const i = document.getElementById('chat-input'), p = { sender: currentUser.nickname||currentUser.fullName, msg: i.value, time: new Date().toISOString() }; i.value = ''; await apiCall({ action: 'ADD_CHAT', payload: p }); fetchData(); };
         
         function changeMonth(v) { currentMonth += v; if(currentMonth>11){currentMonth=0;currentYear++} if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(); }
         
         function openAssetModal() { document.getElementById('modal-asset').classList.remove('hidden'); }
         function closeAssetModal() { document.getElementById('modal-asset').classList.add('hidden'); }
         
-        document.getElementById('form-asset').onsubmit = async (e) => { e.preventDefault(); showLoading(true); await apiCall({ action: 'SAVE_ASSET', payload: { name: document.getElementById('ast-name').value, cat: document.getElementById('ast-cat').value, qty: document.getElementById('ast-qty').value, status: 'Baik', note: '' } }); showLoading(false); closeAssetModal(); renderAssets(); };
+        document.getElementById('form-asset').onsubmit = async (e) => { e.preventDefault(); showLoading(true); await apiCall({ action: 'SAVE_ASSET', payload: { name: document.getElementById('ast-name').value, cat: document.getElementById('ast-cat').value, qty: document.getElementById('ast-qty').value, status: 'Baik', note: '' } }); showLoading(false); closeAssetModal(); fetchData(); };
     </script>
 </body>
 </html>
