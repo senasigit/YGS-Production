@@ -1489,16 +1489,18 @@
             });
         }
 
-        // PERBAIKAN EXPORT PDF
+        // PERBAIKAN EXPORT PDF: Anti Blank, Preload Gambar, Delay 1.5 Detik, dan Bypass CORS
         function safeGeneratePDF(htmlContent, filename) {
             showLoading(true);
             const container = document.createElement('div');
             
-            // FIX Blank PDF: Pasang container di kiri atas di-hide menggunakan z-index agar tetap bisa terender engine Canvas
+            // 2. PASTIKAN ELEMEN TERLIHAT DAN ADA DI DOM
+            // Kita letakkan di koordinat 0,0 dengan z-index minus agar tidak menutupi tampilan pengguna,
+            // namun secara DOM statusnya tetap "visible" (tidak display: none atau opacity: 0) sehingga terbaca canvas.
             container.style.position = 'absolute';
             container.style.top = '0';
             container.style.left = '0';
-            container.style.width = '794px'; // Tepat ukuran A4 (96dpi) untuk konsistensi margin
+            container.style.width = '794px'; // Tepat ukuran A4
             container.style.zIndex = '-9999';
             container.style.backgroundColor = '#ffffff'; 
             container.style.color = '#000000';
@@ -1506,44 +1508,79 @@
             container.innerHTML = htmlContent;
             document.body.appendChild(container);
 
-            // Matikan dark mode sementara agar PDF tetap cerah
+            // Eksekusi Lucide Icons jika ada icon yang tertanam dalam HTML string
+            if(typeof lucide !== 'undefined') lucide.createIcons({ root: container });
+
+            // Matikan dark mode sementara agar background PDF dijamin putih cerah
             const isDark = document.documentElement.classList.contains('dark');
             if (isDark) document.documentElement.classList.remove('dark');
 
-            // Force Scroll To Top (Mencegah Bug HTML2Canvas layar putih saat scroll down)
+            // Amankan posisi scroll (Bug di mana jika di-scroll ke bawah, canvas memotong atasnya)
             const originalScrollY = window.scrollY;
             window.scrollTo(0, 0);
 
-            // Konfigurasi Kertas A4 & Narrow Margin (hindari terpotong)
+            // Konfigurasi Kertas A4 & Narrow Margin
             const opt = {
                 margin:       [10, 5, 10, 5], 
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 794, scrollY: 0, backgroundColor: '#ffffff' },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true,      // 1. MENGIZINKAN GAMBAR LOGO EKSTERNAL BISA TERTANGKAP PDF
+                    allowTaint: true,   
+                    windowWidth: 794, 
+                    scrollY: 0, 
+                    backgroundColor: '#ffffff' 
+                },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                
+                // PERBAIKAN FATAL: Menghapus 'avoid-all'. Ini adalah alasan utama kenapa file Anda nge-blank
+                // karena mencoba memaksa tidak ada pagebreak, jika melebihi 1 halaman maka canvas error/kosong.
+                pagebreak:    { mode: ['css', 'legacy'] }
             };
             
-            // Pre-load semua gambar logo dll agar tidak blank di hasil PDF
+            // 3. MEMBERIKAN JEDA WAKTU (DELAY) SEBELUM EKSEKUSI PDF
+            // Skrip akan memaksa browser menunggu gambar ter-load semuanya
             const imgs = container.querySelectorAll('img');
-            Promise.all(Array.from(imgs).map(img => {
-                if (img.complete) return Promise.resolve();
-                return new Promise(resolve => { img.onload = img.onerror = resolve; });
-            })).then(() => {
-                html2pdf().set(opt).from(container).save().then(() => {
-                    if (isDark) document.documentElement.classList.add('dark');
-                    document.body.removeChild(container);
-                    window.scrollTo(0, originalScrollY); // Kembalikan scroll
-                    showLoading(false);
-                    showToast("PDF Berhasil Diunduh!");
-                }).catch(e => {
-                    if (isDark) document.documentElement.classList.add('dark');
-                    document.body.removeChild(container);
-                    window.scrollTo(0, originalScrollY);
-                    showLoading(false); 
-                    showToast("Gagal memuat PDF", true);
+            let imagesLoaded = 0;
+            const totalImages = imgs.length;
+
+            const executePDF = () => {
+                setTimeout(() => {
+                    html2pdf().set(opt).from(container).save().then(() => {
+                        // Bersihkan clone container setelah proses export selesai
+                        if (isDark) document.documentElement.classList.add('dark');
+                        document.body.removeChild(container);
+                        window.scrollTo(0, originalScrollY); // Kembalikan posisi scroll pengguna
+                        
+                        showLoading(false);
+                        showToast("PDF Berhasil Diunduh!");
+                    }).catch(e => {
+                        if (isDark) document.documentElement.classList.add('dark');
+                        document.body.removeChild(container);
+                        window.scrollTo(0, originalScrollY);
+                        
+                        showLoading(false); 
+                        showToast("Gagal memuat PDF", true);
+                        console.error("PDF Render Error: ", e);
+                    });
+                }, 1500); // Delay ekstra 1.5 detik membiarkan library dan tabel me-render sempurna sebelum difoto
+            };
+
+            // Jalankan pre-loader gambar
+            if (totalImages === 0) {
+                executePDF();
+            } else {
+                imgs.forEach(img => {
+                    if (img.complete) {
+                        imagesLoaded++;
+                        if (imagesLoaded === totalImages) executePDF();
+                    } else {
+                        img.onload = () => { imagesLoaded++; if (imagesLoaded === totalImages) executePDF(); };
+                        img.onerror = () => { imagesLoaded++; if (imagesLoaded === totalImages) executePDF(); }; // Abaikan jika error agar tidak stuck
+                    }
                 });
-            });
+            }
         }
 
         function exportPDF(id) { 
@@ -1986,23 +2023,34 @@
             c.appendChild(div); lucide.createIcons();
         }
 
+        // PERBAIKAN: Menampilkan kembali checklist activity harian & mengatur label yang benar
         function generateDays() {
-            const sV = document.getElementById('startDate').value, eV = document.getElementById('endDate').value, c = document.getElementById('days-container'); if(!c || !sV || !eV) return; 
+            const sV = document.getElementById('startDate').value, eV = document.getElementById('endDate').value, c = document.getElementById('days-container'); 
+            if(!c || !sV || !eV) {
+                if(c) c.innerHTML = '';
+                return; 
+            }
             
             let htmlBuffer = '';
             let cur = new Date(sV), end = new Date(eV);
             while(end >= cur) {
                 const dStr = cur.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'short'}), iso = cur.toISOString().split('T')[0];
-                htmlBuffer += `<div class="day-row bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800" data-date="${iso}"><p class="text-[9px] font-black uppercase text-ygsred mb-2">${dStr}</p><div class="grid grid-cols-2 gap-2 mb-2"><input type="time" class="time-start p-2 rounded input-dark font-bold" value="08:00"><input type="time" class="time-end p-2 rounded input-dark font-bold" value="23:00"></div><div class="flex flex-wrap gap-1">${['Muat Gudang','Load In','Prep','Tuning','Soundcheck','Main Event','Load Out'].map(a => `<label class="text-[8px] bg-white dark:bg-zinc-800 px-2 py-1 rounded border dark:border-zinc-700 font-bold"><input type="checkbox" class="act-check" value="${a}"> ${a}</label>`).join('')}</div></div>`;
+                htmlBuffer += `<div class="day-row bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800" data-date="${iso}"><p class="text-[9px] font-black uppercase text-ygsred mb-2">${dStr}</p><div class="grid grid-cols-2 gap-2 mb-2"><input type="time" class="time-start p-2 rounded input-dark font-bold" value="08:00"><input type="time" class="time-end p-2 rounded input-dark font-bold" value="23:00"></div><div class="flex flex-wrap gap-1">${['Muat Gudang','Load In','Load Out','Soundcheck','Main Event','Preparation','Tuning'].map(a => `<label class="text-[8px] bg-white dark:bg-zinc-800 px-2 py-1 rounded border dark:border-zinc-700 font-bold cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition"><input type="checkbox" class="act-check" value="${a}"> ${a}</label>`).join('')}</div></div>`;
                 cur.setDate(cur.getDate()+1);
             }
             c.innerHTML = htmlBuffer;
         }
 
+        // PERBAIKAN: Set default tanggal ke hari ini, agar Activity Checklist langsung tampil dan tidak terasa hilang
         function resetEventForm() { 
             document.getElementById('event-form').reset(); 
             document.getElementById('edit-id').value = ''; 
-            document.getElementById('days-container').innerHTML = ''; 
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').value = todayStr;
+            document.getElementById('endDate').value = todayStr;
+            generateDays(); 
+            
             const noteEl = document.getElementById('crewNote');
             if(noteEl) noteEl.value = '';
             initDynForms(); 
@@ -2038,9 +2086,10 @@
                     });
                 }, 100);
             } else {
-                document.getElementById('startDate').value = p.eventDate || '';
-                document.getElementById('endDate').value = p.eventDate || '';
-                if(p.eventDate) generateDays();
+                // Pastikan menggunakan fungsi fallback render jika array activity belum ada
+                document.getElementById('startDate').value = p.eventDate || new Date().toISOString().split('T')[0];
+                document.getElementById('endDate').value = p.eventDate || new Date().toISOString().split('T')[0];
+                generateDays();
             }
 
             document.querySelectorAll('.trans-check').forEach(cb => cb.checked = false);
