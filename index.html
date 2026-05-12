@@ -2024,7 +2024,7 @@
             c.appendChild(div); lucide.createIcons();
         }
 
-        // PERBAIKAN: Menampilkan kembali checklist activity harian & mengatur label yang benar
+        // PERBAIKAN: Menampilkan kembali checklist activity harian & mengatur format Title Case secara otomatis
         function generateDays() {
             const sV = document.getElementById('startDate').value, eV = document.getElementById('endDate').value, c = document.getElementById('days-container'); 
             if(!c || !sV || !eV) {
@@ -2032,11 +2032,21 @@
                 return; 
             }
             
+            // Helper function untuk memformat string ke "Title Case"
+            const toTitleCase = (str) => {
+                return str.replace(/\b\w/g, function(char) {
+                    return char.toUpperCase();
+                });
+            };
+
             let htmlBuffer = '';
             let cur = new Date(sV), end = new Date(eV);
             while(end >= cur) {
                 const dStr = cur.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'short'}), iso = cur.toISOString().split('T')[0];
-                htmlBuffer += `<div class="day-row bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800" data-date="${iso}"><p class="text-[9px] font-black uppercase text-ygsred mb-2">${dStr}</p><div class="grid grid-cols-2 gap-2 mb-2"><input type="time" class="time-start p-2 rounded input-dark font-bold" value="08:00"><input type="time" class="time-end p-2 rounded input-dark font-bold" value="23:00"></div><div class="flex flex-wrap gap-1">${['Muat Gudang', 'Berangkat', 'load-in', 'preparation', 'System Tuning & Alignment', 'RF Optimization & Coordination', 'Line Check', 'soundcheck', 'gladi kotor', 'gladi bersih', 'main event', 'Dismantle', 'load-out', 'Pulang', 'Lanjut'].map(a => `<label class="text-[8px] bg-white dark:bg-zinc-800 px-2 py-1 rounded border dark:border-zinc-700 font-bold cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition"><input type="checkbox" class="act-check" value="${a}"> ${a}</label>`).join('')}</div></div>`;
+                htmlBuffer += `<div class="day-row bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800" data-date="${iso}"><p class="text-[9px] font-black uppercase text-ygsred mb-2">${dStr}</p><div class="grid grid-cols-2 gap-2 mb-2"><input type="time" class="time-start p-2 rounded input-dark font-bold" value="08:00"><input type="time" class="time-end p-2 rounded input-dark font-bold" value="23:00"></div><div class="flex flex-wrap gap-1">${['Muat Gudang', 'Berangkat', 'load-in', 'preparation', 'System Tuning & Alignment', 'RF Optimization & Coordination', 'Line Check', 'soundcheck', 'gladi kotor', 'gladi bersih', 'main event', 'Dismantle', 'load-out', 'Pulang', 'Lanjut'].map(a => {
+                    let formattedA = toTitleCase(a);
+                    return `<label class="text-[8px] bg-white dark:bg-zinc-800 px-2 py-1 rounded border dark:border-zinc-700 font-bold cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition"><input type="checkbox" class="act-check" value="${formattedA}"> ${formattedA}</label>`;
+                }).join('')}</div></div>`;
                 cur.setDate(cur.getDate()+1);
             }
             c.innerHTML = htmlBuffer;
