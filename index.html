@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
@@ -152,7 +152,7 @@
     </div>
 
     <!-- MODAL CUSTOM CONFIRMATION -->
-    <div id="modal-confirm" class="fixed inset-0 bg-black/80 z-[600] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade" onclick="if(event.target===this) document.getElementById('btn-confirm-cancel').click()">
+    <div id="modal-confirm" class="fixed inset-0 bg-black/80 z-[1000] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade" onclick="if(event.target===this) document.getElementById('btn-confirm-cancel').click()">
         <div class="bg-white dark:bg-[#111] p-6 rounded-3xl w-full max-w-xs space-y-4 border dark:border-zinc-800 shadow-2xl text-center">
             <div class="mx-auto h-8 w-auto flex items-center justify-center mb-2 opacity-50">
                 <img src="https://raw.githubusercontent.com/senasigit/YGS-Production/c6fc931f0285b1de9178bc14e3d912e65b2ca1eb/logo%20ygs%202.PNG" alt="YGS" class="h-full w-auto object-contain dark:hidden">
@@ -285,7 +285,73 @@
         </div>
     </div>
 
-    <div id="toast-container" class="fixed top-20 right-4 z-[800] space-y-2 flex flex-col items-end pointer-events-none"></div>
+    <!-- MODAL CHECKLIST DETAIL -->
+    <div id="modal-checklist-detail" class="fixed inset-0 bg-gray-100 dark:bg-zinc-950 z-[600] hidden flex-col animate-fade overflow-hidden">
+        <div class="p-4 border-b dark:border-zinc-800 flex justify-between items-center bg-white dark:bg-zinc-900 shrink-0 shadow-sm z-10">
+            <div>
+                <h3 class="text-sm font-black uppercase text-ygsred truncate" id="chk-detail-title">Checklist Event</h3>
+                <p class="text-[9px] text-gray-500 font-bold uppercase" id="chk-detail-subtitle">Loading...</p>
+            </div>
+            <button onclick="closeChecklistDetail()" class="text-gray-500 hover:text-red-500 bg-gray-100 dark:bg-zinc-800 p-2 rounded-xl transition shadow-sm"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="p-2 sm:p-4 overflow-y-auto flex-1 w-full max-w-5xl mx-auto space-y-4" id="chk-detail-content">
+            <!-- Table will be injected here -->
+        </div>
+        <div class="bg-white dark:bg-zinc-900 p-3 border-t dark:border-zinc-800 shrink-0 grid grid-cols-4 gap-1 sm:gap-2 text-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <button onclick="lockChkColumn('muat')" class="bg-gray-100 dark:bg-zinc-800 p-2 rounded-lg text-[8px] sm:text-[9px] font-black uppercase hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 transition" id="btn-lock-muat"><i data-lucide="lock" class="w-3 h-3 inline mb-0.5"></i> Kunci Muat</button>
+            <button onclick="lockChkColumn('tiba')" class="bg-gray-100 dark:bg-zinc-800 p-2 rounded-lg text-[8px] sm:text-[9px] font-black uppercase hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 transition" id="btn-lock-tiba"><i data-lucide="lock" class="w-3 h-3 inline mb-0.5"></i> Kunci Tiba</button>
+            <button onclick="lockChkColumn('out')" class="bg-gray-100 dark:bg-zinc-800 p-2 rounded-lg text-[8px] sm:text-[9px] font-black uppercase hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 transition" id="btn-lock-out"><i data-lucide="lock" class="w-3 h-3 inline mb-0.5"></i> Kunci Out</button>
+            <button onclick="lockChkColumn('gudang')" class="bg-gray-100 dark:bg-zinc-800 p-2 rounded-lg text-[8px] sm:text-[9px] font-black uppercase hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 transition" id="btn-lock-gudang"><i data-lucide="lock" class="w-3 h-3 inline mb-0.5"></i> Kunci Gudang</button>
+        </div>
+    </div>
+
+    <!-- MODAL CATATAN CHECKLIST -->
+    <div id="modal-chk-note" class="fixed inset-0 bg-black/80 z-[1050] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade">
+        <div class="bg-white dark:bg-[#111] p-5 rounded-3xl w-full max-w-sm space-y-4 border dark:border-zinc-800 shadow-2xl relative">
+            <h3 class="text-sm font-black uppercase text-gray-900 dark:text-white border-b dark:border-zinc-800 pb-2">Catatan Alat</h3>
+            <input type="hidden" id="chk-note-eventid">
+            <input type="hidden" id="chk-note-itemid">
+            <input type="hidden" id="chk-note-brand">
+            <p id="chk-note-itemname" class="text-[10px] font-bold text-gray-500 uppercase"></p>
+            <textarea id="chk-note-text" class="w-full p-3 rounded-xl input-dark text-[10px] font-bold" rows="3" placeholder="Tulis kerusakan, posisi, atau isu terkait alat ini..."></textarea>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="document.getElementById('modal-chk-note').classList.add('hidden'); document.getElementById('modal-chk-note').classList.remove('flex');" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px] transition hover:bg-gray-300 dark:hover:bg-zinc-700">Batal</button>
+                <button type="button" onclick="saveChkNote()" class="flex-1 py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px] shadow-lg shadow-red-900/30 transition hover:bg-red-700">Simpan Catatan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHECKLIST REPORT -->
+    <div id="modal-checklist-report" class="fixed inset-0 bg-black/80 z-[1050] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade" onclick="if(event.target===this) closeChecklistReport()">
+        <div class="bg-white dark:bg-[#111] p-6 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col space-y-4 border dark:border-zinc-800 shadow-2xl relative">
+            <button onclick="closeChecklistReport()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="border-b dark:border-zinc-800 pb-2">
+                <h3 class="text-base sm:text-lg font-black uppercase text-ygsred truncate pr-6" id="report-event-title">Laporan Kerusakan</h3>
+                <p class="text-[9px] sm:text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Rekapitulasi Alat Bermasalah & Catatan Laporan</p>
+            </div>
+            <div class="flex-1 overflow-y-auto pr-2 space-y-3" id="report-content">
+                <!-- Report items akan diinjeksi di sini -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RE-AUTH (SECURITY CHECK) -->
+    <div id="modal-reauth" class="fixed inset-0 bg-black/80 z-[1050] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade" onclick="if(event.target===this) closeReauth()">
+        <div class="bg-white dark:bg-[#111] p-6 rounded-3xl w-full max-w-xs space-y-4 border dark:border-zinc-800 shadow-2xl text-center">
+            <div class="mx-auto w-12 h-12 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full flex items-center justify-center mb-2">
+                <i data-lucide="shield-check" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-sm font-black uppercase text-gray-900 dark:text-white">Otorisasi Akses</h3>
+            <p class="text-[10px] text-gray-500 font-bold">Masukkan password akun Anda untuk melanjutkan tindakan ini.</p>
+            <input type="password" id="reauth-pass" class="w-full p-3 rounded-xl input-dark font-bold text-center text-xs tracking-widest" placeholder="Password Anda..." onkeypress="if(event.key === 'Enter') processReauth()">
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeReauth()" class="flex-1 py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-bold uppercase text-[10px] transition hover:bg-gray-300 dark:hover:bg-zinc-700">Batal</button>
+                <button type="button" onclick="processReauth()" class="flex-1 py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px] transition hover:bg-red-700 shadow-lg shadow-red-900/30">Verifikasi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed top-20 right-4 z-[1100] space-y-2 flex flex-col items-end pointer-events-none"></div>
     <datalist id="list-crew"></datalist>
     <datalist id="list-events"></datalist>
     <datalist id="list-inventory"></datalist>
@@ -663,6 +729,15 @@
                 </form>
             </div>
 
+            <!-- TAB: CHECKLIST PRODUKSI -->
+            <div id="view-checklist" class="hidden animate-fade space-y-4 pb-20">
+                <div class="flex justify-between items-center border-b-2 border-ygsred pb-2">
+                    <h2 class="text-base sm:text-lg font-black uppercase text-gray-900 dark:text-white">Checklist Alat</h2>
+                </div>
+                <p class="text-[9px] text-gray-500 uppercase font-bold italic mb-4">Pilih event aktif untuk memantau muat dan bongkar barang produksi.</p>
+                <div id="checklist-event-list" class="space-y-3"></div>
+            </div>
+
             <!-- TAB: TEAM & LEDGER -->
             <div id="view-team" class="hidden animate-fade space-y-4 pb-10">
                 <div class="flex justify-between items-center border-b-2 border-ygsred pb-2">
@@ -766,6 +841,9 @@
                 <i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Eval</span>
                 <span id="badge-eval" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
             </button>
+            <button onclick="switchTab('checklist')" class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-checklist">
+                <i data-lucide="list-checks" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Checklist</span>
+            </button>
             <button onclick="switchTab('team')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Tim</span></button>
             <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-profile"><i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Dompet</span></button>
         </nav>
@@ -783,6 +861,21 @@
         let isAssetEditMode = false;
         let assetSortBy = 'kategori';
         let formMode = 'produksi';
+        let currentChkEventId = null;
+        let isChecklistEditMode = false;
+        let reauthCallback = null;
+
+        // Waktu Realtime Jakarta
+        function getJakartaNow() {
+            return new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
+        }
+        function getJakartaDateString() {
+            let jktDate = getJakartaNow();
+            let y = jktDate.getFullYear();
+            let m = String(jktDate.getMonth() + 1).padStart(2, '0');
+            let day = String(jktDate.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
 
         // UTILITY: Mencegah XSS (Cross-Site Scripting) untuk input User
         function escapeHTML(str) {
@@ -1048,13 +1141,13 @@
         }
 
         function switchTab(tab) {
-            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-eval', 'view-team', 'view-profile'].forEach(v => {
+            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-eval', 'view-team', 'view-profile', 'view-checklist'].forEach(v => {
                 const el = document.getElementById(v);
                 el.classList.add('hidden');
                 el.classList.remove('flex');
             });
             
-            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile'].forEach(n => {
+            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile', 'nav-checklist'].forEach(n => {
                 const nav = document.getElementById(n); if(!nav) return;
                 nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
                 if(n === 'nav-' + tab) nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
@@ -1079,6 +1172,7 @@
             if(tab === 'team') renderTeam(); 
             if(tab === 'profile') renderProfile(); 
             if(tab === 'eval') renderEvaluations();
+            if(tab === 'checklist') renderChecklistDashboard();
         }
 
         async function fetchData(silent = false) {
@@ -1182,7 +1276,7 @@
         }
 
         function updateTodayStatus() {
-            const dStr = new Date().toISOString().split('T')[0], hasE = allProjects.some(p => p.eventDate === dStr);
+            const dStr = getJakartaDateString(), hasE = allProjects.some(p => p.eventDate === dStr);
             const text = document.getElementById('today-status-text'), icon = document.getElementById('today-status-icon');
             if(hasE) { text.innerText = "ADA EVENT HARI INI"; text.className = "text-xs font-bold text-green-600"; icon.className = "p-2 rounded-full bg-green-100 text-green-600"; icon.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5"></i>`; } 
             else { text.innerText = "LIBUR / MAINTENANCE"; text.className = "text-xs font-bold text-red-500"; icon.className = "p-2 rounded-full bg-red-100 text-red-500"; icon.innerHTML = `<i data-lucide="calendar-off" class="w-5 h-5"></i>`; }
@@ -1196,7 +1290,7 @@
                 grid.innerHTML += `<div class="text-[8px] sm:text-[10px] font-black text-gray-400 text-center uppercase pb-2">${d}</div>`;
             });
 
-            const dIM = new Date(currentYear, currentMonth + 1, 0).getDate(), tStr = new Date().toISOString().split('T')[0];
+            const dIM = new Date(currentYear, currentMonth + 1, 0).getDate(), tStr = getJakartaDateString();
             document.getElementById('cal-month-year').innerText = new Date(currentYear, currentMonth).toLocaleDateString('id-ID', {month:'long', year:'numeric'});
             
             let firstDay = new Date(currentYear, currentMonth, 1).getDay();
@@ -1266,7 +1360,20 @@
 
         function showEventsOnDate(d) {
             const f = allProjects.filter(p => p.eventDate === d || (p.activities && p.activities.some(a => a.date === d)));
-            document.getElementById('project-container').innerHTML = f.map(p => getEventCardHTML(p, d)).join('') || '<div class="p-10 text-center font-bold text-gray-400 text-xs">LIBUR / KOSONG</div>';
+            
+            const activeEvents = f.filter(p => p.status !== 'Completed' && p.status !== 'Cancelled');
+            const completedEvents = f.filter(p => p.status === 'Completed' || p.status === 'Cancelled');
+
+            let html = '';
+            if (activeEvents.length > 0) {
+                html += activeEvents.map(p => getEventCardHTML(p, d)).join('');
+            }
+            if (completedEvents.length > 0) {
+                html += '<div class="mt-4 mb-2 border-t dark:border-zinc-800 pt-3"><span class="text-[9px] font-black uppercase text-gray-400 bg-gray-100 dark:bg-zinc-800 px-2 py-1 rounded">Riwayat Event Selesai / Batal</span></div>';
+                html += `<div class="opacity-70">${completedEvents.map(p => getEventCardHTML(p, d)).join('')}</div>`;
+            }
+
+            document.getElementById('project-container').innerHTML = html || '<div class="p-10 text-center font-bold text-gray-400 text-xs">LIBUR / KOSONG</div>';
             lucide.createIcons();
         }
 
@@ -1281,7 +1388,7 @@
                 wKalender.classList.remove('hidden');
                 wGroups.classList.add('hidden');
                 cKalender.classList.remove('hidden');
-                renderCalendar(); showEventsOnDate(new Date().toISOString().split('T')[0]);
+                renderCalendar(); showEventsOnDate(getJakartaDateString());
             } else { 
                 wKalender.classList.add('hidden');
                 wGroups.classList.remove('hidden');
@@ -2057,7 +2164,7 @@
             document.getElementById('event-form').reset(); 
             document.getElementById('edit-id').value = ''; 
             
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = getJakartaDateString();
             document.getElementById('startDate').value = todayStr;
             document.getElementById('endDate').value = todayStr;
             generateDays(); 
@@ -2098,8 +2205,8 @@
                 }, 100);
             } else {
                 // Pastikan menggunakan fungsi fallback render jika array activity belum ada
-                document.getElementById('startDate').value = p.eventDate || new Date().toISOString().split('T')[0];
-                document.getElementById('endDate').value = p.eventDate || new Date().toISOString().split('T')[0];
+                document.getElementById('startDate').value = p.eventDate || getJakartaDateString();
+                document.getElementById('endDate').value = p.eventDate || getJakartaDateString();
                 generateDays();
             }
 
@@ -2205,8 +2312,8 @@
                 return `
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
                     ${assetsToRender.map(a => `
-                        <div class="bg-white dark:bg-zinc-900 border ${a.status==='Service'?'border-orange-300 dark:border-orange-800/50 shadow-orange-100 dark:shadow-none':a.status==='Rusak'?'border-red-300 dark:border-red-800/50':'border-gray-200 dark:border-zinc-800'} rounded-xl p-3 shadow-sm hover:shadow-md transition flex flex-col gap-2 relative overflow-hidden">
-                            ${a.status==='Service' ? `<div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>` : a.status==='Rusak' ? `<div class="absolute top-0 left-0 w-1 h-full bg-red-500"></div>` : ''}
+                        <div class="bg-white dark:bg-zinc-900 border ${a.status==='Service'?'border-orange-300 dark:border-orange-800/50 shadow-orange-100 dark:shadow-none':a.status==='Rusak'?'border-red-300 dark:border-red-800/50':a.status==='Hilang'?'border-zinc-500 dark:border-zinc-700':a.status==='Error'?'border-purple-300 dark:border-purple-800/50':'border-gray-200 dark:border-zinc-800'} rounded-xl p-3 shadow-sm hover:shadow-md transition flex flex-col gap-2 relative overflow-hidden">
+                            ${a.status==='Service' ? `<div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>` : a.status==='Rusak' ? `<div class="absolute top-0 left-0 w-1 h-full bg-red-500"></div>` : a.status==='Hilang' ? `<div class="absolute top-0 left-0 w-1 h-full bg-zinc-600"></div>` : a.status==='Error' ? `<div class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>` : ''}
                             <div class="flex justify-between items-start pl-2">
                                 <div class="flex-[3]">
                                     <p class="uppercase font-black text-[11px] text-gray-900 dark:text-white leading-tight">${escapeHTML(a.name)}</p>
@@ -2219,13 +2326,15 @@
                             
                             <div class="flex items-center gap-2 mt-1 pl-2">
                                 ${isAssetEditMode && isAdmin ? `
-                                    <select onchange="updateAssetField('${a.id}', 'status', this.value)" class="bg-gray-50 dark:bg-zinc-800 text-[10px] font-black ${a.status==='Baik'?'text-green-600':a.status==='Service'?'text-orange-500':'text-red-600'} border border-gray-300 dark:border-zinc-700 rounded p-1 outline-none w-full">
+                                    <select onchange="updateAssetField('${a.id}', 'status', this.value)" class="bg-gray-50 dark:bg-zinc-800 text-[10px] font-black ${a.status==='Baik'?'text-green-600':a.status==='Service'?'text-orange-500':a.status==='Hilang'?'text-zinc-500':a.status==='Error'?'text-purple-500':'text-red-600'} border border-gray-300 dark:border-zinc-700 rounded p-1 outline-none w-full">
                                         <option value="Baik" ${a.status==='Baik'?'selected':''}>Baik</option>
                                         <option value="Service" ${a.status==='Service'?'selected':''}>Service</option>
                                         <option value="Rusak" ${a.status==='Rusak'?'selected':''}>Rusak</option>
+                                        <option value="Hilang" ${a.status==='Hilang'?'selected':''}>Hilang</option>
+                                        <option value="Error" ${a.status==='Error'?'selected':''}>Error</option>
                                     </select>
                                 ` : `
-                                    <span class="font-black text-[9px] px-2 py-1 rounded ${a.status==='Baik'?'bg-green-100 text-green-600 dark:bg-green-900/30':a.status==='Service'?'bg-orange-100 text-orange-600 dark:bg-orange-900/30':'bg-red-100 text-red-600 dark:bg-red-900/30'}">${escapeHTML(a.status)}</span>
+                                    <span class="font-black text-[9px] px-2 py-1 rounded ${a.status==='Baik'?'bg-green-100 text-green-600 dark:bg-green-900/30':a.status==='Service'?'bg-orange-100 text-orange-600 dark:bg-orange-900/30':a.status==='Hilang'?'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400':a.status==='Error'?'bg-purple-100 text-purple-600 dark:bg-purple-900/30':'bg-red-100 text-red-600 dark:bg-red-900/30'}">${escapeHTML(a.status)}</span>
                                 `}
                             </div>
                             
@@ -2643,7 +2752,517 @@
             await apiCall({ action: 'ADD_CHAT', payload: p }); 
             fetchData(); 
         };
+
+        // --- SISTEM CHECKLIST PRODUKSI (LOCALSTORAGE BASED) ---
         
+        function renderChecklistDashboard() {
+            const container = document.getElementById('checklist-event-list');
+            const todayStr = getJakartaDateString();
+            const todayObj = new Date(todayStr);
+            todayObj.setHours(0,0,0,0);
+            
+            let activeEvents = [];
+            let pastEvents = [];
+
+            allProjects.forEach(p => {
+                let sDateStr = p.eventDate;
+                let eDateStr = p.eventDate;
+                if (p.activities && p.activities.length > 0) {
+                    sDateStr = p.activities[0].date;
+                    eDateStr = p.activities[p.activities.length - 1].date;
+                }
+                
+                let sDate = new Date(sDateStr);
+                sDate.setHours(0,0,0,0);
+                let eDate = new Date(eDateStr);
+                eDate.setHours(0,0,0,0);
+                eDate.setDate(eDate.getDate() + 1); // Batas s.d H+1 (Tahap Gudang)
+
+                if (p.status !== 'Completed' && p.status !== 'Cancelled' && todayObj >= sDate && todayObj <= eDate) {
+                    activeEvents.push(p);
+                } else if (p.status === 'Completed' || p.status === 'Cancelled' || todayObj > eDate) {
+                    pastEvents.push(p);
+                }
+            });
+
+            // Urutkan Active dari waktu terdekat
+            activeEvents.sort((a,b) => {
+                let sA = a.activities && a.activities.length ? a.activities[0].date : a.eventDate;
+                let sB = b.activities && b.activities.length ? b.activities[0].date : b.eventDate;
+                return new Date(sA) - new Date(sB);
+            });
+
+            // Urutkan Past dari waktu terbaru (descending)
+            pastEvents.sort((a,b) => {
+                let sA = a.activities && a.activities.length ? a.activities[a.activities.length-1].date : a.eventDate;
+                let sB = b.activities && b.activities.length ? b.activities[b.activities.length-1].date : b.eventDate;
+                return new Date(sB) - new Date(sA);
+            });
+
+            const buildCard = (p) => {
+                const specItems = extractItemsForChecklist(p);
+                const totalItems = specItems.length;
+                return `
+                <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred shadow-sm transition mb-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-black text-sm uppercase text-gray-900 dark:text-white">${escapeHTML(p.eventName)}</h3>
+                        <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-red-200"><i data-lucide="box" class="w-3 h-3 inline mr-1"></i> ${totalItems} Item</span>
+                    </div>
+                    <p class="text-[9px] text-gray-500 uppercase font-bold mb-4"><i data-lucide="map-pin" class="w-3 h-3 inline align-middle"></i> ${escapeHTML(p.mapsLink !== '-' ? p.mapsLink : 'Lokasi TBA')} • ${escapeHTML(p.eventDate)}</p>
+                    <div class="flex gap-2 flex-wrap sm:flex-nowrap">
+                        <button onclick="openChecklistEvent('${p.id}', 'view')" class="flex-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 py-2.5 rounded-xl text-[9px] font-black uppercase hover:bg-gray-200 dark:hover:bg-zinc-700 transition flex items-center justify-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Lihat</button>
+                        <button onclick="openChecklistEvent('${p.id}', 'edit')" class="flex-1 bg-ygsred text-white py-2.5 rounded-xl text-[9px] font-black uppercase hover:bg-red-700 shadow-md shadow-red-900/20 transition flex items-center justify-center gap-1.5"><i data-lucide="edit" class="w-3.5 h-3.5"></i> Edit</button>
+                        <button onclick="openChecklistReport('${p.id}')" class="flex-1 bg-amber-500 text-white py-2.5 rounded-xl text-[9px] font-black uppercase hover:bg-amber-600 shadow-md shadow-amber-900/20 transition flex items-center justify-center gap-1.5"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Report Isu</button>
+                    </div>
+                </div>`;
+            };
+
+            let html = '';
+            
+            if(activeEvents.length > 0) {
+                html += `<h3 class="text-[10px] font-black uppercase text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1"><i data-lucide="activity" class="w-3.5 h-3.5 text-ygsred"></i> Sedang Berlangsung</h3>`;
+                html += activeEvents.map(buildCard).join('');
+            } else {
+                html += '<p class="text-center text-xs font-bold text-gray-500 italic p-6 border border-dashed dark:border-zinc-800 rounded-xl mb-4">Tidak ada event aktif yang berada dalam jadwal produksi (Hari H s.d H+1).</p>';
+            }
+
+            if(pastEvents.length > 0) {
+                html += `
+                <div class="mt-6 pt-4 border-t dark:border-zinc-800">
+                    <button onclick="document.getElementById('checklist-history-container').classList.toggle('hidden'); lucide.createIcons();" class="flex justify-between items-center w-full bg-gray-100 dark:bg-zinc-900 p-3 rounded-xl hover:bg-gray-200 dark:hover:bg-zinc-800 transition mb-3 shadow-sm">
+                        <h2 class="text-[10px] font-black uppercase text-gray-600 dark:text-gray-400"><i data-lucide="archive" class="w-3.5 h-3.5 inline align-middle mr-1"></i> Riwayat Checklist Terdahulu</h2>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
+                    </button>
+                    <div id="checklist-history-container" class="hidden opacity-80 border-l-2 border-dashed border-gray-300 dark:border-zinc-700 pl-3 ml-2">
+                        ${pastEvents.map(buildCard).join('')}
+                    </div>
+                </div>`;
+            }
+
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function extractItemsForChecklist(p) {
+            let items = [];
+            if(!p.specDyn) return items;
+            let counter = 1;
+            
+            const addCat = (catName, arr) => {
+                if(!arr) return;
+                arr.forEach(i => {
+                    if(i.brand || i.qty) {
+                        items.push({ id: `item_${counter++}`, cat: catName, jenis: i.jenis || '-', brand: i.brand || '-', qty: i.qty || 1 });
+                    }
+                });
+            };
+
+            if(p.specDyn.audio) {
+                addCat('PA System', p.specDyn.audio.pa); addCat('Monitor', p.specDyn.audio.monitor); addCat('Console', p.specDyn.audio.console);
+                addCat('Microphone', p.specDyn.audio.mic); addCat('Backline', p.specDyn.audio.backline); addCat('Stand', p.specDyn.audio.stand);
+                addCat('Cable', p.specDyn.audio.cable); addCat('Audio Others', p.specDyn.audio.others);
+            }
+            if(p.specDyn.lighting) { p.specDyn.lighting.forEach(l => addCat(`Lighting - ${l.sub}`, l.data)); }
+            addCat('LED Screen', p.specDyn.led); addCat('Rigging & Stage', p.specDyn.rigging); addCat('Genset', p.specDyn.genset);
+            addCat('Barikade', p.specDyn.barikade); addCat('Lain-lain', p.specDyn.others_pendukung);
+            
+            return items;
+        }
+
+        function getChkState(eventId) {
+            const data = localStorage.getItem('ygs_chk_' + eventId);
+            return data ? JSON.parse(data) : { items: {}, locks: { muat: false, tiba: false, out: false, gudang: false } };
+        }
+        
+        function saveChkState(eventId, state) {
+            localStorage.setItem('ygs_chk_' + eventId, JSON.stringify(state));
+        }
+
+        function openReauth(callback) {
+            if(!currentUser) { showToast("Sesi tidak valid.", true); return; }
+            reauthCallback = callback;
+            document.getElementById('reauth-pass').value = '';
+            document.getElementById('modal-reauth').classList.remove('hidden');
+            document.getElementById('modal-reauth').classList.add('flex');
+            document.getElementById('reauth-pass').focus();
+            lucide.createIcons();
+        }
+
+        function closeReauth() {
+            document.getElementById('modal-reauth').classList.add('hidden');
+            document.getElementById('modal-reauth').classList.remove('flex');
+            reauthCallback = null;
+        }
+
+        async function processReauth() {
+            const pass = document.getElementById('reauth-pass').value;
+            if(!pass) { showToast("Masukkan password!", true); return; }
+            
+            showLoading(true);
+            const res = await apiCall({ action: 'LOGIN', payload: { username: currentUser.username, password: pass } });
+            showLoading(false);
+            
+            if(res.success) {
+                // PERBAIKAN: Simpan antrean callback ke memori sementara sebelum dihapus oleh closeReauth()
+                const cb = reauthCallback;
+                closeReauth();
+                if(cb) cb(currentUser);
+            } else {
+                showToast("Password Salah / Verifikasi Gagal!", true);
+            }
+        }
+
+        function openChecklistEvent(eventId, mode) {
+            if(!currentUser) { showToast("Sesi login tidak valid. Refresh halaman.", true); return; }
+            
+            const proceedOpen = () => {
+                isChecklistEditMode = (mode === 'edit');
+                const p = allProjects.find(x => x.id === eventId); if(!p) return;
+                currentChkEventId = eventId;
+                
+                document.getElementById('chk-detail-title').innerText = escapeHTML(p.eventName) + (isChecklistEditMode ? " (EDIT MODE)" : " (VIEW MODE)");
+                document.getElementById('chk-detail-subtitle').innerText = "Akuntabilitas Login: " + (currentUser.nickname || currentUser.fullName);
+                
+                renderChecklistTable();
+                
+                document.getElementById('modal-checklist-detail').classList.remove('hidden');
+                document.getElementById('modal-checklist-detail').classList.add('flex');
+                lucide.createIcons();
+            };
+
+            if(mode === 'edit') {
+                openReauth(proceedOpen);
+            } else {
+                proceedOpen();
+            }
+        }
+
+        function closeChecklistDetail() {
+            document.getElementById('modal-checklist-detail').classList.add('hidden');
+            document.getElementById('modal-checklist-detail').classList.remove('flex');
+            currentChkEventId = null;
+            isChecklistEditMode = false;
+        }
+
+        function openChecklistReport(eventId) {
+            const p = allProjects.find(x => x.id === eventId);
+            if(!p) return;
+            
+            document.getElementById('report-event-title').innerText = "Report Isu: " + escapeHTML(p.eventName);
+            
+            const state = getChkState(eventId);
+            const items = extractItemsForChecklist(p);
+            
+            let issuesFound = [];
+            
+            items.forEach(i => {
+                const s = state.items[i.id];
+                if(s) {
+                    // Cek jika status bukan "Baik" ATAU ada catatan khusus
+                    if((s.status && s.status !== 'Baik') || (s.note && s.note.trim() !== '')) {
+                        issuesFound.push({
+                            item: i,
+                            status: s.status || 'Baik',
+                            note: s.note || ''
+                        });
+                    }
+                }
+            });
+            
+            let contentHTML = '';
+            if(issuesFound.length === 0) {
+                contentHTML = `
+                <div class="text-center p-8 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-900/30 rounded-2xl">
+                    <i data-lucide="check-circle" class="w-12 h-12 text-green-500 mx-auto mb-3"></i>
+                    <p class="text-sm font-black text-green-700 dark:text-green-500 uppercase tracking-widest">Aman & Terkendali</p>
+                    <p class="text-[10px] font-bold text-gray-600 dark:text-gray-400 mt-2">Sistem tidak mendeteksi adanya laporan kerusakan, barang hilang, atau catatan khusus (Issue) pada manifest event ini.</p>
+                </div>`;
+            } else {
+                contentHTML = issuesFound.map(iss => {
+                    let badgeClass = 'bg-gray-100 text-gray-600';
+                    if(iss.status === 'Rusak') badgeClass = 'bg-red-100 text-red-600 dark:bg-red-900/30 border border-red-200 dark:border-red-800';
+                    if(iss.status === 'Service') badgeClass = 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800';
+                    if(iss.status === 'Hilang') badgeClass = 'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700';
+                    if(iss.status === 'Error') badgeClass = 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800';
+                    if(iss.status === 'Baik') badgeClass = 'bg-green-100 text-green-600 dark:bg-green-900/30 border border-green-200 dark:border-green-800';
+
+                    return `
+                    <div class="bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl border dark:border-zinc-800 shadow-sm flex flex-col gap-2 relative overflow-hidden">
+                        ${iss.status !== 'Baik' ? `<div class="absolute left-0 top-0 bottom-0 w-1 ${iss.status === 'Rusak' ? 'bg-red-500' : iss.status === 'Service' ? 'bg-orange-500' : iss.status === 'Hilang' ? 'bg-zinc-500' : 'bg-purple-500'}"></div>` : ''}
+                        <div class="flex justify-between items-start pl-2">
+                            <div>
+                                <p class="text-xs font-black uppercase text-gray-900 dark:text-white tracking-wide">${escapeHTML(iss.item.jenis)}</p>
+                                <p class="text-[10px] font-bold text-gray-500 uppercase mt-0.5">${escapeHTML(iss.item.brand)} (Qty: ${iss.item.qty})</p>
+                            </div>
+                            <span class="text-[9px] font-black uppercase px-2.5 py-1 rounded-lg ${badgeClass} shadow-sm">${escapeHTML(iss.status)}</span>
+                        </div>
+                        ${iss.note ? `
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border-2 border-yellow-300 dark:border-yellow-700 mt-2 ml-2">
+                            <p class="text-[9px] font-black text-yellow-800 dark:text-yellow-500 uppercase mb-1 tracking-widest"><i data-lucide="info" class="w-3.5 h-3.5 inline align-middle mr-1"></i> Catatan Laporan:</p>
+                            <p class="text-xs font-bold text-gray-800 dark:text-gray-200 leading-relaxed">"${escapeHTML(iss.note)}"</p>
+                        </div>
+                        ` : ''}
+                    </div>`;
+                }).join('');
+            }
+            
+            document.getElementById('report-content').innerHTML = contentHTML;
+            document.getElementById('modal-checklist-report').classList.remove('hidden');
+            document.getElementById('modal-checklist-report').classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeChecklistReport() {
+            document.getElementById('modal-checklist-report').classList.add('hidden');
+            document.getElementById('modal-checklist-report').classList.remove('flex');
+        }
+
+        function renderChecklistTable() {
+            const p = allProjects.find(x => x.id === currentChkEventId); if(!p) return;
+            const state = getChkState(currentChkEventId);
+            const items = extractItemsForChecklist(p);
+            
+            // Update button locks visual
+            ['muat', 'tiba', 'out', 'gudang'].forEach(col => {
+                const btn = document.getElementById('btn-lock-' + col);
+                if(state.locks[col]) {
+                    btn.classList.replace('bg-gray-100', 'bg-green-600');
+                    btn.classList.replace('dark:bg-zinc-800', 'dark:bg-green-700');
+                    btn.classList.replace('text-gray-700', 'text-white');
+                    
+                    if (isChecklistEditMode && currentUser && currentUser.role === 'admin') {
+                        btn.innerHTML = `<i data-lucide="unlock" class="w-3 h-3 inline mb-0.5"></i> Buka Kunci`;
+                        btn.disabled = false;
+                    } else {
+                        btn.innerHTML = `<i data-lucide="lock" class="w-3 h-3 inline mb-0.5"></i> Terkunci`;
+                        btn.disabled = true;
+                    }
+                } else {
+                    btn.classList.replace('bg-green-600', 'bg-gray-100');
+                    btn.classList.replace('dark:bg-green-700', 'dark:bg-zinc-800');
+                    btn.classList.replace('text-white', 'text-gray-700');
+                    btn.innerHTML = `<i data-lucide="unlock" class="w-3 h-3 inline mb-0.5"></i> Kunci ${col.charAt(0).toUpperCase() + col.slice(1)}`;
+                    btn.disabled = false;
+                }
+            });
+
+            let grouped = {};
+            items.forEach(i => { if(!grouped[i.cat]) grouped[i.cat] = []; grouped[i.cat].push(i); });
+            
+            let html = `<div class="bg-white dark:bg-zinc-900 rounded-xl border dark:border-zinc-800 overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-[9px]">
+                        <thead class="bg-gray-100 dark:bg-zinc-800 uppercase font-black text-gray-600 dark:text-gray-400 sticky top-0 z-10 border-b dark:border-zinc-700 shadow-sm">
+                            <tr>
+                                <th class="p-2 sm:p-3 min-w-[200px]">Item / Spesifikasi Alat</th>
+                                <th class="p-2 sm:p-3 text-center border-l dark:border-zinc-700 w-[11%]">Muat</th>
+                                <th class="p-2 sm:p-3 text-center border-l dark:border-zinc-700 w-[11%]">Tiba</th>
+                                <th class="p-2 sm:p-3 text-center border-l dark:border-zinc-700 w-[11%]">Out</th>
+                                <th class="p-2 sm:p-3 text-center border-l dark:border-zinc-700 w-[11%]">Gudang</th>
+                                <th class="p-2 sm:p-3 text-center border-l dark:border-zinc-700 w-[10%]"><i data-lucide="message-square" class="w-4 h-4 mx-auto"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-zinc-800">`;
+
+            Object.keys(grouped).forEach(cat => {
+                html += `<tr class="bg-red-50 dark:bg-red-950/20"><td colspan="6" class="p-2.5 font-black text-xs text-ygsred uppercase tracking-widest">${escapeHTML(cat)}</td></tr>`;
+                grouped[cat].forEach(i => {
+                    const s = state.items[i.id] || { muat:null, tiba:null, out:null, gudang:null, note:'', status:'Baik' };
+                    
+                    // SINKRONISASI 2 ARAH: Prioritaskan status & catatan terbaru dari DB Inventaris Alat
+                    const asset = allAssets.find(a => a.name === i.brand);
+                    const itemStatus = asset && asset.status ? asset.status : (s.status || 'Baik');
+                    const itemNote = asset && asset.note ? asset.note : (s.note || '');
+                    
+                    const hasNote = itemNote && itemNote.trim() !== '';
+                    const rowClass = hasNote ? "bg-yellow-50/50 dark:bg-yellow-900/10" : "hover:bg-gray-50 dark:hover:bg-zinc-800/50";
+                    
+                    const renderCb = (col) => {
+                        const isLocked = state.locks[col];
+                        const isChecked = s[col] && s[col].checked;
+                        const icon = isChecked ? 'check-square' : 'square';
+                        const color = isChecked ? 'text-green-600' : 'text-gray-300 dark:text-zinc-600';
+                        const cursor = isLocked || !isChecklistEditMode ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:scale-110 transition';
+                        return `<div class="flex flex-col justify-center items-center h-full w-full" 
+                                    ${isLocked || !isChecklistEditMode ? '' : `onclick="toggleChkItem('${i.id}', '${col}')"`} 
+                                    ${isChecked ? `title="Oleh: ${escapeHTML(s[col].by)} pada ${new Date(s[col].time).toLocaleTimeString('id-ID')}"` : ''}>
+                                    <i data-lucide="${icon}" class="w-6 h-6 sm:w-8 sm:h-8 ${color} ${cursor}"></i>
+                                    ${isChecked ? `<span class="text-[6px] sm:text-[7px] text-gray-400 font-bold mt-1 max-w-[50px] truncate text-center leading-tight">${escapeHTML(s[col].by.split(' ')[0])}</span>` : ''}
+                                </div>`;
+                    };
+
+                    html += `<tr class="${rowClass}">
+                        <td class="p-3 sm:p-4 border-r dark:border-zinc-800/50">
+                            <p class="text-xs sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-wide leading-tight">${escapeHTML(i.jenis)}</p>
+                            <p class="text-[10px] sm:text-xs text-gray-500 font-black uppercase mt-1 leading-tight">${escapeHTML(i.brand)}</p>
+                            
+                            <div class="flex items-center gap-2 mt-2 pt-2 border-t border-dashed border-gray-200 dark:border-zinc-700">
+                                <span class="text-xs sm:text-sm font-black text-ygsred bg-red-50 dark:bg-red-950/40 px-2.5 py-0.5 rounded border border-red-100 dark:border-red-900/50">Qty: ${i.qty}</span>
+                                <select onchange="changeChkStatus('${i.id}', '${escapeHTML(i.brand)}', this.value)" class="p-1 rounded bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 text-[9px] font-black outline-none ${isChecklistEditMode ? 'cursor-pointer hover:border-ygsred' : 'pointer-events-none opacity-70'}">
+                                    <option value="Baik" ${itemStatus === 'Baik' ? 'selected' : ''}>🟢 Baik</option>
+                                    <option value="Rusak" ${itemStatus === 'Rusak' ? 'selected' : ''}>🔴 Rusak</option>
+                                    <option value="Service" ${itemStatus === 'Service' ? 'selected' : ''}>🟠 Service</option>
+                                    <option value="Hilang" ${itemStatus === 'Hilang' ? 'selected' : ''}>⚫ Hilang</option>
+                                    <option value="Error" ${itemStatus === 'Error' ? 'selected' : ''}>🟣 Error</option>
+                                </select>
+                            </div>
+
+                            ${hasNote ? `<div class="mt-3 p-3 bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-600 rounded-lg shadow-sm"><span class="text-xs sm:text-sm font-black text-yellow-800 dark:text-yellow-400 uppercase tracking-widest block mb-1"><i data-lucide="alert-circle" class="w-4 h-4 inline align-middle mr-1"></i> Catatan Khusus:</span><p class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 break-words leading-relaxed">${escapeHTML(itemNote)}</p></div>` : ''}
+                        </td>
+                        <td class="p-1 sm:p-2 border-r dark:border-zinc-800/50 align-middle">${renderCb('muat')}</td>
+                        <td class="p-1 sm:p-2 border-r dark:border-zinc-800/50 align-middle">${renderCb('tiba')}</td>
+                        <td class="p-1 sm:p-2 border-r dark:border-zinc-800/50 align-middle">${renderCb('out')}</td>
+                        <td class="p-1 sm:p-2 border-r dark:border-zinc-800/50 align-middle">${renderCb('gudang')}</td>
+                        <td class="p-1 sm:p-2 align-middle text-center">
+                            <button onclick="openChkNote('${i.id}', '${escapeHTML(i.jenis)} - ${escapeHTML(i.brand)}', '${escapeHTML(i.brand)}')" class="text-gray-400 hover:text-ygsred transition p-2 bg-white dark:bg-zinc-800 border dark:border-zinc-700 rounded-xl shadow-sm hover:shadow-md ${isChecklistEditMode ? '' : 'hidden'}"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 mx-auto"></i></button>
+                        </td>
+                    </tr>`;
+                });
+            });
+
+            html += `</tbody></table></div></div>`;
+            document.getElementById('chk-detail-content').innerHTML = html;
+            lucide.createIcons();
+        }
+
+        async function changeChkStatus(itemId, brand, newStatus) {
+            if(!isChecklistEditMode) {
+                showToast("Mode View: Tidak dapat mengubah status.", true);
+                renderChecklistTable(); return;
+            }
+            const state = getChkState(currentChkEventId);
+            if(!state.items[itemId]) state.items[itemId] = {};
+            state.items[itemId].status = newStatus;
+            saveChkState(currentChkEventId, state);
+
+            const asset = allAssets.find(a => a.name === brand);
+            if(asset) {
+                asset.status = newStatus; 
+                apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'status', value: newStatus } });
+                showToast(`Status ${brand} tersinkronisasi ke Inventaris!`);
+                if(activeTab === 'assets') renderAssets();
+            }
+        }
+
+        function toggleChkItem(itemId, col) {
+            if(!isChecklistEditMode) {
+                showToast("Anda harus dalam Mode Edit untuk mencentang.", true);
+                return;
+            }
+            const state = getChkState(currentChkEventId);
+            if(state.locks[col]) return; // Fallback security
+
+            if(!state.items[itemId]) state.items[itemId] = {};
+            if(!state.items[itemId][col]) state.items[itemId][col] = { checked: false };
+            
+            const isNowChecked = !state.items[itemId][col].checked;
+            state.items[itemId][col] = {
+                checked: isNowChecked,
+                by: isNowChecked ? (currentUser.nickname || currentUser.fullName) : null,
+                time: isNowChecked ? new Date().toISOString() : null
+            };
+            
+            saveChkState(currentChkEventId, state);
+            renderChecklistTable();
+        }
+
+        function lockChkColumn(col) {
+            if(!isChecklistEditMode) {
+                showToast("Anda harus dalam Mode Edit untuk mengunci tahap.", true);
+                return;
+            }
+            const state = getChkState(currentChkEventId);
+            if(state.locks[col]) {
+                if (currentUser && currentUser.role === 'admin') {
+                    showCustomConfirm("Buka Kunci Tahap", `Tahap ${col.toUpperCase()} sudah terkunci. Apakah Anda yakin ingin MEMBUKA kunci ini?`, () => {
+                        openReauth(async (user) => {
+                            state.locks[col] = false;
+                            saveChkState(currentChkEventId, state);
+                            renderChecklistTable();
+                            showToast(`Kunci Tahap ${col.toUpperCase()} berhasil dibuka!`);
+
+                            const p = allProjects.find(x => x.id === currentChkEventId);
+                            const reportMsg = `LAPORAN CHECKLIST: Kunci tahap [${col.toUpperCase()}] telah DIBUKA KEMBALI oleh Admin: ${user.nickname || user.fullName}.`;
+                            
+                            showLoading(true);
+                            await apiCall({ action: 'ADD_EVAL', payload: { eventId: p.id, eventName: p.eventName, msg: reportMsg, sender: 'SYSTEM (CHECKLIST)', time: new Date().toISOString() } });
+                            showLoading(false);
+                            
+                            fetchData(true);
+                        });
+                    });
+                } else {
+                    showToast("Tahap ini sudah dikunci permanen. Hanya Admin yang bisa membuka kuncinya.", true);
+                }
+                return;
+            }
+            
+            openReauth(async (user) => {
+                state.locks[col] = true;
+                saveChkState(currentChkEventId, state);
+                renderChecklistTable();
+                showToast(`Tahap ${col.toUpperCase()} berhasil dikunci!`);
+
+                const p = allProjects.find(x => x.id === currentChkEventId);
+                const reportMsg = `LAPORAN CHECKLIST: Manifest untuk tahap [${col.toUpperCase()}] telah di-verifikasi, disahkan, dan dikunci secara permanen oleh kru bertugas: ${user.nickname || user.fullName}. Seluruh aset telah tercatat di dalam sistem pada jam ${new Date().toLocaleTimeString('id-ID')}.`;
+                
+                showLoading(true);
+                await apiCall({ action: 'ADD_EVAL', payload: { eventId: p.id, eventName: p.eventName, msg: reportMsg, sender: 'SYSTEM (CHECKLIST)', time: new Date().toISOString() } });
+                showLoading(false);
+                
+                fetchData(true); // refresh evals background
+            });
+        }
+
+        function openChkNote(itemId, itemName, itemBrand) {
+            const state = getChkState(currentChkEventId);
+            const asset = allAssets.find(a => a.name === itemBrand);
+            // Tarik catatan dari DB Inventaris jika ada, jika tidak pakai dari lokal event
+            const currentNote = asset && asset.note ? asset.note : (state.items[itemId] && state.items[itemId].note ? state.items[itemId].note : '');
+            
+            document.getElementById('chk-note-eventid').value = currentChkEventId;
+            document.getElementById('chk-note-itemid').value = itemId;
+            document.getElementById('chk-note-brand').value = itemBrand || '';
+            document.getElementById('chk-note-itemname').innerText = itemName;
+            document.getElementById('chk-note-text').value = currentNote;
+            
+            document.getElementById('modal-chk-note').classList.remove('hidden');
+            document.getElementById('modal-chk-note').classList.add('flex');
+        }
+
+        function saveChkNote() {
+            const eventId = document.getElementById('chk-note-eventid').value;
+            const itemId = document.getElementById('chk-note-itemid').value;
+            const brand = document.getElementById('chk-note-brand').value;
+            const noteText = document.getElementById('chk-note-text').value;
+            
+            const state = getChkState(eventId);
+            if(!state.items[itemId]) state.items[itemId] = {};
+            state.items[itemId].note = noteText;
+            
+            saveChkState(eventId, state);
+            
+            // SINKRONISASI KE INVENTARIS ASET
+            const asset = allAssets.find(a => a.name === brand);
+            if(asset) {
+                asset.note = noteText;
+                apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'note', value: noteText } });
+            }
+            
+            document.getElementById('modal-chk-note').classList.add('hidden');
+            document.getElementById('modal-chk-note').classList.remove('flex');
+            
+            if(currentChkEventId === eventId) {
+                renderChecklistTable();
+            }
+            if(activeTab === 'assets') {
+                renderAssets();
+            }
+            showToast("Catatan tersinkronisasi otomatis dengan Inventaris Alat!");
+        }
+
+        // --- END SISTEM CHECKLIST ---
+
         function changeMonth(v) { currentMonth += v; if(currentMonth>11){currentMonth=0;currentYear++} if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(); }
     </script>
 </body>
