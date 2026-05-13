@@ -66,9 +66,10 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 10px; }
 
-        /* Mode Switcher CSS untuk Tab Buat (Produksi vs Penawaran) */
-        .mode-produksi .penawaran-only { display: none !important; }
-        .mode-penawaran .produksi-only { display: none !important; }
+        /* Mode Switcher CSS untuk Tab Buat */
+        .mode-produksi .penawaran-only, .mode-produksi .counter-only { display: none !important; }
+        .mode-penawaran .produksi-only, .mode-penawaran .counter-only { display: none !important; }
+        .mode-counter .produksi-only, .mode-counter .penawaran-only, .mode-counter .hide-in-counter { display: none !important; }
 
         /* Lock Body Scrolling khusus saat Tab Chat Aktif */
         body.chat-active { overflow: hidden !important; height: 100vh; touch-action: pan-x pan-y; }
@@ -513,9 +514,10 @@
                     <h2 id="form-title" class="text-lg font-black uppercase text-gray-900 dark:text-white">Create Event</h2>
                 </div>
                 
-                <div class="flex justify-center bg-gray-100 dark:bg-zinc-900 p-1.5 rounded-xl mb-4 max-w-sm mx-auto shadow-inner">
-                    <button type="button" onclick="setFormMode('produksi')" id="btn-mode-produksi" class="flex-1 text-[10px] font-black uppercase px-4 py-2.5 rounded-lg bg-white dark:bg-black shadow text-ygsred transition">Mode Produksi</button>
-                    <button type="button" onclick="setFormMode('penawaran')" id="btn-mode-penawaran" class="flex-1 text-[10px] font-black uppercase px-4 py-2.5 rounded-lg text-gray-500 transition hover:text-gray-900 dark:hover:text-white">Mode Penawaran</button>
+                <div class="flex justify-center bg-gray-100 dark:bg-zinc-900 p-1.5 rounded-xl mb-4 max-w-md mx-auto shadow-inner w-full">
+                    <button type="button" onclick="setFormMode('produksi')" id="btn-mode-produksi" class="flex-1 text-[9px] sm:text-[10px] font-black uppercase px-2 py-2.5 rounded-lg bg-white dark:bg-black shadow text-ygsred transition">Produksi</button>
+                    <button type="button" onclick="setFormMode('penawaran')" id="btn-mode-penawaran" class="flex-1 text-[9px] sm:text-[10px] font-black uppercase px-2 py-2.5 rounded-lg text-gray-500 transition hover:text-gray-900 dark:hover:text-white">Penawaran</button>
+                    <button type="button" onclick="setFormMode('counter')" id="btn-mode-counter" class="flex-1 text-[9px] sm:text-[10px] font-black uppercase px-2 py-2.5 rounded-lg text-gray-500 transition hover:text-gray-900 dark:hover:text-white">Counter Rider</button>
                 </div>
 
                 <form id="event-form" class="space-y-6 pb-20 mode-produksi">
@@ -533,7 +535,7 @@
                                     <option value="Cancelled">🔴 Cancelled</option>
                                 </select>
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-2 gap-2 hide-in-counter">
                                 <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Klien / EO</label><input type="text" id="clientName" autocomplete="off" placeholder="Nama Klien" class="w-full p-2.5 rounded input-dark font-bold text-xs"></div>
                                 <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Kontak Klien</label><input type="text" id="clientPhone" autocomplete="off" placeholder="WhatsApp" class="w-full p-2.5 rounded input-dark font-bold text-xs"></div>
                             </div>
@@ -558,7 +560,7 @@
                         </div>
                     </div>
 
-                    <div id="days-container" class="space-y-3"></div>
+                    <div id="days-container" class="space-y-3 hide-in-counter"></div>
 
                     <!-- DIVISI AUDIO -->
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-blue-600 shadow-sm">
@@ -587,7 +589,7 @@
                     <!-- DIVISI PENDUKUNG -->
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-green-600 shadow-sm">
                         <div class="flex justify-between items-center border-b dark:border-zinc-800 pb-2">
-                            <h3 class="text-[10px] font-black text-green-600 uppercase">4. Spesifikasi Pendukung</h3>
+                            <h3 class="text-[10px] font-black text-green-600 uppercase">4. LED Screen & Pendukung</h3>
                             <div class="penawaran-only flex items-center gap-2">
                                 <label class="text-[8px] font-bold text-gray-500 uppercase">Harga Global Pendukung</label>
                                 <input type="text" inputmode="numeric" autocomplete="off" id="global-price-pendukung" class="p-1.5 rounded input-dark text-[10px] font-bold text-right w-28 sm:w-32 focus:border-ygsred" placeholder="Harga Global" oninput="formatInputRibuan(event)">
@@ -597,19 +599,19 @@
                             <div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black uppercase">LED Screen</p><button type="button" onclick="addDynRow('dyn-led')" class="text-[8px] bg-green-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
                             <div id="dyn-led" class="space-y-1.5"></div>
                         </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50">
+                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50 hide-in-counter">
                             <div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black uppercase">Rigging & Stage</p><button type="button" onclick="addDynRow('dyn-rigging')" class="text-[8px] bg-green-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
                             <div id="dyn-rigging" class="space-y-1.5"></div>
                         </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50">
+                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50 hide-in-counter">
                             <div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black uppercase">Genset</p><button type="button" onclick="addDynRow('dyn-genset')" class="text-[8px] bg-green-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
                             <div id="dyn-genset" class="space-y-1.5"></div>
                         </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50">
+                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50 hide-in-counter">
                             <div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black uppercase">Barikade</p><button type="button" onclick="addDynRow('dyn-barikade')" class="text-[8px] bg-green-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
                             <div id="dyn-barikade" class="space-y-1.5"></div>
                         </div>
-                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50">
+                        <div class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50 hide-in-counter">
                             <div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black uppercase">Lain-Lain (Others)</p><button type="button" onclick="addDynRow('dyn-others')" class="text-[8px] bg-green-600 text-white px-2 py-1 rounded shadow">+ Baris</button></div>
                             <div id="dyn-others" class="space-y-1.5"></div>
                         </div>
@@ -682,6 +684,12 @@
                     <div class="flex gap-2 produksi-only">
                         <button type="button" onclick="confirmSaveEvent()" class="w-full btn-red py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-red-900/30 flex justify-center items-center gap-2"><i data-lucide="upload-cloud" class="w-5 h-5"></i> Publikasikan Event</button>
                         <button type="button" onclick="confirmExportProduksiPDF()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg hover:bg-blue-700 transition flex justify-center items-center gap-2"><i data-lucide="printer" class="w-5 h-5"></i> Export PDF (A4)</button>
+                    </div>
+
+                    <!-- SUBMIT (Mode Counter Rider Only) -->
+                    <div class="flex gap-2 counter-only">
+                        <button type="button" onclick="confirmSaveEvent()" class="w-full bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white py-4 rounded-xl font-black text-[11px] sm:text-sm uppercase tracking-widest shadow-lg hover:bg-gray-300 dark:hover:bg-zinc-700 transition flex justify-center items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> Simpan Draft</button>
+                        <button type="button" onclick="confirmExportCounterPDF()" class="w-full bg-purple-600 text-white py-4 rounded-xl font-black text-[11px] sm:text-sm uppercase tracking-widest shadow-lg hover:bg-purple-700 transition flex justify-center items-center gap-2"><i data-lucide="printer" class="w-5 h-5"></i> Export PDF Counter Rider</button>
                     </div>
                 </form>
             </div>
@@ -1330,6 +1338,50 @@
                 }
             }
 
+            // MENDETEKSI TUGAS/JABATAN KRU SAAT INI PADA EVENT INI
+            let userRoles = [];
+            if (currentUser && p.manpower) {
+                const myName = currentUser.nickname || currentUser.fullName;
+                const m = p.manpower;
+                
+                if (m.pic === myName) userRoles.push('PIC Utama');
+                
+                if (m.audio) {
+                    if (m.audio.se === myName) userRoles.push('System Engineer');
+                    if (m.audio.foh === myName) userRoles.push('FOH Engineer');
+                    if (m.audio.moh === myName) userRoles.push('Monitor Eng');
+                    if (m.audio.rf === myName) userRoles.push('RF Tech');
+                    if (m.audio.stg === myName) userRoles.push('Stage Tech');
+                    if (m.audio.ast === myName) userRoles.push('Audio Ast');
+                }
+                if (m.lighting) {
+                    if (m.lighting.ld === myName) userRoles.push('Lighting Designer');
+                    if (m.lighting.ptc === myName) userRoles.push('Patcher');
+                    if (m.lighting.adr === myName) userRoles.push('Adresser');
+                    if (m.lighting.ast === myName) userRoles.push('Lighting Ast');
+                }
+                if (m.roadies) {
+                    if (m.roadies.head === myName) userRoles.push('Head Roadie');
+                    if (m.roadies.r1 === myName || m.roadies.r2 === myName || m.roadies.r3 === myName || m.roadies.r4 === myName) userRoles.push('Roadies Team');
+                }
+                if (m.support) {
+                    if (m.support.rigging === myName) userRoles.push('Rigging');
+                    if (m.support.stage === myName) userRoles.push('Stage PIC');
+                    if (m.support.genset === myName) userRoles.push('Genset Opr');
+                    if (m.support.barikade === myName) userRoles.push('Barikade');
+                }
+            }
+            
+            userRoles = [...new Set(userRoles)]; // Hilangkan duplikat jika ada
+            let roleBadgeHTML = '';
+            if (userRoles.length > 0) {
+                roleBadgeHTML = `
+                <div class="mt-2 inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2.5 py-1.5 rounded-lg border border-blue-200 dark:border-blue-800/50 shadow-sm w-fit">
+                    <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                    <span class="text-[8px] sm:text-[9px] font-black uppercase tracking-widest leading-none mt-0.5">Tugas: ${escapeHTML(userRoles.join(', '))}</span>
+                </div>`;
+            }
+
             let statusBadge = '';
             let borderColor = 'border-l-ygsred';
             if(p.status === 'Confirmed') { statusBadge = '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[8px] font-black uppercase ml-2 border border-green-200 inline-block align-middle">Confirmed</span>'; borderColor = 'border-l-green-500'; }
@@ -1344,6 +1396,7 @@
                         <h3 class="font-black text-sm uppercase group-hover:text-ygsred transition-colors flex items-center">${escapeHTML(p.eventName)} ${statusBadge}</h3>
                         <p class="text-[9px] text-gray-500 uppercase mt-0.5">${escapeHTML(p.artist)} • ${dateRangeDisplay}</p>
                         ${activityHTML}
+                        ${roleBadgeHTML}
                         <p class="text-[8px] text-blue-500 font-bold mt-1.5 flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> Lihat Detail Event</p>
                     </div>
                 </div>
@@ -1641,11 +1694,7 @@
                     scrollY: 0, 
                     backgroundColor: '#ffffff' 
                 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                
-                // PERBAIKAN FATAL: Menghapus 'avoid-all'. Ini adalah alasan utama kenapa file Anda nge-blank
-                // karena mencoba memaksa tidak ada pagebreak, jika melebihi 1 halaman maka canvas error/kosong.
-                pagebreak:    { mode: ['css', 'legacy'] }
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
             
             // 3. MEMBERIKAN JEDA WAKTU (DELAY) SEBELUM EKSEKUSI PDF
@@ -1983,22 +2032,255 @@
             const form = document.getElementById('event-form');
             const btnP = document.getElementById('btn-mode-produksi');
             const btnQ = document.getElementById('btn-mode-penawaran');
+            const btnC = document.getElementById('btn-mode-counter');
             
-            if(mode === 'produksi') {
-                form.classList.remove('mode-penawaran');
-                form.classList.add('mode-produksi');
-                btnP.classList.add('bg-white', 'dark:bg-black', 'shadow', 'text-ygsred');
-                btnP.classList.remove('text-gray-500');
-                btnQ.classList.remove('bg-white', 'dark:bg-black', 'shadow', 'text-ygsred');
-                btnQ.classList.add('text-gray-500');
-            } else {
-                form.classList.remove('mode-produksi');
-                form.classList.add('mode-penawaran');
-                btnQ.classList.add('bg-white', 'dark:bg-black', 'shadow', 'text-ygsred');
-                btnQ.classList.remove('text-gray-500');
-                btnP.classList.remove('bg-white', 'dark:bg-black', 'shadow', 'text-ygsred');
-                btnP.classList.add('text-gray-500');
-            }
+            form.classList.remove('mode-produksi', 'mode-penawaran', 'mode-counter');
+            form.classList.add('mode-' + mode);
+            
+            [btnP, btnQ, btnC].forEach(b => {
+                b.classList.remove('bg-white', 'dark:bg-black', 'shadow', 'text-ygsred');
+                b.classList.add('text-gray-500');
+            });
+            
+            const activeBtn = mode === 'produksi' ? btnP : mode === 'penawaran' ? btnQ : btnC;
+            activeBtn.classList.remove('text-gray-500');
+            activeBtn.classList.add('bg-white', 'dark:bg-black', 'shadow', 'text-ygsred');
+        }
+
+        function calculateQuotation() {
+            let subAudio = unformatRupiah(document.getElementById('global-price-audio')?.value);
+            let subLighting = unformatRupiah(document.getElementById('global-price-lighting')?.value);
+            let subPendukung = unformatRupiah(document.getElementById('global-price-pendukung')?.value);
+            
+            document.querySelectorAll('#event-form .dynamic-row').forEach(row => {
+                const qtyInput = row.querySelector('.dyn-qty');
+                const priceInput = row.querySelector('.dyn-price');
+                const qty = qtyInput ? parseFloat(qtyInput.value) || 0 : 0;
+                const price = priceInput ? unformatRupiah(priceInput.value) : 0;
+                const total = qty * price;
+                
+                const cat = row.dataset.cat || '';
+                if(cat.includes('audio')) subAudio += total;
+                else if(cat.includes('light')) subLighting += total;
+                else subPendukung += total;
+            });
+            
+            const discInput = document.getElementById('calc-discount');
+            const disc = discInput ? unformatRupiah(discInput.value) : 0;
+            const grandTotal = subAudio + subLighting + subPendukung - disc;
+            
+            document.getElementById('calc-sub-audio').innerText = formatIDR(subAudio);
+            document.getElementById('calc-sub-lighting').innerText = formatIDR(subLighting);
+            document.getElementById('calc-sub-pendukung').innerText = formatIDR(subPendukung);
+            document.getElementById('calc-grand-total').innerText = formatIDR(grandTotal > 0 ? grandTotal : 0);
+        }
+
+        function confirmSaveEvent() {
+            showCustomConfirm("Simpan Event / Penawaran", "Apakah Anda yakin ingin memublikasikan data event ini?", () => {
+                processFormSubmit();
+            });
+        }
+        
+        async function processFormSubmit() {
+            showLoading(true);
+            const editId = document.getElementById('edit-id').value;
+            const days = []; document.querySelectorAll('.day-row').forEach(r => days.push({ date: r.dataset.date, startTime: r.querySelector('.time-start').value, endTime: r.querySelector('.time-end').value, acts: Array.from(r.querySelectorAll('.act-check:checked')).map(x => x.value) }));
+            
+            const noteEl = document.getElementById('crewNote');
+            const noteValue = noteEl ? noteEl.value : '';
+
+            const financeData = {
+                globalAudio: unformatRupiah(document.getElementById('global-price-audio')?.value),
+                globalLighting: unformatRupiah(document.getElementById('global-price-lighting')?.value),
+                globalPendukung: unformatRupiah(document.getElementById('global-price-pendukung')?.value),
+                discount: unformatRupiah(document.getElementById('calc-discount')?.value)
+            };
+
+            const p = { 
+                id: editId || ('YGS-'+Date.now()), 
+                eventName: document.getElementById('eventName').value, 
+                artist: document.getElementById('artist').value, 
+                clientName: document.getElementById('clientName').value,
+                clientPhone: document.getElementById('clientPhone').value,
+                mapsLink: document.getElementById('mapsLink').value,
+                eventDate: document.getElementById('startDate').value, 
+                status: document.getElementById('evStatus').value, 
+                activities: days, 
+                finance: financeData, 
+                transportasi: Array.from(document.querySelectorAll('.trans-check:checked')).map(x => x.value),
+                specDyn: { audio: { pa: extractDynData('dyn-audio-pa'), monitor: extractDynData('dyn-audio-monitor'), console: extractDynData('dyn-audio-console'), mic: extractDynData('dyn-audio-mic'), backline: extractDynData('dyn-audio-backline'), stand: extractDynData('dyn-audio-stand'), cable: extractDynData('dyn-audio-cable'), others: extractDynData('dyn-audio-others') }, lighting: MASTER_GROUPS.lighting.map(s => ({ sub: s, data: extractDynData('dyn-light-'+s.replace(/\s+/g,'')) })), led: extractDynData('dyn-led'), rigging: extractDynData('dyn-rigging'), genset: extractDynData('dyn-genset'), barikade: extractDynData('dyn-barikade'), others_pendukung: extractDynData('dyn-others') },
+                manpower: { 
+                    pic: document.getElementById('pic').value, 
+                    audio: { se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value, moh: document.getElementById('c_a_moh').value, rf: document.getElementById('c_a_rf').value, stg: document.getElementById('c_a_stg').value, ast: document.getElementById('c_a_ast').value }, 
+                    lighting: { ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value, adr: document.getElementById('c_l_adr').value, ast: document.getElementById('c_l_ast').value }, 
+                    roadies: { head: document.getElementById('c_r_head').value, r1: document.getElementById('c_r_1').value, r2: document.getElementById('c_r_2').value, r3: document.getElementById('c_r_3').value, r4: document.getElementById('c_r_4').value }, 
+                    support: { rigging: document.getElementById('c_s_rigging').value, stage: document.getElementById('c_s_stage').value, genset: document.getElementById('c_s_genset').value, barikade: document.getElementById('c_s_barikade').value },
+                    note: noteValue
+                }
+            };
+            
+            await apiCall({ action: 'ADD_DATA', payload: p });
+            showLoading(false); resetEventForm(); switchTab('list'); fetchData(); showToast(editId ? "Terupdate!" : "Berhasil disimpan!");
+        }
+
+        function extractDynData(id) { const arr = []; const el = document.getElementById(id); if(!el) return arr; el.querySelectorAll('.dynamic-row').forEach(r => { const j = r.querySelector('.dyn-jenis').value, b = r.querySelector('.dyn-brand').value, qInput = r.querySelector('.dyn-qty'), prInput = r.querySelector('.dyn-price'); const q = qInput ? qInput.value : '', pr = prInput ? unformatRupiah(prInput.value) : ''; if(j||b||q||pr) arr.push({jenis:j, brand:b, qty:q, price:pr}); }); return arr; }
+
+        function initDynForms() {
+            const aC = document.getElementById('dyn-audio-container'), lC = document.getElementById('dyn-lighting-container');
+            if(!aC) return; aC.innerHTML = ''; lC.innerHTML = '';
+            ['pa', 'monitor', 'console', 'mic', 'backline', 'stand', 'cable'].forEach(c => {
+                const catDiv = document.createElement('div'); catDiv.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50';
+                catDiv.innerHTML = `<p class="text-[11px] font-black uppercase text-blue-600 mb-2">${c}</p><div id="dyn-audio-${c}" class="space-y-2"></div>`; aC.appendChild(catDiv);
+                MASTER_GROUPS[c].forEach(s => {
+                    const subId = `dyn-audio-${c}-${s.replace(/[^a-zA-Z0-9]/g,'')}`; const subDiv = document.createElement('div');
+                    subDiv.innerHTML = `<div class="flex justify-between items-center mb-1"><p class="text-[9px] font-bold uppercase text-gray-500">${s}</p><button type="button" onclick="addDynRow('${subId}', {jenis: '${s}'}, true)" class="text-[8px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Tambah</button></div><div id="${subId}" class="space-y-1"></div>`;
+                    document.getElementById(`dyn-audio-${c}`).appendChild(subDiv); addDynRow(subId, {jenis: s}, true);
+                });
+            });
+            MASTER_GROUPS.lighting.forEach(s => {
+                const subId = `dyn-light-${s.replace(/\s+/g,'')}`; const d = document.createElement('div'); d.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50';
+                d.innerHTML = `<div class="flex justify-between items-center mb-1"><p class="text-[10px] font-black uppercase">${s}</p><button type="button" onclick="addDynRow('${subId}', {jenis: '${s}'}, true)" class="text-[8px] bg-orange-600 text-white px-2 py-1 rounded shadow">+ Brand</button></div><div id="${subId}" class="space-y-1"></div>`;
+                lC.appendChild(d); addDynRow(subId, {jenis: s}, true);
+            });
+            addDynRow('dyn-led', {jenis: 'Main Stage'}); addDynRow('dyn-rigging', {jenis: 'Main Stage'}); addDynRow('dyn-genset', {jenis: 'Genset'}); addDynRow('dyn-barikade', {jenis: 'Barikade'}); addDynRow('dyn-others', {jenis: 'Tenda/AC/Kipas'});
+        }
+
+        function addDynRow(cId, def={jenis:'', brand:'', qty:'', price:''}, isF=false) {
+            const c = document.getElementById(cId); if(!c) return; 
+            const div = document.createElement('div'); 
+            div.className = 'flex flex-wrap sm:flex-nowrap items-center gap-1.5 dynamic-row mb-1.5 pb-2 border-b border-gray-200 dark:border-zinc-800/50 last:border-0';
+            div.dataset.cat = cId;
+            
+            const isAudioOrLight = cId.includes('dyn-audio') || cId.includes('dyn-light');
+            const jenisHTML = isAudioOrLight 
+                ? `<input type="hidden" class="dyn-jenis" value="${def.jenis || ''}">` 
+                : `<input type="text" autocomplete="off" class="dyn-jenis w-full sm:flex-[3] p-2 bg-gray-50 dark:bg-zinc-800/50 text-[9px] font-black uppercase text-gray-700 dark:text-gray-300 focus:outline-none placeholder-gray-400 border border-gray-200 dark:border-zinc-700 rounded transition" placeholder="Peruntukan/Posisi" value="${def.jenis || ''}" ${isF?'readonly':''}>`;
+
+            let qtyPlaceholder = "Jmlh";
+            if(cId.includes('dyn-led') || cId.includes('dyn-rigging') || cId.includes('dyn-barikade')) qtyPlaceholder = "Meter";
+            if(cId.includes('dyn-genset')) qtyPlaceholder = "Unit/KVA";
+            if(cId.includes('dyn-audio-cable') || cId.includes('dyn-audio-stand') || cId.includes('dyn-audio-mic')) qtyPlaceholder = "Pcs";
+            if(cId.includes('dyn-audio-backline')) qtyPlaceholder = "Set";
+            if(cId.includes('dyn-others')) qtyPlaceholder = "Unit";
+            if(cId.includes('dyn-audio-pa') || cId.includes('dyn-audio-monitor') || cId.includes('dyn-audio-console') || cId.includes('dyn-light')) qtyPlaceholder = "Unit";
+
+            div.innerHTML = `
+                ${jenisHTML}
+                <div class="flex flex-wrap sm:flex-nowrap w-full sm:w-auto sm:flex-[6] gap-1.5 items-center">
+                    <input type="text" list="list-inventory" autocomplete="off" class="dyn-brand w-full sm:w-auto sm:flex-[4] p-2 bg-transparent text-[10px] font-bold text-gray-900 dark:text-white focus:outline-none focus:border-b-ygsred transition-all placeholder-gray-400 border border-gray-200 dark:border-zinc-700 rounded" placeholder="Ketik/Cari Brand..." value="${def.brand || ''}">
+                    <div class="flex w-full sm:w-auto sm:flex-[5] gap-1.5 items-center">
+                        <input type="number" class="dyn-qty flex-1 sm:flex-[2] p-2 bg-transparent text-[10px] font-black text-center focus:outline-none placeholder-gray-400 border border-gray-200 dark:border-zinc-700 focus:border-ygsred transition-all rounded" placeholder="${qtyPlaceholder}" value="${def.qty || ''}" oninput="calculateQuotation()">
+                        <input type="text" inputmode="numeric" autocomplete="off" class="dyn-price penawaran-only flex-[1.5] sm:flex-[3] p-2 bg-transparent text-[10px] font-black text-right focus:outline-none placeholder-gray-400 border border-gray-200 dark:border-zinc-700 focus:border-ygsred transition-all rounded" placeholder="Hrg/Satuan" value="${def.price ? Number(def.price).toLocaleString('id-ID') : ''}" oninput="formatInputRibuan(event)">
+                        <button type="button" onclick="this.closest('.dynamic-row').remove(); calculateQuotation();" class="text-gray-400 hover:text-red-500 transition px-2 py-1.5 bg-gray-100 dark:bg-zinc-800 rounded shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                </div>
+            `;
+            safeGeneratePDF(htmlContent, `Produksi_${eventName.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        function confirmExportCounterPDF() {
+            showCustomConfirm("Export Counter Rider", "Generate dokumen PDF khusus spesifikasi Counter Rider?", () => {
+                exportCounterPDF();
+            });
+        }
+
+        function exportCounterPDF() {
+            const eventName = document.getElementById('eventName').value || 'Event';
+            const artist = document.getElementById('artist').value || '-';
+            const eventDate = document.getElementById('startDate').value || '-';
+            const mapsLink = document.getElementById('mapsLink').value || '-';
+
+            let specRows = '';
+            document.querySelectorAll('#event-form .dynamic-row').forEach(row => {
+                const cat = row.dataset.cat || '';
+                // Hanya spesifikasi Audio, Lighting, dan LED
+                if (cat.includes('dyn-audio') || cat.includes('dyn-light') || cat.includes('dyn-led')) {
+                    const j = row.querySelector('.dyn-jenis').value;
+                    const b = row.querySelector('.dyn-brand').value;
+                    const qtyInput = row.querySelector('.dyn-qty');
+                    const q = qtyInput ? parseFloat(qtyInput.value) || 0 : 0;
+                    if(j || b || q > 0) {
+                        specRows += `<tr style="page-break-inside: avoid;"><td style="border: 1px solid #ddd; padding: 4px 6px;">${escapeHTML(j)}</td><td style="border: 1px solid #ddd; padding: 4px 6px;">${escapeHTML(b)}</td><td style="border: 1px solid #ddd; padding: 4px 6px; text-align: center; font-weight:bold;">${escapeHTML(q)}</td></tr>`;
+                    }
+                }
+            });
+            const specTable = specRows ? `<table style="width:100%; border-collapse: collapse; font-size:10px;"><thead><tr style="background:#f1f1f1; page-break-inside: avoid;"><th style="border: 1px solid #ddd; padding: 5px 6px; text-align:left;">Kategori/Posisi</th><th style="border: 1px solid #ddd; padding: 5px 6px; text-align:left;">Item/Brand</th><th style="border: 1px solid #ddd; padding: 5px 6px; text-align:center; width:15%;">Qty</th></tr></thead><tbody>${specRows}</tbody></table>` : '<p>-</p>';
+
+            const htmlContent = `
+                <div style="width: 794px; padding: 0; box-sizing: border-box; background: #ffffff; font-family: 'Montserrat', sans-serif; color: #000000; position: relative;">
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.05; z-index: 0; pointer-events: none;">
+                        <img src="https://raw.githubusercontent.com/senasigit/YGS-Production/c6fc931f0285b1de9178bc14e3d912e65b2ca1eb/logo%20ygs%202.PNG" style="width: 450px;" crossorigin="anonymous">
+                    </div>
+                    
+                    <div style="position: relative; z-index: 10;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e50914; padding-bottom: 10px; margin-bottom: 20px; background-color: #ffffff; page-break-inside: avoid;">
+                            <div style="text-align: left;">
+                                <h2 style="font-size: 22px; font-weight: 900; margin: 0; color: #111; letter-spacing: 1px; text-transform: uppercase;">COUNTER RIDER</h2>
+                                <p style="margin: 3px 0 0 0; font-size: 11px; color: #555; font-weight: bold;">Spesifikasi Teknis: <strong style="color: #e50914;">Audio, Lighting & LED</strong></p>
+                            </div>
+                            <img src="https://raw.githubusercontent.com/senasigit/YGS-Production/c6fc931f0285b1de9178bc14e3d912e65b2ca1eb/logo%20ygs%202.PNG" style="height: 45px;" crossorigin="anonymous">
+                        </div>
+                        
+                        <div style="border: 1px solid #ccc; padding: 12px; border-radius: 6px; font-size: 11px; background: #fafafa; margin-bottom: 20px; page-break-inside: avoid;">
+                            <p style="margin: 0 0 5px 0;"><strong>EVENT:</strong> <span style="color:#e50914; font-weight:bold; text-transform: uppercase;">${escapeHTML(eventName)}</span></p>
+                            <p style="margin: 0 0 5px 0;"><strong>ARTIST / TALENT:</strong> ${escapeHTML(artist)}</p>
+                            <p style="margin: 0 0 5px 0;"><strong>TANGGAL:</strong> ${escapeHTML(eventDate)}</p>
+                            <p style="margin: 0;"><strong>LOKASI:</strong> ${mapsLink !== '-' ? escapeHTML(mapsLink) : 'TBA'}</p>
+                        </div>
+
+                        <div style="border: 1px solid #ccc; padding: 12px; border-radius: 6px; font-size: 11px; page-break-inside: avoid;">
+                            <p style="margin: 0 0 8px 0; font-size: 12px;"><strong>SPESIFIKASI ALAT:</strong></p>
+                            ${specTable}
+                        </div>
+                    </div>
+                </div>
+            `;
+            safeGeneratePDF(htmlContent, `Counter_Rider_${eventName.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        function shareWA(id) { 
+            const p = allProjects.find(x => x.id === id); if(!p) return;
+            
+            let actText = '';
+            if(p.activities && p.activities.length) {
+                p.activities.forEach(a => { actText += `- *${a.date}* (${a.startTime}-${a.endTime}) : ${(a.acts||[]).join(', ')}\n`; });
+            } else { actText = '- Belum ada jadwal spesifik\n'; }
+
+            const m = p.manpower || {};
+            let crewText = '';
+            if(m.pic && m.pic !== '-') crewText += `- PIC: ${m.pic}\n`;
+            const audio = [m.audio?.se, m.audio?.foh, m.audio?.moh, m.audio?.rf, m.audio?.stg, m.audio?.ast].filter(x => x && x !== '-').join(', ');
+            if(audio) crewText += `- Audio: ${audio}\n`;
+            const lighting = [m.lighting?.ld, m.lighting?.ptc, m.lighting?.adr, m.lighting?.ast].filter(x => x && x !== '-').join(', ');
+            if(lighting) crewText += `- Lighting: ${lighting}\n`;
+            const roadies = [m.roadies?.head, m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].filter(x => x && x !== '-').join(', ');
+            if(roadies) crewText += `- Roadies: ${roadies}\n`;
+            const support = [m.support?.rigging, m.support?.stage, m.support?.genset, m.support?.barikade].filter(x => x && x !== '-').join(', ');
+            if(support) crewText += `- Pendukung: ${support}\n`;
+
+            const text = `*CREW CALL YGS PRODUCTION* 📢\n\n*📌 Event:* ${p.eventName}\n*👤 Talent:* ${p.artist}\n*📍 Lokasi:* ${p.mapsLink !== '-' ? p.mapsLink : 'TBA'}\n*🟢 Status:* ${p.status}\n\n*🗓️ JADWAL KEGIATAN:*\n${actText}\n*👥 TIM BERTUGAS:*\n${crewText ? crewText : '- Belum diplot\n'}${m.note ? '\n*📝 Catatan Kru:*\n_' + m.note + '_\n' : ''}\nMohon standby tepat waktu dan pastikan perlengkapan siap. Safety first! 🚀`;
+
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+        }
+
+        function setFormMode(mode) {
+            formMode = mode;
+            const form = document.getElementById('event-form');
+            const btnP = document.getElementById('btn-mode-produksi');
+            const btnQ = document.getElementById('btn-mode-penawaran');
+            const btnC = document.getElementById('btn-mode-counter');
+            
+            form.classList.remove('mode-produksi', 'mode-penawaran', 'mode-counter');
+            form.classList.add('mode-' + mode);
+            
+            [btnP, btnQ, btnC].forEach(b => {
+                b.classList.remove('bg-white', 'dark:bg-black', 'shadow', 'text-ygsred');
+                b.classList.add('text-gray-500');
+            });
+            
+            const activeBtn = mode === 'produksi' ? btnP : mode === 'penawaran' ? btnQ : btnC;
+            activeBtn.classList.remove('text-gray-500');
+            activeBtn.classList.add('bg-white', 'dark:bg-black', 'shadow', 'text-ygsred');
         }
 
         function calculateQuotation() {
@@ -2132,7 +2414,6 @@
             c.appendChild(div); lucide.createIcons();
         }
 
-        // PERBAIKAN: Menampilkan kembali checklist activity harian & mengatur label yang benar dengan Title Case
         function generateDays() {
             const sV = document.getElementById('startDate').value, eV = document.getElementById('endDate').value, c = document.getElementById('days-container'); 
             if(!c || !sV || !eV) {
@@ -2140,11 +2421,8 @@
                 return; 
             }
             
-            // Helper function untuk memformat string ke "Title Case"
             const toTitleCase = (str) => {
-                return str.replace(/\b\w/g, function(char) {
-                    return char.toUpperCase();
-                });
+                return str.replace(/\b\w/g, function(char) { return char.toUpperCase(); });
             };
 
             let htmlBuffer = '';
@@ -2160,7 +2438,6 @@
             c.innerHTML = htmlBuffer;
         }
 
-        // PERBAIKAN: Set default tanggal ke hari ini, agar Activity Checklist langsung tampil dan tidak terasa hilang
         function resetEventForm() { 
             document.getElementById('event-form').reset(); 
             document.getElementById('edit-id').value = ''; 
@@ -2205,7 +2482,6 @@
                     });
                 }, 100);
             } else {
-                // Pastikan menggunakan fungsi fallback render jika array activity belum ada
                 document.getElementById('startDate').value = p.eventDate || getJakartaDateString();
                 document.getElementById('endDate').value = p.eventDate || getJakartaDateString();
                 generateDays();
@@ -2312,9 +2588,27 @@
                 if(assetsToRender.length === 0) return '';
                 return `
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
-                    ${assetsToRender.map(a => `
-                        <div class="bg-white dark:bg-zinc-900 border ${a.status==='Service'?'border-orange-300 dark:border-orange-800/50 shadow-orange-100 dark:shadow-none':a.status==='Rusak'?'border-red-300 dark:border-red-800/50':a.status==='Hilang'?'border-zinc-500 dark:border-zinc-700':a.status==='Error'?'border-purple-300 dark:border-purple-800/50':'border-gray-200 dark:border-zinc-800'} rounded-xl p-3 shadow-sm hover:shadow-md transition flex flex-col gap-2 relative overflow-hidden">
-                            ${a.status==='Service' ? `<div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>` : a.status==='Rusak' ? `<div class="absolute top-0 left-0 w-1 h-full bg-red-500"></div>` : a.status==='Hilang' ? `<div class="absolute top-0 left-0 w-1 h-full bg-zinc-600"></div>` : a.status==='Error' ? `<div class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>` : ''}
+                    ${assetsToRender.map(a => {
+                        let bgCat = 'bg-white dark:bg-zinc-900';
+                        let defBorder = 'border-gray-200 dark:border-zinc-800';
+                        
+                        // PEMBARUAN: Warna kontras mutlak (Buta Warna Safe)
+                        if(a.cat === 'Audio') { bgCat = 'bg-blue-100 dark:bg-blue-900/40'; defBorder = 'border-blue-300 dark:border-blue-700'; }
+                        else if(a.cat === 'Lighting') { bgCat = 'bg-orange-100 dark:bg-orange-900/40'; defBorder = 'border-orange-300 dark:border-orange-700'; }
+                        else if(a.cat === 'Rigging') { bgCat = 'bg-emerald-100 dark:bg-emerald-900/40'; defBorder = 'border-emerald-300 dark:border-emerald-700'; }
+                        else if(a.cat === 'Barikade') { bgCat = 'bg-slate-200 dark:bg-slate-800/60'; defBorder = 'border-slate-400 dark:border-slate-600'; }
+                        else if(a.cat === 'Genset') { bgCat = 'bg-purple-100 dark:bg-purple-900/40'; defBorder = 'border-purple-300 dark:border-purple-700'; }
+                        else if(a.cat === 'Transport') { bgCat = 'bg-pink-100 dark:bg-pink-900/40'; defBorder = 'border-pink-300 dark:border-pink-700'; }
+                        
+                        let borderCls = defBorder;
+                        if(a.status === 'Service') borderCls = 'border-orange-400 dark:border-orange-600 shadow-md';
+                        else if(a.status === 'Rusak') borderCls = 'border-red-400 dark:border-red-600 shadow-md';
+                        else if(a.status === 'Hilang') borderCls = 'border-zinc-500 dark:border-zinc-500 shadow-md';
+                        else if(a.status === 'Error') borderCls = 'border-purple-400 dark:border-purple-600 shadow-md';
+
+                        return `
+                        <div class="${bgCat} border ${borderCls} rounded-xl p-3 shadow-sm hover:shadow-md transition flex flex-col gap-2 relative overflow-hidden">
+                            ${a.status==='Service' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-orange-500"></div>` : a.status==='Rusak' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>` : a.status==='Hilang' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-zinc-600"></div>` : a.status==='Error' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div>` : ''}
                             <div class="flex justify-between items-start pl-2">
                                 <div class="flex-[3]">
                                     <p class="uppercase font-black text-[11px] text-gray-900 dark:text-white leading-tight">${escapeHTML(a.name)}</p>
@@ -2327,7 +2621,7 @@
                             
                             <div class="flex items-center gap-2 mt-1 pl-2">
                                 ${isAssetEditMode && isAdmin ? `
-                                    <select onchange="updateAssetField('${a.id}', 'status', this.value)" class="bg-gray-50 dark:bg-zinc-800 text-[10px] font-black ${a.status==='Baik'?'text-green-600':a.status==='Service'?'text-orange-500':a.status==='Hilang'?'text-zinc-500':a.status==='Error'?'text-purple-500':'text-red-600'} border border-gray-300 dark:border-zinc-700 rounded p-1 outline-none w-full">
+                                    <select onchange="updateAssetField('${a.id}', 'status', this.value)" class="bg-white/50 dark:bg-black/20 backdrop-blur-sm text-[10px] font-black ${a.status==='Baik'?'text-green-600':a.status==='Service'?'text-orange-500':a.status==='Hilang'?'text-zinc-500':a.status==='Error'?'text-purple-500':'text-red-600'} border ${defBorder} rounded p-1 outline-none w-full">
                                         <option value="Baik" ${a.status==='Baik'?'selected':''}>Baik</option>
                                         <option value="Service" ${a.status==='Service'?'selected':''}>Service</option>
                                         <option value="Rusak" ${a.status==='Rusak'?'selected':''}>Rusak</option>
@@ -2335,25 +2629,26 @@
                                         <option value="Error" ${a.status==='Error'?'selected':''}>Error</option>
                                     </select>
                                 ` : `
-                                    <span class="font-black text-[9px] px-2 py-1 rounded ${a.status==='Baik'?'bg-green-100 text-green-600 dark:bg-green-900/30':a.status==='Service'?'bg-orange-100 text-orange-600 dark:bg-orange-900/30':a.status==='Hilang'?'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400':a.status==='Error'?'bg-purple-100 text-purple-600 dark:bg-purple-900/30':'bg-red-100 text-red-600 dark:bg-red-900/30'}">${escapeHTML(a.status)}</span>
+                                    <span class="font-black text-[9px] px-2 py-1 rounded bg-white/60 dark:bg-black/30 backdrop-blur-sm border ${defBorder} ${a.status==='Baik'?'text-green-600 dark:text-green-500':a.status==='Service'?'text-orange-600 dark:text-orange-500':a.status==='Hilang'?'text-zinc-600 dark:text-zinc-400':a.status==='Error'?'text-purple-600 dark:text-purple-400':'text-red-600 dark:text-red-500'}">${escapeHTML(a.status)}</span>
                                 `}
                             </div>
                             
                             <div class="mt-1 pl-2">
                                 ${isAssetEditMode && isAdmin ? `
-                                    <input type="text" onblur="updateAssetField('${a.id}', 'note', this.value)" class="w-full p-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-500 rounded-lg text-[10px] font-bold border border-yellow-200 dark:border-yellow-700 placeholder-yellow-600/50 focus:border-ygsred outline-none transition" placeholder="Tulis kerusakan/service..." value="${escapeHTML(a.note||'')}">
+                                    <input type="text" onblur="updateAssetField('${a.id}', 'note', this.value)" class="w-full p-2 bg-white/50 dark:bg-black/20 backdrop-blur-sm text-gray-800 dark:text-gray-200 rounded-lg text-[10px] font-bold border ${defBorder} focus:border-ygsred outline-none transition" placeholder="Tulis kerusakan/service..." value="${escapeHTML(a.note||'')}">
                                 ` : `
-                                    <span class="text-[9px] font-bold block ${a.note?'p-2 bg-yellow-50 dark:bg-yellow-900/10 text-yellow-700 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-800 rounded':'text-gray-400 italic opacity-50'}">${escapeHTML(a.note || '-')}</span>
+                                    <span class="text-[9px] font-bold block ${a.note?'p-2 bg-white/50 dark:bg-black/20 backdrop-blur-sm text-gray-700 dark:text-gray-300 border '+defBorder+' rounded':'text-gray-400 dark:text-gray-500 italic opacity-60'}">${escapeHTML(a.note || '-')}</span>
                                 `}
                             </div>
                             
                             ${isAssetEditMode && isAdmin ? `
-                                <div class="pt-2 border-t border-gray-100 dark:border-zinc-800 text-right mt-1 pl-2">
-                                    <button onclick="deleteAsset('${a.id}')" class="text-red-500 bg-red-50 dark:bg-red-900/30 px-3 py-1.5 rounded-lg hover:bg-red-100 transition text-[9px] font-black uppercase w-full"><i data-lucide="trash-2" class="w-3 h-3 inline align-middle mr-1"></i> Hapus</button>
+                                <div class="pt-2 border-t ${defBorder} text-right mt-1 pl-2">
+                                    <button onclick="deleteAsset('${a.id}')" class="text-red-500 bg-white/50 dark:bg-black/20 backdrop-blur-sm border ${defBorder} px-3 py-1.5 rounded-lg hover:bg-red-500 hover:text-white transition text-[9px] font-black uppercase w-full"><i data-lucide="trash-2" class="w-3 h-3 inline align-middle mr-1"></i> Hapus</button>
                                 </div>
                             ` : ''}
                         </div>
-                    `).join('')}
+                    `;
+                    }).join('')}
                 </div>`;
             };
 
@@ -2658,25 +2953,36 @@
 
             for (const event in groupedEvals) {
                 const eid = groupedEvals[event][0].eventId;
-                html += `<div class="bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl border dark:border-zinc-800">
-                            <div class="flex justify-between items-center mb-3 border-b dark:border-zinc-800 pb-1">
-                                <h4 class="text-[10px] font-black text-ygsred uppercase">${escapeHTML(event)}</h4>
-                                ${isAdmin ? `<button type="button" onclick="deleteEvalGroup('${escapeHTML(eid)}', '${escapeHTML(event)}')" class="text-[8px] bg-red-100 dark:bg-red-900/30 text-red-600 px-2 py-1 rounded font-bold hover:bg-red-200 dark:hover:bg-red-800/50 transition flex items-center gap-1 shadow-sm"><i data-lucide="trash" class="w-3 h-3"></i> Hapus Grup Ini</button>` : ''}
+                const evalCount = groupedEvals[event].length;
+
+                html += `<div class="bg-gray-50 dark:bg-zinc-900/50 rounded-xl border dark:border-zinc-800 shadow-sm overflow-hidden mb-3">
+                            <div class="flex justify-between items-center p-3 hover:bg-gray-200 dark:hover:bg-zinc-800/80 transition cursor-pointer" onclick="document.getElementById('eval-list-${escapeHTML(eid)}').classList.toggle('hidden'); lucide.createIcons();">
+                                <div class="flex items-center gap-2">
+                                    <h4 class="text-[10px] font-black text-ygsred uppercase tracking-wide flex items-center gap-1.5"><i data-lucide="folder-open" class="w-3.5 h-3.5"></i> ${escapeHTML(event)}</h4>
+                                    <span class="text-[8px] bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 font-black px-1.5 py-0.5 rounded border border-red-200 dark:border-red-800/50">${evalCount} Catatan</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    ${isAdmin ? `<button type="button" onclick="event.stopPropagation(); deleteEvalGroup('${escapeHTML(eid)}', '${escapeHTML(event)}')" class="text-[8px] bg-red-100 dark:bg-red-900/30 text-red-600 px-2 py-1.5 rounded font-bold hover:bg-red-200 dark:hover:bg-red-800/50 transition flex items-center gap-1 shadow-sm"><i data-lucide="trash" class="w-3 h-3"></i> Hapus Grup</button>` : ''}
+                                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
+                                </div>
                             </div>
-                            <div class="space-y-3">`;
+                            <div id="eval-list-${escapeHTML(eid)}" class="hidden p-3 border-t border-gray-200 dark:border-zinc-700 space-y-3">`;
+                
                 groupedEvals[event].forEach(e => {
                     html += `
                     <div class="bg-white dark:bg-zinc-800 p-3 rounded-lg shadow-sm border dark:border-zinc-700/50 relative group">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="text-[9px] font-bold text-gray-900 dark:text-gray-100 uppercase">${escapeHTML(e.sender)}</span>
+                            <span class="text-[9px] font-bold text-gray-900 dark:text-gray-100 uppercase flex items-center gap-1"><i data-lucide="user" class="w-3 h-3 text-ygsred"></i> ${escapeHTML(e.sender)}</span>
                             <span class="text-[7px] font-bold text-gray-400">${new Date(e.time).toLocaleDateString('id-ID')}</span>
                         </div>
-                        <p class="text-[10px] font-medium text-gray-600 dark:text-gray-300 italic">"${escapeHTML(e.msg)}"</p>
+                        <p class="text-[10px] font-medium text-gray-600 dark:text-gray-300 italic whitespace-pre-wrap break-words mt-1 leading-relaxed">"${escapeHTML(e.msg)}"</p>
                         ${isAdmin ? `<button onclick="deleteEval('${escapeHTML(e.eventId)}', '${escapeHTML(e.time)}')" class="absolute top-2 right-2 text-gray-300 hover:text-red-500 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>` : ''}
                     </div>`;
                 });
+                
                 html += `</div></div>`;
             }
+            
             document.getElementById('eval-container').innerHTML = html || '<p class="text-center text-[8px] italic text-gray-500">Belum ada evaluasi tersimpan.</p>';
             lucide.createIcons();
         }
@@ -2832,13 +3138,28 @@
             const buildCard = (p) => {
                 const specItems = extractItemsForChecklist(p);
                 const totalItems = specItems.length;
+                
+                const eventNote = p.manpower && p.manpower.note ? p.manpower.note : '';
+                const noteHtml = eventNote ? `
+                    <div class="mt-3 mb-3 pt-3 border-t border-dashed dark:border-zinc-800">
+                        <button onclick="document.getElementById('dash-note-${p.id}').classList.toggle('hidden'); lucide.createIcons();" class="flex justify-between items-center w-full text-left group">
+                            <span class="text-[9px] font-black text-yellow-600 dark:text-yellow-500 uppercase flex items-center gap-1"><i data-lucide="message-square" class="w-3.5 h-3.5"></i> Catatan Event / Lapangan</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 group-hover:text-yellow-500 transition"></i>
+                        </button>
+                        <div id="dash-note-${p.id}" class="hidden mt-2 p-2.5 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-lg shadow-sm">
+                            <p class="text-[10px] font-bold text-gray-700 dark:text-gray-300 italic leading-relaxed">"${escapeHTML(eventNote)}"</p>
+                        </div>
+                    </div>
+                ` : '<div class="mb-3"></div>';
+
                 return `
                 <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border-l-4 border-l-ygsred shadow-sm transition mb-3">
                     <div class="flex justify-between items-center mb-2">
                         <h3 class="font-black text-sm uppercase text-gray-900 dark:text-white">${escapeHTML(p.eventName)}</h3>
                         <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-red-200"><i data-lucide="box" class="w-3 h-3 inline mr-1"></i> ${totalItems} Item</span>
                     </div>
-                    <p class="text-[9px] text-gray-500 uppercase font-bold mb-4"><i data-lucide="map-pin" class="w-3 h-3 inline align-middle"></i> ${escapeHTML(p.mapsLink !== '-' ? p.mapsLink : 'Lokasi TBA')} • ${escapeHTML(p.eventDate)}</p>
+                    <p class="text-[9px] text-gray-500 uppercase font-bold"><i data-lucide="map-pin" class="w-3 h-3 inline align-middle"></i> ${escapeHTML(p.mapsLink !== '-' ? p.mapsLink : 'Lokasi TBA')} • ${escapeHTML(p.eventDate)}</p>
+                    ${noteHtml}
                     <div class="flex gap-2 flex-wrap sm:flex-nowrap">
                         <button onclick="openChecklistEvent('${p.id}', 'view')" class="flex-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 py-2.5 rounded-xl text-[9px] font-black uppercase hover:bg-gray-200 dark:hover:bg-zinc-700 transition flex items-center justify-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Lihat</button>
                         <button onclick="openChecklistEvent('${p.id}', 'edit')" class="flex-1 bg-ygsred text-white py-2.5 rounded-xl text-[9px] font-black uppercase hover:bg-red-700 shadow-md shadow-red-900/20 transition flex items-center justify-center gap-1.5"><i data-lucide="edit" class="w-3.5 h-3.5"></i> Edit</button>
@@ -3079,7 +3400,23 @@
             let grouped = {};
             items.forEach(i => { if(!grouped[i.cat]) grouped[i.cat] = []; grouped[i.cat].push(i); });
             
-            let html = `<div class="bg-white dark:bg-zinc-900 rounded-xl border dark:border-zinc-800 overflow-hidden shadow-sm">
+            let html = '';
+            
+            if (p.manpower && p.manpower.note) {
+                html += `
+                <div class="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-xl mb-4 overflow-hidden shadow-sm">
+                    <button onclick="document.getElementById('chk-detail-event-note').classList.toggle('hidden'); lucide.createIcons();" class="w-full flex justify-between items-center p-3 hover:bg-yellow-100 dark:hover:bg-yellow-900/20 transition">
+                        <span class="text-[10px] font-black text-yellow-800 dark:text-yellow-500 uppercase tracking-widest"><i data-lucide="info" class="w-3.5 h-3.5 inline align-middle mr-1"></i> Catatan Khusus Lapangan</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-yellow-600 dark:text-yellow-500"></i>
+                    </button>
+                    <div id="chk-detail-event-note" class="hidden p-3 pt-0 border-t border-yellow-200 dark:border-yellow-900/30 mt-1">
+                        <p class="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 italic leading-relaxed">"${escapeHTML(p.manpower.note)}"</p>
+                    </div>
+                </div>
+                `;
+            }
+
+            html += `<div class="bg-white dark:bg-zinc-900 rounded-xl border dark:border-zinc-800 overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-[9px]">
                         <thead class="bg-gray-100 dark:bg-zinc-800 uppercase font-black text-gray-600 dark:text-gray-400 sticky top-0 z-10 border-b dark:border-zinc-700 shadow-sm">
@@ -3137,7 +3474,12 @@
                                 </select>
                             </div>
 
-                            ${hasNote ? `<div class="mt-3 p-3 bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-400 dark:border-yellow-600 rounded-lg shadow-sm"><span class="text-xs sm:text-sm font-black text-yellow-800 dark:text-yellow-400 uppercase tracking-widest block mb-1"><i data-lucide="alert-circle" class="w-4 h-4 inline align-middle mr-1"></i> Catatan Khusus:</span><p class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-200 break-words leading-relaxed">${escapeHTML(itemNote)}</p></div>` : ''}
+                            ${hasNote ? `
+                            <div class="mt-3 p-2.5 bg-yellow-50 dark:bg-yellow-900/10 border-2 border-yellow-300 dark:border-yellow-700 rounded-lg shadow-sm">
+                                <p class="text-[9px] font-black text-yellow-800 dark:text-yellow-500 uppercase mb-1 tracking-widest"><i data-lucide="info" class="w-3.5 h-3.5 inline align-middle mr-1"></i> Catatan Alat:</p>
+                                <p class="text-xs font-bold text-gray-800 dark:text-gray-200 break-words whitespace-pre-wrap leading-relaxed">${escapeHTML(itemNote)}</p>
+                            </div>
+                            ` : ''}
                         </td>
                         <td class="p-1 sm:p-2 border-r dark:border-zinc-800/50 align-middle">${renderCb('muat')}</td>
                         <td class="p-1 sm:p-2 border-r dark:border-zinc-800/50 align-middle">${renderCb('tiba')}</td>
