@@ -970,12 +970,19 @@
 
         // FUNGSI UTILITAS: Pencarian Exact Match Nama Kru di Objek Manpower
         function isCrewPlotted(manpowerObj, crewName) {
-            if (!manpowerObj) return false;
+            if (!manpowerObj || !crewName) return false;
             let isFound = false;
             const search = (obj) => {
                 Object.values(obj).forEach(val => {
-                    if (typeof val === 'object' && val !== null) search(val);
-                    else if (val === crewName) isFound = true;
+                    if (typeof val === 'object' && val !== null) {
+                        search(val);
+                    } else if (typeof val === 'string') {
+                        // Pecah string berdasarkan koma, bersihkan spasi, lalu cek exact match
+                        const names = val.split(',').map(n => n.trim());
+                        if (names.includes(crewName.trim())) isFound = true;
+                    } else if (val === crewName) {
+                        isFound = true;
+                    }
                 });
             };
             search(manpowerObj);
@@ -2860,11 +2867,16 @@
             const trxs = allTransactions.filter(t => t.id_kru === username).sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
             let runningSaldo = 0;
             
-            const rows = trxs.map(t => {
+            // 1. Kalkulasi saldo berjalan secara berurutan (dari transaksi terlama)
+            const trxsWithSaldo = trxs.map(t => {
                 const isIN = t.jenis_transaksi.startsWith('IN_');
                 const nom = Number(t.nominal);
                 if(isIN) runningSaldo += nom; else runningSaldo -= nom;
-                
+                return { ...t, currentSaldo: runningSaldo, isIN, nom };
+            });
+
+            // 2. Balik array (terbaru di atas) lalu dirender menjadi baris tabel
+            const rows = trxsWithSaldo.reverse().map(t => {
                 let typeLabel = '';
                 if(t.jenis_transaksi === 'IN_GAJI_EVENT') typeLabel = '<span class="text-green-600 bg-green-100 dark:bg-green-900/30 px-1 py-0.5 rounded">GAJI EVENT</span>';
                 if(t.jenis_transaksi === 'IN_GAJI_TUGAS') typeLabel = '<span class="text-green-600 bg-green-100 dark:bg-green-900/30 px-1 py-0.5 rounded">TUGAS</span>';
@@ -2872,8 +2884,8 @@
                 if(t.jenis_transaksi === 'OUT_BON') typeLabel = '<span class="text-red-600 bg-red-100 dark:bg-red-900/30 px-1 py-0.5 rounded">KASBON</span>';
                 if(t.jenis_transaksi === 'OUT_PENCAIRAN') typeLabel = '<span class="text-blue-600 bg-blue-100 dark:bg-blue-900/30 px-1 py-0.5 rounded">CAIR/WD</span>';
 
-                const inCol = isIN ? `<span class="text-green-600 font-bold">+${formatIDR(nom)}</span>` : '-';
-                const outCol = !isIN ? `<span class="text-red-600 font-bold">-${formatIDR(nom)}</span>` : '-';
+                const inCol = t.isIN ? `<span class="text-green-600 font-bold">+${formatIDR(t.nom)}</span>` : '-';
+                const outCol = !t.isIN ? `<span class="text-red-600 font-bold">-${formatIDR(t.nom)}</span>` : '-';
 
                 return `
                 <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/50">
@@ -2885,12 +2897,12 @@
                     </td>
                     <td class="p-2 text-right">${inCol}</td>
                     <td class="p-2 text-right">${outCol}</td>
-                    <td class="p-2 text-right font-black ${runningSaldo < 0 ? 'text-red-500':'text-gray-900 dark:text-white'}">${formatIDR(runningSaldo)}</td>
+                    <td class="p-2 text-right font-black ${t.currentSaldo < 0 ? 'text-red-500':'text-gray-900 dark:text-white'}">${formatIDR(t.currentSaldo)}</td>
                 </tr>
                 `;
             });
 
-            document.getElementById('ledger-table-body').innerHTML = rows.reverse().join('') || '<tr><td colspan="6" class="text-center p-6 italic text-gray-500">Belum ada riwayat transaksi.</td></tr>';
+            document.getElementById('ledger-table-body').innerHTML = rows.join('') || '<tr><td colspan="6" class="text-center p-6 italic text-gray-500">Belum ada riwayat transaksi.</td></tr>';
             document.getElementById('ledger-crew-saldo').innerText = formatIDR(runningSaldo);
             document.getElementById('ledger-crew-saldo').className = `text-xl font-black ${runningSaldo < 0 ? 'text-red-600' : 'text-green-600'}`;
             
@@ -2944,15 +2956,20 @@
 
             const trxs = allTransactions.filter(t => t.id_kru === u.username).sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
             
+            // 1. Kalkulasi saldo secara berurutan
             let runningSaldo = 0;
-            const rows = trxs.map(t => {
+            const trxsWithSaldo = trxs.map(t => {
                 const isIN = t.jenis_transaksi.startsWith('IN_');
                 const nom = Number(t.nominal);
                 if(isIN) runningSaldo += nom; else runningSaldo -= nom;
-                
-                let mutasiCol = isIN ? `<span class="text-green-600 font-bold">+${formatIDR(nom)}</span>` : `<span class="text-red-600 font-bold">-${formatIDR(nom)}</span>`;
-                let mutasiIcon = isIN ? `<i data-lucide="arrow-down-left" class="w-3 h-3 text-green-600"></i>` : `<i data-lucide="arrow-up-right" class="w-3 h-3 text-red-600"></i>`;
-                let bgIcon = isIN ? `bg-green-100 dark:bg-green-900/30` : `bg-red-100 dark:bg-red-900/30`;
+                return { ...t, currentSaldo: runningSaldo, isIN, nom };
+            });
+            
+            // 2. Balik array dan render
+            const rows = trxsWithSaldo.reverse().map(t => {
+                let mutasiCol = t.isIN ? `<span class="text-green-600 font-bold">+${formatIDR(t.nom)}</span>` : `<span class="text-red-600 font-bold">-${formatIDR(t.nom)}</span>`;
+                let mutasiIcon = t.isIN ? `<i data-lucide="arrow-down-left" class="w-3 h-3 text-green-600"></i>` : `<i data-lucide="arrow-up-right" class="w-3 h-3 text-red-600"></i>`;
+                let bgIcon = t.isIN ? `bg-green-100 dark:bg-green-900/30` : `bg-red-100 dark:bg-red-900/30`;
 
                 return `
                 <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/50">
@@ -2968,14 +2985,14 @@
                         </div>
                     </td>
                     <td class="p-3 text-right text-[10px]">${mutasiCol}</td>
-                    <td class="p-3 text-right font-black text-[10px] ${runningSaldo < 0 ? 'text-red-500' : 'text-gray-900 dark:text-white'}">${formatIDR(runningSaldo)}</td>
+                    <td class="p-3 text-right font-black text-[10px] ${t.currentSaldo < 0 ? 'text-red-500' : 'text-gray-900 dark:text-white'}">${formatIDR(t.currentSaldo)}</td>
                 </tr>`;
             });
 
             document.getElementById('prof-sisa').innerText = formatIDR(runningSaldo);
             document.getElementById('prof-sisa').className = `text-3xl font-black mt-2 ${runningSaldo < 0 ? 'text-red-600' : 'text-green-600'}`;
             
-            document.getElementById('profile-history').innerHTML = rows.reverse().join('') || '<tr><td colspan="3" class="text-center p-6 italic text-gray-500">Belum ada riwayat mutasi / dompet masih kosong.</td></tr>';
+            document.getElementById('profile-history').innerHTML = rows.join('') || '<tr><td colspan="3" class="text-center p-6 italic text-gray-500">Belum ada riwayat mutasi / dompet masih kosong.</td></tr>';
             lucide.createIcons();
         }
 
@@ -3541,7 +3558,7 @@
                         <td class="p-1 sm:p-2 border-r dark:border-zinc-800/50 align-middle">${renderCb('out')}</td>
                         <td class="p-1 sm:p-2 border-r dark:border-zinc-800/50 align-middle">${renderCb('gudang')}</td>
                         <td class="p-1 sm:p-2 align-middle text-center">
-                            <button onclick="openChkNote('${i.id}')" class="text-gray-400 hover:text-ygsred transition p-2 bg-white dark:bg-zinc-800 border dark:border-zinc-700 rounded-xl shadow-sm hover:shadow-md ${isChecklistEditMode ? '' : 'hidden'}"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 mx-auto"></i></button>
+                            <button onclick="openChkNote('${i.id}', '${escapeHTML(i.jenis)} - ${escapeHTML(i.brand)}', '${escapeHTML(i.brand)}')" class="text-gray-400 hover:text-ygsred transition p-2 bg-white dark:bg-zinc-800 border dark:border-zinc-700 rounded-xl shadow-sm hover:shadow-md ${isChecklistEditMode ? '' : 'hidden'}"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 mx-auto"></i></button>
                         </td>
                     </tr>`;
                 });
@@ -3552,7 +3569,7 @@
             lucide.createIcons();
         }
 
-        async function changeChkStatus(itemId, newStatus) {
+        async function changeChkStatus(itemId, brand, newStatus) {
             if(!isChecklistEditMode) {
                 showToast("Mode View: Tidak dapat mengubah status.", true);
                 renderChecklistTable(); return;
@@ -3562,18 +3579,14 @@
             state.items[itemId].status = newStatus;
             saveChkState(currentChkEventId, state);
 
-            const p = allProjects.find(x => x.id === currentChkEventId);
-            const itemData = extractItemsForChecklist(p).find(x => x.id === itemId);
-            const brand = itemData ? itemData.brand : null;
-
-            if(brand) {
-                const asset = allAssets.find(a => a.name === brand);
-                if(asset) {
-                    asset.status = newStatus; 
-                    apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'status', value: newStatus } });
-                    showToast(`Status ${brand} tersinkronisasi ke Inventaris!`);
-                    if(activeTab === 'assets') renderAssets();
-                }
+            const asset = allAssets.find(a => a.name === brand);
+            if(asset) {
+                showLoading(true);
+                asset.status = newStatus; 
+                await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'status', value: newStatus } });
+                showLoading(false);
+                showToast(`Status ${brand} tersinkronisasi ke Inventaris!`);
+                if(activeTab === 'assets') renderAssets();
             }
         }
 
