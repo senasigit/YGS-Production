@@ -270,18 +270,30 @@
         <div class="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 w-full max-w-4xl mx-auto" id="detail-content"></div>
     </div>
 
-    <!-- MODAL QUOTES -->
-    <div id="modal-quote" class="fixed inset-0 bg-black/80 z-[900] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade" onclick="if(event.target===this) closeQuoteModal()">
+    <!-- MODAL DAILY BRIEFING & ABSENSI -->
+    <div id="modal-daily" class="fixed inset-0 bg-black/80 z-[900] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade" onclick="if(event.target===this && !document.getElementById('btn-close-daily').classList.contains('hidden')) closeDailyModal()">
         <div class="bg-white dark:bg-[#111] p-6 rounded-3xl w-full max-w-sm space-y-4 border dark:border-zinc-800 shadow-2xl text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 right-0 h-1.5 bg-ygsred"></div>
-            <div class="mx-auto w-24 h-auto flex items-center justify-center mb-3 drop-shadow-xl">
+            <div class="mx-auto w-24 h-auto flex items-center justify-center mb-1 drop-shadow-xl">
                 <img src="https://raw.githubusercontent.com/senasigit/YGS-Production/c6fc931f0285b1de9178bc14e3d912e65b2ca1eb/logo%20ygs%202.PNG" alt="YGS Logo" class="w-full h-auto object-contain dark:hidden">
                 <img src="https://raw.githubusercontent.com/senasigit/YGS-Production/c6fc931f0285b1de9178bc14e3d912e65b2ca1eb/logo%20ygs.PNG" alt="YGS Logo" class="w-full h-auto object-contain hidden dark:block">
             </div>
-            <h3 class="text-[10px] font-black uppercase text-gray-500 tracking-widest"><i data-lucide="quote" class="w-3 h-3 inline mr-1 text-ygsred"></i>Pesan Hari Ini</h3>
-            <p id="quote-text" class="text-[11px] font-bold text-gray-800 dark:text-gray-200 italic leading-relaxed px-2">"Quote goes here"</p>
-            <div class="pt-4">
-                <button onclick="closeQuoteModal()" class="w-full py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px] shadow-lg shadow-red-900/30 transition hover:bg-red-700">Siap Laksanakan!</button>
+            
+            <h3 class="text-xs font-black uppercase text-gray-900 dark:text-white tracking-widest border-b dark:border-zinc-800 pb-2">Briefing & Absensi</h3>
+            
+            <!-- Agenda Summary -->
+            <div id="daily-agenda-summary" class="bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50 text-left space-y-1.5">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Quote -->
+            <div class="pt-2">
+                <p id="daily-quote" class="text-[10px] font-bold text-gray-500 dark:text-gray-400 italic leading-relaxed px-2"></p>
+            </div>
+
+            <div class="pt-2 flex gap-2">
+                <button id="btn-submit-absen" onclick="submitAbsen()" class="w-full py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px] shadow-lg shadow-red-900/30 transition hover:bg-red-700 flex items-center justify-center gap-1.5"><i data-lucide="check-square" class="w-4 h-4"></i> Absen Hadir Hari Ini!</button>
+                <button id="btn-close-daily" onclick="closeDailyModal()" class="hidden w-full py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-black uppercase text-[10px] transition hover:bg-gray-300 dark:hover:bg-zinc-700 flex items-center justify-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i> Sudah Absen (Tutup)</button>
             </div>
         </div>
     </div>
@@ -661,7 +673,7 @@
                     </div>
 
                     <!-- KALKULASI PENAWARAN (Mode Penawaran Only) -->
-                    <div class="card-dark p-5 rounded-xl space-y-3 border-l-4 border-l-emerald-500 penawaran-only shadow-sm">
+                    <div class="card-dark p-5 rounded-xl space-y-3 border-l-4 border-l-emerald-50 penawaran-only shadow-sm">
                         <h3 class="text-[10px] font-black text-emerald-600 uppercase border-b dark:border-zinc-800 pb-2">Kalkulasi Penawaran</h3>
                         <div class="grid grid-cols-2 gap-2 text-[10px] font-bold">
                             <div class="text-gray-500 uppercase">Subtotal Audio</div><div class="text-right text-gray-900 dark:text-white" id="calc-sub-audio">Rp 0</div>
@@ -1085,24 +1097,94 @@
             "Nama baik tim kita bukan cuma dari hasil akhir yang memukau, tapi dari kedisiplinan dan cara kita menghargai proses di lapangan."
         ];
 
-        function showQuote() {
+        function showDailyBriefing() {
+            const todayStr = getJakartaDateString();
+            const myName = currentUser.nickname || currentUser.fullName;
+            
+            // Cek apakah user sudah absen hari ini
+            const alreadyAbsen = allEvals.some(e => e.eventId === 'ABSEN_' + todayStr && e.sender === myName);
+
+            // Set Quote
             const randomIndex = Math.floor(Math.random() * crewQuotes.length);
-            document.getElementById('quote-text').innerText = `"${crewQuotes[randomIndex]}"`;
-            document.getElementById('modal-quote').classList.remove('hidden');
-            document.getElementById('modal-quote').classList.add('flex');
+            document.getElementById('daily-quote').innerText = `"${crewQuotes[randomIndex]}"`;
+
+            // Set Jadwal Hari Ini
+            const evs = allProjects.filter(p => p.eventDate === todayStr || (p.activities && p.activities.some(a => a.date === todayStr)));
+            const activeEvs = evs.filter(p => p.status !== 'Cancelled');
+            
+            let agendaHtml = `<p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5"><i data-lucide="calendar" class="w-3 h-3 inline align-middle mb-0.5"></i> Jadwal Anda Hari Ini</p>`;
+            
+            if(activeEvs.length > 0) {
+                activeEvs.forEach(p => {
+                    let taskStr = "Tim Produksi";
+                    if (p.manpower) {
+                        const isAudio = Object.values(p.manpower.audio || {}).includes(myName);
+                        const isLight = Object.values(p.manpower.lighting || {}).includes(myName);
+                        const isRoadie = Object.values(p.manpower.roadies || {}).includes(myName);
+                        if(isAudio) taskStr = "Divisi Audio";
+                        if(isLight) taskStr = "Divisi Lighting";
+                        if(isRoadie) taskStr = "Roadies/Pendukung";
+                        if(p.manpower.pic === myName) taskStr = "PIC Event";
+                    }
+                    agendaHtml += `<div class="bg-white dark:bg-black p-2 rounded-lg border dark:border-zinc-800 shadow-sm mb-1.5 last:mb-0">
+                        <p class="text-[10px] font-black text-ygsred uppercase truncate">${escapeHTML(p.eventName)}</p>
+                        <p class="text-[9px] text-gray-600 dark:text-gray-400 font-bold">${escapeHTML(p.mapsLink !== '-' ? p.mapsLink : 'Lokasi TBA')} • <span class="text-blue-500">${taskStr}</span></p>
+                    </div>`;
+                });
+            } else {
+                agendaHtml += `<div class="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg border border-green-200 dark:border-green-900/50 text-center">
+                    <p class="text-[10px] font-black text-green-600 uppercase"><i data-lucide="coffee" class="w-3 h-3 inline align-middle"></i> Tidak ada event. Standby/Libur.</p>
+                </div>`;
+            }
+            document.getElementById('daily-agenda-summary').innerHTML = agendaHtml;
+
+            // Toggle Tombol Absen
+            if(alreadyAbsen) {
+                document.getElementById('btn-submit-absen').classList.add('hidden');
+                document.getElementById('btn-close-daily').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-submit-absen').classList.remove('hidden');
+                document.getElementById('btn-close-daily').classList.add('hidden');
+            }
+
+            document.getElementById('modal-daily').classList.remove('hidden');
+            document.getElementById('modal-daily').classList.add('flex');
             lucide.createIcons();
         }
         
-        function closeQuoteModal() {
-            document.getElementById('modal-quote').classList.add('hidden');
-            document.getElementById('modal-quote').classList.remove('flex');
+        function closeDailyModal() {
+            document.getElementById('modal-daily').classList.add('hidden');
+            document.getElementById('modal-daily').classList.remove('flex');
+        }
+
+        async function submitAbsen() {
+            showLoading(true);
+            const todayStr = getJakartaDateString();
+            const myName = currentUser.nickname || currentUser.fullName;
+            
+            // Kita inject absensi ke database Evaluasi dengan ID khusus ABSEN_YYYYMMDD
+            await apiCall({ 
+                action: 'ADD_EVAL', 
+                payload: { 
+                    eventId: 'ABSEN_' + todayStr, 
+                    eventName: 'ABSENSI HARIAN', 
+                    msg: 'HADIR & STANDBY', 
+                    sender: myName, 
+                    time: new Date().toISOString() 
+                } 
+            });
+            
+            showLoading(false);
+            showToast("Absen Berhasil! Selamat beraktivitas.");
+            closeDailyModal();
+            fetchData(true); // Refresh data di background agar badge di tab Tim terupdate
         }
 
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault(); showLoading(true);
             const res = await apiCall({ action: 'LOGIN', payload: { username: document.getElementById('log-username').value.toLowerCase(), password: document.getElementById('log-password').value } });
             showLoading(false);
-            if(res.success) { currentUser = res.user; initApp(); showQuote(); } 
+            if(res.success) { currentUser = res.user; initApp(); showDailyBriefing(); } 
             else showToast(res.message, true);
         };
 
@@ -1404,7 +1486,6 @@
                 <div class="flex gap-2 mt-3 pt-3 border-t dark:border-zinc-800 flex-wrap">
                     <button onclick="openFinanceModal('${p.id}')" class="flex-none bg-emerald-600 text-white px-3 py-1.5 rounded text-[9px] font-black shadow-sm hover:bg-emerald-700 transition"><i data-lucide="dollar-sign" class="w-3 h-3 inline align-middle"></i> GAJI CREW</button>
                     <button onclick="shareWA('${p.id}')" class="flex-none bg-green-500 text-white px-3 py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1 shadow-sm hover:bg-green-600 transition"><i data-lucide="share-2" class="w-3 h-3"></i> WA</button>
-                    <button onclick="exportPDF('${p.id}')" class="flex-none bg-blue-600 text-white px-3 py-1.5 rounded text-[9px] font-black flex items-center justify-center gap-1 shadow-sm hover:bg-blue-700 transition"><i data-lucide="file-text" class="w-3 h-3"></i> PDF</button>
                     <button onclick="editEvent('${p.id}')" class="flex-none bg-yellow-500 text-white px-3 py-1.5 rounded text-[9px] font-black shadow-sm hover:bg-yellow-600 transition"><i data-lucide="edit" class="w-3 h-3"></i></button>
                     <button onclick="deleteEvent('${p.id}')" class="flex-none bg-red-600 text-white px-3 py-1.5 rounded text-[9px] font-black shadow-sm hover:bg-red-700 transition"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                 </div>
@@ -2002,182 +2083,6 @@
             safeGeneratePDF(htmlContent, `Produksi_${eventName.replace(/\s+/g, '_')}.pdf`);
         }
 
-        function shareWA(id) { 
-            const p = allProjects.find(x => x.id === id); if(!p) return;
-            
-            let actText = '';
-            if(p.activities && p.activities.length) {
-                p.activities.forEach(a => { actText += `- *${a.date}* (${a.startTime}-${a.endTime}) : ${(a.acts||[]).join(', ')}\n`; });
-            } else { actText = '- Belum ada jadwal spesifik\n'; }
-
-            const m = p.manpower || {};
-            let crewText = '';
-            if(m.pic && m.pic !== '-') crewText += `- PIC: ${m.pic}\n`;
-            const audio = [m.audio?.se, m.audio?.foh, m.audio?.moh, m.audio?.rf, m.audio?.stg, m.audio?.ast].filter(x => x && x !== '-').join(', ');
-            if(audio) crewText += `- Audio: ${audio}\n`;
-            const lighting = [m.lighting?.ld, m.lighting?.ptc, m.lighting?.adr, m.lighting?.ast].filter(x => x && x !== '-').join(', ');
-            if(lighting) crewText += `- Lighting: ${lighting}\n`;
-            const roadies = [m.roadies?.head, m.roadies?.r1, m.roadies?.r2, m.roadies?.r3, m.roadies?.r4].filter(x => x && x !== '-').join(', ');
-            if(roadies) crewText += `- Roadies: ${roadies}\n`;
-            const support = [m.support?.rigging, m.support?.stage, m.support?.genset, m.support?.barikade].filter(x => x && x !== '-').join(', ');
-            if(support) crewText += `- Pendukung: ${support}\n`;
-
-            const text = `*CREW CALL YGS PRODUCTION* 📢\n\n*📌 Event:* ${p.eventName}\n*👤 Talent:* ${p.artist}\n*📍 Lokasi:* ${p.mapsLink !== '-' ? p.mapsLink : 'TBA'}\n*🟢 Status:* ${p.status}\n\n*🗓️ JADWAL KEGIATAN:*\n${actText}\n*👥 TIM BERTUGAS:*\n${crewText ? crewText : '- Belum diplot\n'}${m.note ? '\n*📝 Catatan Kru:*\n_' + m.note + '_\n' : ''}\nMohon standby tepat waktu dan pastikan perlengkapan siap. Safety first! 🚀`;
-
-            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
-        }
-
-        function setFormMode(mode) {
-            formMode = mode;
-            const form = document.getElementById('event-form');
-            const btnP = document.getElementById('btn-mode-produksi');
-            const btnQ = document.getElementById('btn-mode-penawaran');
-            const btnC = document.getElementById('btn-mode-counter');
-            
-            form.classList.remove('mode-produksi', 'mode-penawaran', 'mode-counter');
-            form.classList.add('mode-' + mode);
-            
-            [btnP, btnQ, btnC].forEach(b => {
-                b.classList.remove('bg-white', 'dark:bg-black', 'shadow', 'text-ygsred');
-                b.classList.add('text-gray-500');
-            });
-            
-            const activeBtn = mode === 'produksi' ? btnP : mode === 'penawaran' ? btnQ : btnC;
-            activeBtn.classList.remove('text-gray-500');
-            activeBtn.classList.add('bg-white', 'dark:bg-black', 'shadow', 'text-ygsred');
-        }
-
-        function calculateQuotation() {
-            let subAudio = unformatRupiah(document.getElementById('global-price-audio')?.value);
-            let subLighting = unformatRupiah(document.getElementById('global-price-lighting')?.value);
-            let subPendukung = unformatRupiah(document.getElementById('global-price-pendukung')?.value);
-            
-            document.querySelectorAll('#event-form .dynamic-row').forEach(row => {
-                const qtyInput = row.querySelector('.dyn-qty');
-                const priceInput = row.querySelector('.dyn-price');
-                const qty = qtyInput ? parseFloat(qtyInput.value) || 0 : 0;
-                const price = priceInput ? unformatRupiah(priceInput.value) : 0;
-                const total = qty * price;
-                
-                const cat = row.dataset.cat || '';
-                if(cat.includes('audio')) subAudio += total;
-                else if(cat.includes('light')) subLighting += total;
-                else subPendukung += total;
-            });
-            
-            const discInput = document.getElementById('calc-discount');
-            const disc = discInput ? unformatRupiah(discInput.value) : 0;
-            const grandTotal = subAudio + subLighting + subPendukung - disc;
-            
-            document.getElementById('calc-sub-audio').innerText = formatIDR(subAudio);
-            document.getElementById('calc-sub-lighting').innerText = formatIDR(subLighting);
-            document.getElementById('calc-sub-pendukung').innerText = formatIDR(subPendukung);
-            document.getElementById('calc-grand-total').innerText = formatIDR(grandTotal > 0 ? grandTotal : 0);
-        }
-
-        function confirmSaveEvent() {
-            showCustomConfirm("Simpan Event / Penawaran", "Apakah Anda yakin ingin memublikasikan data event ini?", () => {
-                processFormSubmit();
-            });
-        }
-        
-        async function processFormSubmit() {
-            showLoading(true);
-            const editId = document.getElementById('edit-id').value;
-            const days = []; document.querySelectorAll('.day-row').forEach(r => days.push({ date: r.dataset.date, startTime: r.querySelector('.time-start').value, endTime: r.querySelector('.time-end').value, acts: Array.from(r.querySelectorAll('.act-check:checked')).map(x => x.value) }));
-            
-            const noteEl = document.getElementById('crewNote');
-            const noteValue = noteEl ? noteEl.value : '';
-
-            const financeData = {
-                globalAudio: unformatRupiah(document.getElementById('global-price-audio')?.value),
-                globalLighting: unformatRupiah(document.getElementById('global-price-lighting')?.value),
-                globalPendukung: unformatRupiah(document.getElementById('global-price-pendukung')?.value),
-                discount: unformatRupiah(document.getElementById('calc-discount')?.value)
-            };
-
-            const p = { 
-                id: editId || ('YGS-'+Date.now()), 
-                eventName: document.getElementById('eventName').value, 
-                artist: document.getElementById('artist').value, 
-                clientName: document.getElementById('clientName').value,
-                clientPhone: document.getElementById('clientPhone').value,
-                mapsLink: document.getElementById('mapsLink').value,
-                eventDate: document.getElementById('startDate').value, 
-                status: document.getElementById('evStatus').value, 
-                activities: days, 
-                finance: financeData, 
-                transportasi: Array.from(document.querySelectorAll('.trans-check:checked')).map(x => x.value),
-                specDyn: { audio: { pa: extractDynData('dyn-audio-pa'), monitor: extractDynData('dyn-audio-monitor'), console: extractDynData('dyn-audio-console'), mic: extractDynData('dyn-audio-mic'), backline: extractDynData('dyn-audio-backline'), stand: extractDynData('dyn-audio-stand'), cable: extractDynData('dyn-audio-cable'), others: extractDynData('dyn-audio-others') }, lighting: MASTER_GROUPS.lighting.map(s => ({ sub: s, data: extractDynData('dyn-light-'+s.replace(/\s+/g,'')) })), led: extractDynData('dyn-led'), rigging: extractDynData('dyn-rigging'), genset: extractDynData('dyn-genset'), barikade: extractDynData('dyn-barikade'), others_pendukung: extractDynData('dyn-others') },
-                manpower: { 
-                    pic: document.getElementById('pic').value, 
-                    audio: { se: document.getElementById('c_a_se').value, foh: document.getElementById('c_a_foh').value, moh: document.getElementById('c_a_moh').value, rf: document.getElementById('c_a_rf').value, stg: document.getElementById('c_a_stg').value, ast: document.getElementById('c_a_ast').value }, 
-                    lighting: { ld: document.getElementById('c_l_ld').value, ptc: document.getElementById('c_l_ptc').value, adr: document.getElementById('c_l_adr').value, ast: document.getElementById('c_l_ast').value }, 
-                    roadies: { head: document.getElementById('c_r_head').value, r1: document.getElementById('c_r_1').value, r2: document.getElementById('c_r_2').value, r3: document.getElementById('c_r_3').value, r4: document.getElementById('c_r_4').value }, 
-                    support: { rigging: document.getElementById('c_s_rigging').value, stage: document.getElementById('c_s_stage').value, genset: document.getElementById('c_s_genset').value, barikade: document.getElementById('c_s_barikade').value },
-                    note: noteValue
-                }
-            };
-            
-            await apiCall({ action: 'ADD_DATA', payload: p });
-            showLoading(false); resetEventForm(); switchTab('list'); fetchData(); showToast(editId ? "Terupdate!" : "Berhasil disimpan!");
-        }
-
-        function extractDynData(id) { const arr = []; const el = document.getElementById(id); if(!el) return arr; el.querySelectorAll('.dynamic-row').forEach(r => { const j = r.querySelector('.dyn-jenis').value, b = r.querySelector('.dyn-brand').value, qInput = r.querySelector('.dyn-qty'), prInput = r.querySelector('.dyn-price'); const q = qInput ? qInput.value : '', pr = prInput ? unformatRupiah(prInput.value) : ''; if(j||b||q||pr) arr.push({jenis:j, brand:b, qty:q, price:pr}); }); return arr; }
-
-        function initDynForms() {
-            const aC = document.getElementById('dyn-audio-container'), lC = document.getElementById('dyn-lighting-container');
-            if(!aC) return; aC.innerHTML = ''; lC.innerHTML = '';
-            ['pa', 'monitor', 'console', 'mic', 'backline', 'stand', 'cable'].forEach(c => {
-                const catDiv = document.createElement('div'); catDiv.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50';
-                catDiv.innerHTML = `<p class="text-[11px] font-black uppercase text-blue-600 mb-2">${c}</p><div id="dyn-audio-${c}" class="space-y-2"></div>`; aC.appendChild(catDiv);
-                MASTER_GROUPS[c].forEach(s => {
-                    const subId = `dyn-audio-${c}-${s.replace(/[^a-zA-Z0-9]/g,'')}`; const subDiv = document.createElement('div');
-                    subDiv.innerHTML = `<div class="flex justify-between items-center mb-1"><p class="text-[9px] font-bold uppercase text-gray-500">${s}</p><button type="button" onclick="addDynRow('${subId}', {jenis: '${s}'}, true)" class="text-[8px] bg-blue-600 text-white px-2 py-1 rounded shadow">+ Tambah</button></div><div id="${subId}" class="space-y-1"></div>`;
-                    document.getElementById(`dyn-audio-${c}`).appendChild(subDiv); addDynRow(subId, {jenis: s}, true);
-                });
-            });
-            MASTER_GROUPS.lighting.forEach(s => {
-                const subId = `dyn-light-${s.replace(/\s+/g,'')}`; const d = document.createElement('div'); d.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50';
-                d.innerHTML = `<div class="flex justify-between items-center mb-1"><p class="text-[10px] font-black uppercase">${s}</p><button type="button" onclick="addDynRow('${subId}', {jenis: '${s}'}, true)" class="text-[8px] bg-orange-600 text-white px-2 py-1 rounded shadow">+ Brand</button></div><div id="${subId}" class="space-y-1"></div>`;
-                lC.appendChild(d); addDynRow(subId, {jenis: s}, true);
-            });
-            addDynRow('dyn-led', {jenis: 'Main Stage'}); addDynRow('dyn-rigging', {jenis: 'Main Stage'}); addDynRow('dyn-genset', {jenis: 'Genset'}); addDynRow('dyn-barikade', {jenis: 'Barikade'}); addDynRow('dyn-others', {jenis: 'Tenda/AC/Kipas'});
-        }
-
-        function addDynRow(cId, def={jenis:'', brand:'', qty:'', price:''}, isF=false) {
-            const c = document.getElementById(cId); if(!c) return; 
-            const div = document.createElement('div'); 
-            div.className = 'flex flex-wrap sm:flex-nowrap items-center gap-1.5 dynamic-row mb-1.5 pb-2 border-b border-gray-200 dark:border-zinc-800/50 last:border-0';
-            div.dataset.cat = cId;
-            
-            const isAudioOrLight = cId.includes('dyn-audio') || cId.includes('dyn-light');
-            const jenisHTML = isAudioOrLight 
-                ? `<input type="hidden" class="dyn-jenis" value="${def.jenis || ''}">` 
-                : `<input type="text" autocomplete="off" class="dyn-jenis w-full sm:flex-[3] p-2 bg-gray-50 dark:bg-zinc-800/50 text-[9px] font-black uppercase text-gray-700 dark:text-gray-300 focus:outline-none placeholder-gray-400 border border-gray-200 dark:border-zinc-700 rounded transition" placeholder="Peruntukan/Posisi" value="${def.jenis || ''}" ${isF?'readonly':''}>`;
-
-            let qtyPlaceholder = "Jmlh";
-            if(cId.includes('dyn-led') || cId.includes('dyn-rigging') || cId.includes('dyn-barikade')) qtyPlaceholder = "Meter";
-            if(cId.includes('dyn-genset')) qtyPlaceholder = "Unit/KVA";
-            if(cId.includes('dyn-audio-cable') || cId.includes('dyn-audio-stand') || cId.includes('dyn-audio-mic')) qtyPlaceholder = "Pcs";
-            if(cId.includes('dyn-audio-backline')) qtyPlaceholder = "Set";
-            if(cId.includes('dyn-others')) qtyPlaceholder = "Unit";
-            if(cId.includes('dyn-audio-pa') || cId.includes('dyn-audio-monitor') || cId.includes('dyn-audio-console') || cId.includes('dyn-light')) qtyPlaceholder = "Unit";
-
-            div.innerHTML = `
-                ${jenisHTML}
-                <div class="flex flex-wrap sm:flex-nowrap w-full sm:w-auto sm:flex-[6] gap-1.5 items-center">
-                    <input type="text" list="list-inventory" autocomplete="off" class="dyn-brand w-full sm:w-auto sm:flex-[4] p-2 bg-transparent text-[10px] font-bold text-gray-900 dark:text-white focus:outline-none focus:border-b-ygsred transition-all placeholder-gray-400 border border-gray-200 dark:border-zinc-700 rounded" placeholder="Ketik/Cari Brand..." value="${def.brand || ''}">
-                    <div class="flex w-full sm:w-auto sm:flex-[5] gap-1.5 items-center">
-                        <input type="number" class="dyn-qty flex-1 sm:flex-[2] p-2 bg-transparent text-[10px] font-black text-center focus:outline-none placeholder-gray-400 border border-gray-200 dark:border-zinc-700 focus:border-ygsred transition-all rounded" placeholder="${qtyPlaceholder}" value="${def.qty || ''}" oninput="calculateQuotation()">
-                        <input type="text" inputmode="numeric" autocomplete="off" class="dyn-price penawaran-only flex-[1.5] sm:flex-[3] p-2 bg-transparent text-[10px] font-black text-right focus:outline-none placeholder-gray-400 border border-gray-200 dark:border-zinc-700 focus:border-ygsred transition-all rounded" placeholder="Hrg/Satuan" value="${def.price ? Number(def.price).toLocaleString('id-ID') : ''}" oninput="formatInputRibuan(event)">
-                        <button type="button" onclick="this.closest('.dynamic-row').remove(); calculateQuotation();" class="text-gray-400 hover:text-red-500 transition px-2 py-1.5 bg-gray-100 dark:bg-zinc-800 rounded shrink-0"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                    </div>
-                </div>
-            `;
-            safeGeneratePDF(htmlContent, `Produksi_${eventName.replace(/\s+/g, '_')}.pdf`);
-        }
-
         function confirmExportCounterPDF() {
             showCustomConfirm("Export Counter Rider", "Generate dokumen PDF khusus spesifikasi Counter Rider?", () => {
                 exportCounterPDF();
@@ -2754,6 +2659,7 @@
 
         function renderTeam() {
             const sortBy = document.getElementById('team-sort').value;
+            const todayStr = getJakartaDateString();
             
             let usersWithStats = allUsers.map(u => {
                 const trxs = allTransactions.filter(t => t.id_kru === u.username);
@@ -2764,7 +2670,12 @@
                     if(t.jenis_transaksi.startsWith('OUT_')) saldo -= nom;
                     if(t.jenis_transaksi === 'OUT_BON') totalBon += nom;
                 });
-                return { ...u, saldo, totalBon };
+                
+                // Cek absensi hari ini (Apakah ada log di allEvals dengan ID ABSEN_TanggalHariIni untuk user ini)
+                const safeName = u.nickname || u.fullName;
+                const hasAbsen = allEvals.some(e => e.eventId === 'ABSEN_' + todayStr && e.sender === safeName);
+                
+                return { ...u, saldo, totalBon, hasAbsen, safeName };
             });
 
             let totalKewajiban = 0;
@@ -2779,6 +2690,10 @@
                 const isAdmin = u.role === 'admin';
                 const bgClass = isAdmin ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-300 dark:border-amber-800' : 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800';
                 
+                const absenBadge = u.hasAbsen
+                    ? `<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-500 px-2 py-0.5 rounded text-[7px] sm:text-[8px] font-black uppercase inline-flex items-center gap-1 border border-green-200 dark:border-green-800 mt-1.5"><i data-lucide="check-circle" class="w-3 h-3"></i> Hadir Hari Ini</span>`
+                    : `<span class="bg-gray-100 dark:bg-zinc-800/80 text-gray-500 px-2 py-0.5 rounded text-[7px] sm:text-[8px] font-black uppercase inline-flex items-center gap-1 border border-gray-200 dark:border-zinc-700 mt-1.5"><i data-lucide="clock" class="w-3 h-3"></i> Belum Absen</span>`;
+
                 return `
                 <div class="${bgClass} p-4 rounded-xl border shadow-sm flex flex-col justify-between cursor-pointer hover:border-ygsred transition group relative overflow-hidden" onclick="openLedger('${escapeHTML(u.username)}')">
                     ${isAdmin ? `<div class="absolute top-0 right-0 bg-amber-400 text-amber-900 text-[7px] font-black uppercase px-2 py-0.5 rounded-bl-lg tracking-widest">Administrator</div>` : ''}
@@ -2786,10 +2701,9 @@
                         <div class="mt-1">
                             <p class="font-black text-sm uppercase group-hover:text-ygsred transition">${escapeHTML(u.fullName)}</p>
                             <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">${escapeHTML(u.position)} • @${escapeHTML(u.username)}</p>
-                            <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5"><i data-lucide="phone" class="w-3 h-3 inline-block align-middle mr-1"></i> ${u.phone ? (u.phone.toString().startsWith('0') || u.phone.toString().startsWith('+') ? escapeHTML(u.phone) : '0' + escapeHTML(u.phone)) : '-'}</p>
-                            <p class="text-[9px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest mt-1"><i data-lucide="credit-card" class="w-3 h-3 inline-block align-middle mr-1"></i> ${escapeHTML(u.bankName || '-')} - ${escapeHTML(u.bankAcc || '-')}</p>
+                            ${absenBadge}
                         </div>
-                        <div class="w-8 h-8 ${isAdmin?'bg-amber-200 dark:bg-amber-900/50 text-amber-700':'bg-red-50 dark:bg-red-950/30 text-ygsred border-red-100'} rounded-full flex items-center justify-center font-black text-[10px] border dark:border-red-900/50 mt-2">
+                        <div class="w-8 h-8 ${isAdmin?'bg-amber-200 dark:bg-amber-900/50 text-amber-700':'bg-red-50 dark:bg-red-950/30 text-ygsred border-red-100'} rounded-full flex items-center justify-center font-black text-[10px] border dark:border-red-900/50 mt-2 shrink-0">
                             <i data-lucide="book-open" class="w-4 h-4"></i>
                         </div>
                     </div>
@@ -2943,7 +2857,11 @@
 
         function renderEvaluations() {
             const groupedEvals = {};
-            allEvals.forEach(e => {
+            
+            // Filter agar data Absensi (yang berawalan ABSEN_) tidak masuk ke daftar Evaluasi Event
+            const realEvals = allEvals.filter(e => !e.eventId.startsWith('ABSEN_'));
+
+            realEvals.forEach(e => {
                 if(!groupedEvals[e.eventName]) groupedEvals[e.eventName] = [];
                 groupedEvals[e.eventName].push(e);
             });
