@@ -920,6 +920,7 @@
                 <span id="badge-maint" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
             </button>
             <button onclick="switchTab('team')" class="hidden shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred admin-only" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Tim</span></button>
+            <button onclick="switchTab('stats')" class="hidden shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred admin-only" id="nav-stats"><i data-lucide="pie-chart" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Stats</span></button>
             <button onclick="switchTab('profile')" class="shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-profile"><i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Dompet</span></button>
         </nav>
     </div>
@@ -939,6 +940,7 @@
         let currentChkEventId = null;
         let isChecklistEditMode = false;
         let reauthCallback = null;
+        let chartEvt, chartAst, chartCrw;
 
         // Waktu Realtime Jakarta
         function getJakartaNow() {
@@ -1301,7 +1303,7 @@
         }
 
         function switchTab(tab) {
-            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-eval', 'view-team', 'view-profile', 'view-checklist', 'view-maint'].forEach(v => {
+            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-eval', 'view-team', 'view-profile', 'view-checklist', 'view-maint', 'view-stats'].forEach(v => {
                 const el = document.getElementById(v);
                 if(el) {
                     el.classList.add('hidden');
@@ -1309,7 +1311,7 @@
                 }
             });
             
-            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile', 'nav-checklist', 'nav-maint'].forEach(n => {
+            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile', 'nav-checklist', 'nav-maint', 'nav-stats'].forEach(n => {
                 const nav = document.getElementById(n); if(!nav) return;
                 nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
                 if(n === 'nav-' + tab) nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
@@ -1336,6 +1338,7 @@
             if(tab === 'eval') renderEvaluations();
             if(tab === 'checklist') renderChecklistDashboard();
             if(tab === 'maint') renderMaintenance();
+            if(tab === 'stats') renderStats();
         }
 
         async function fetchData(silent = false) {
@@ -3729,6 +3732,135 @@
         }
 
         // --- END SISTEM CHECKLIST ---
+
+        function renderStats() {
+            if (!currentUser || currentUser.role !== 'admin') return;
+
+            const now = getJakartaNow();
+            const currentM = now.getMonth();
+            const currentY = now.getFullYear();
+
+            // 1. DATA EVENT & PENDAPATAN BULAN INI
+            let evCompleted = 0, evCancelled = 0, evConfirmed = 0, evTentative = 0;
+            let totalRevenue = 0;
+
+            allProjects.forEach(p => {
+                if (!p.eventDate) return;
+                const d = new Date(p.eventDate);
+                
+                if (d.getMonth() === currentM && d.getFullYear() === currentY) {
+                    if (p.status === 'Completed') evCompleted++;
+                    else if (p.status === 'Cancelled') evCancelled++;
+                    else if (p.status === 'Confirmed') evConfirmed++;
+                    else evTentative++;
+
+                    if (p.finance && p.status !== 'Cancelled') {
+                        const ga = Number(p.finance.globalAudio) || 0;
+                        const gl = Number(p.finance.globalLighting) || 0;
+                        const gp = Number(p.finance.globalPendukung) || 0;
+                        const disc = Number(p.finance.discount) || 0;
+                        totalRevenue += (ga + gl + gp - disc);
+                    }
+                }
+            });
+
+            document.getElementById('stat-revenue').innerText = formatIDR(totalRevenue);
+
+            // 2. KONDISI ASET
+            let astBaik = 0, astRusak = 0, astService = 0, astHilang = 0;
+            allAssets.forEach(a => {
+                if (a.status === 'Baik') astBaik++;
+                else if (a.status === 'Rusak' || a.status === 'Error') astRusak++;
+                else if (a.status === 'Sedang Diservis' || a.status === 'Service' || a.status === 'Menunggu Sparepart') astService++;
+                else astHilang++;
+            });
+
+            // 3. KRU PALING AKTIF (Berdasarkan jumlah plot event berjalan/selesai)
+            const crewCounts = {};
+            allUsers.forEach(u => {
+                const name = u.nickname || u.fullName;
+                crewCounts[name] = 0;
+            });
+
+            allProjects.forEach(p => {
+                if(p.status === 'Cancelled') return; 
+                const strManpower = JSON.stringify(p.manpower || {});
+                Object.keys(crewCounts).forEach(name => {
+                    if (strManpower.includes(name)) crewCounts[name]++;
+                });
+            });
+
+            const sortedCrew = Object.keys(crewCounts)
+                .map(name => ({ name, count: crewCounts[name] }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 5);
+
+            const crewLabels = sortedCrew.map(c => c.name);
+            const crewData = sortedCrew.map(c => c.count);
+
+            // Set Tema Font dan Warna agar sesuai Light / Dark mode
+            Chart.defaults.color = document.documentElement.classList.contains('dark') ? '#9ca3af' : '#64748b';
+            Chart.defaults.font.family = "'Montserrat', sans-serif";
+
+            // GRAFIK 1: STATUS EVENT
+            if(chartEvt) chartEvt.destroy();
+            const ctxEvt = document.getElementById('chart-event').getContext('2d');
+            chartEvt = new Chart(ctxEvt, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Selesai', 'Batal', 'Confirmed', 'Tentative'],
+                    datasets: [{
+                        data: [evCompleted, evCancelled, evConfirmed, evTentative],
+                        backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 9 } } } } }
+            });
+
+            // GRAFIK 2: STATUS ASET
+            if(chartAst) chartAst.destroy();
+            const ctxAst = document.getElementById('chart-asset').getContext('2d');
+            chartAst = new Chart(ctxAst, {
+                type: 'pie',
+                data: {
+                    labels: ['Baik', 'Rusak / Error', 'Dalam Servis', 'Hilang'],
+                    datasets: [{
+                        data: [astBaik, astRusak, astService, astHilang],
+                        backgroundColor: ['#10b981', '#ef4444', '#3b82f6', '#6b7280'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 9 } } } } }
+            });
+
+            // GRAFIK 3: TOP 5 KRU
+            if(chartCrw) chartCrw.destroy();
+            const ctxCrw = document.getElementById('chart-crew').getContext('2d');
+            chartCrw = new Chart(ctxCrw, {
+                type: 'bar',
+                data: {
+                    labels: crewLabels,
+                    datasets: [{
+                        label: 'Total Plotting (Event Aktif/Selesai)',
+                        data: crewData,
+                        backgroundColor: '#e50914', // ygsred
+                        borderRadius: 4
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 9 } } }, 
+                        x: { ticks: { font: { size: 9 } } } 
+                    }, 
+                    plugins: { legend: { display: false } } 
+                }
+            });
+        }
 
         function changeMonth(v) { currentMonth += v; if(currentMonth>11){currentMonth=0;currentYear++} if(currentMonth<0){currentMonth=11;currentYear--} renderCalendar(); }
     </script>
