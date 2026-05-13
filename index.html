@@ -22,6 +22,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Library untuk PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Library untuk Chart/Statistik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
         // Sinkronisasi Mode Gelap/Terang Otomatis mengikuti Sistem
@@ -759,6 +761,16 @@
                 <div id="checklist-event-list" class="space-y-3"></div>
             </div>
 
+            <!-- TAB: TICKETING MAINTENANCE -->
+            <div id="view-maint" class="hidden animate-fade space-y-4 pb-20">
+                <div class="flex justify-between items-center border-b-2 border-ygsred pb-2">
+                    <h2 class="text-base sm:text-lg font-black uppercase text-gray-900 dark:text-white">Ticketing Perbaikan</h2>
+                    <button onclick="renderMaintenance()" class="text-gray-500 hover:text-ygsred transition p-2 bg-gray-100 dark:bg-zinc-800 rounded-lg shadow-sm"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                </div>
+                <p class="text-[9px] text-gray-500 uppercase font-bold italic mb-4">Daftar alat rusak dari laporan Checklist & Evaluasi Kru yang membutuhkan perbaikan (Service).</p>
+                <div id="maint-list-container" class="space-y-3"></div>
+            </div>
+
             <!-- TAB: TEAM & LEDGER -->
             <div id="view-team" class="hidden animate-fade space-y-4 pb-10">
                 <div class="flex justify-between items-center border-b-2 border-ygsred pb-2">
@@ -798,6 +810,7 @@
                         <div>
                             <h3 id="profile-fullname" class="text-sm font-black uppercase mb-0.5 text-gray-900 dark:text-white"></h3>
                             <p id="profile-position" class="text-[9px] font-bold text-gray-500 uppercase tracking-widest"></p>
+                            <div id="profile-level-badge"></div>
                         </div>
                         <div id="profile-initial" class="w-10 h-10 bg-gray-100 dark:bg-zinc-900 rounded-full flex items-center justify-center font-black text-sm text-ygsred uppercase shrink-0 border dark:border-zinc-800 shadow-sm"></div>
                     </div>
@@ -842,31 +855,72 @@
                     </div>
                 </div>
             </div>
+
+            <!-- TAB: STATISTIK (ADMIN ONLY) -->
+            <div id="view-stats" class="hidden animate-fade space-y-6 pb-20">
+                <div class="flex justify-between items-center border-b-2 border-ygsred pb-2">
+                    <h2 class="text-base sm:text-lg font-black uppercase text-gray-900 dark:text-white">Dashboard Statistik</h2>
+                    <button onclick="renderStats()" class="text-gray-500 hover:text-ygsred transition p-2 bg-gray-100 dark:bg-zinc-800 rounded-lg"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                </div>
+
+                <!-- Omset -->
+                <div class="bg-gradient-to-r from-ygsred to-red-800 p-6 rounded-2xl shadow-xl relative overflow-hidden flex items-center justify-between text-white">
+                    <i data-lucide="trending-up" class="absolute -right-4 -bottom-4 w-28 h-28 opacity-20"></i>
+                    <div class="relative z-10">
+                        <p class="text-[10px] uppercase font-bold tracking-widest mb-1 text-red-100">Estimasi Omset Event (Bulan Ini)</p>
+                        <p class="text-2xl sm:text-3xl font-black drop-shadow-md" id="stat-revenue">Rp 0</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Event Chart -->
+                    <div class="card-dark p-4 rounded-xl border-t-4 border-t-blue-500 shadow-sm">
+                        <h3 class="text-[10px] font-black uppercase text-gray-500 mb-4 text-center">Status Event Bulan Ini</h3>
+                        <div class="relative h-56 w-full"><canvas id="chart-event"></canvas></div>
+                    </div>
+
+                    <!-- Asset Chart -->
+                    <div class="card-dark p-4 rounded-xl border-t-4 border-t-orange-500 shadow-sm">
+                        <h3 class="text-[10px] font-black uppercase text-gray-500 mb-4 text-center">Kondisi Inventaris Aset</h3>
+                        <div class="relative h-56 w-full"><canvas id="chart-asset"></canvas></div>
+                    </div>
+
+                    <!-- Crew Chart -->
+                    <div class="card-dark p-4 rounded-xl border-t-4 border-t-emerald-500 shadow-sm md:col-span-2">
+                        <h3 class="text-[10px] font-black uppercase text-gray-500 mb-4 text-center">Top 5 Kru Aktif (Plotting Terbanyak)</h3>
+                        <div class="relative h-56 w-full"><canvas id="chart-crew"></canvas></div>
+                    </div>
+                </div>
+            </div>
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t dark:border-zinc-800 flex justify-around p-2 z-[100] backdrop-blur-md shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-            <button onclick="switchTab('list')" class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-list">
+        <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t dark:border-zinc-800 flex justify-start sm:justify-around p-2 z-[100] backdrop-blur-md shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] overflow-x-auto gap-1">
+            <button onclick="switchTab('list')" class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-list">
                 <i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Jadwal</span>
                 <span id="badge-list" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
             </button>
-            <button onclick="switchTab('chat')" class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-chat">
+            <button onclick="switchTab('chat')" class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-chat">
                 <i data-lucide="message-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Chat</span>
                 <span id="badge-chat" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
             </button>
-            <button onclick="resetEventForm(); switchTab('add')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Buat</span></button>
-            <button onclick="switchTab('assets')" class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-assets">
+            <button onclick="resetEventForm(); switchTab('add')" class="hidden shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred admin-only" id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Buat</span></button>
+            <button onclick="switchTab('assets')" class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-assets">
                 <i data-lucide="box" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Aset</span>
                 <span id="badge-assets" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
             </button>
-            <button onclick="switchTab('eval')" class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-eval">
+            <button onclick="switchTab('eval')" class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-eval">
                 <i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Eval</span>
                 <span id="badge-eval" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
             </button>
-            <button onclick="switchTab('checklist')" class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-checklist">
+            <button onclick="switchTab('checklist')" class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-checklist">
                 <i data-lucide="list-checks" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Checklist</span>
             </button>
-            <button onclick="switchTab('team')" class="hidden flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Tim</span></button>
-            <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-profile"><i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Dompet</span></button>
+            <button onclick="switchTab('maint')" class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-maint">
+                <i data-lucide="wrench" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Maint</span>
+                <span id="badge-maint" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
+            </button>
+            <button onclick="switchTab('team')" class="hidden shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred admin-only" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Tim</span></button>
+            <button onclick="switchTab('profile')" class="shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-profile"><i data-lucide="wallet" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Dompet</span></button>
         </nav>
     </div>
 
@@ -910,6 +964,21 @@
                     '"': '&quot;'
                 }[tag])
             );
+        }
+
+        // FUNGSI GAMIFIKASI LEVEL KRU BERDASARKAN JAM TERBANG
+        function getCrewLevelBadge(nameStr) {
+            if (!nameStr) return '';
+            // Menghitung jumlah event "Completed" di mana nama kru ini diplot
+            const completedCount = allProjects.filter(p => p.status === 'Completed' && JSON.stringify(p.manpower).includes(nameStr)).length;
+            
+            if(completedCount <= 10) {
+                return `<span class="bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400 px-2 py-0.5 rounded text-[8px] font-black uppercase shadow-sm inline-block mt-1.5 border"><i data-lucide="award" class="w-2.5 h-2.5 inline align-middle mb-0.5"></i> Junior Crew 🥉 (${completedCount} Evt)</span>`;
+            } else if(completedCount <= 30) {
+                return `<span class="bg-slate-200 text-slate-700 border-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 px-2 py-0.5 rounded text-[8px] font-black uppercase shadow-sm inline-block mt-1.5 border"><i data-lucide="award" class="w-2.5 h-2.5 inline align-middle mb-0.5"></i> Pro Roadie 🥈 (${completedCount} Evt)</span>`;
+            } else {
+                return `<span class="bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-700 dark:text-yellow-500 px-2 py-0.5 rounded text-[8px] font-black uppercase shadow-sm inline-block mt-1.5 border"><i data-lucide="award" class="w-2.5 h-2.5 inline align-middle mb-0.5"></i> Prod. Master 🥇 (${completedCount} Evt)</span>`;
+            }
         }
 
         // PERBAIKAN: Validasi Number agar tidak menjadi NaN
@@ -1232,20 +1301,22 @@
         }
 
         function switchTab(tab) {
-            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-eval', 'view-team', 'view-profile', 'view-checklist'].forEach(v => {
+            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-eval', 'view-team', 'view-profile', 'view-checklist', 'view-maint'].forEach(v => {
                 const el = document.getElementById(v);
-                el.classList.add('hidden');
-                el.classList.remove('flex');
+                if(el) {
+                    el.classList.add('hidden');
+                    el.classList.remove('flex');
+                }
             });
             
-            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile', 'nav-checklist'].forEach(n => {
+            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile', 'nav-checklist', 'nav-maint'].forEach(n => {
                 const nav = document.getElementById(n); if(!nav) return;
                 nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
                 if(n === 'nav-' + tab) nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
             });
             
             const targetEl = document.getElementById('view-' + tab);
-            targetEl.classList.remove('hidden');
+            if(targetEl) targetEl.classList.remove('hidden');
 
             activeTab = tab;
             hideBadge(tab);
@@ -1264,6 +1335,7 @@
             if(tab === 'profile') renderProfile(); 
             if(tab === 'eval') renderEvaluations();
             if(tab === 'checklist') renderChecklistDashboard();
+            if(tab === 'maint') renderMaintenance();
         }
 
         async function fetchData(silent = false) {
@@ -1350,7 +1422,17 @@
                         allAssets = rA.data;
                         const dlInv = document.getElementById('list-inventory');
                         if(dlInv) dlInv.innerHTML = allAssets.map(a => `<option value="${escapeHTML(a.name)}">`).join('');
+                        
+                        // Trigger Badge Maintenance jika ada tiket perbaikan aktif
+                        const brokenAssets = allAssets.filter(a => ['Rusak', 'Error', 'Menunggu Sparepart', 'Sedang Diservis', 'Service'].includes(a.status));
+                        if(brokenAssets.length > 0 && activeTab !== 'maint') {
+                            showBadge('maint');
+                        } else {
+                            hideBadge('maint');
+                        }
+
                         if(activeTab === 'assets' && !isFirstLoad) renderAssets();
+                        if(activeTab === 'maint' && !isFirstLoad) renderMaintenance();
                     }
                 } catch(e) { console.error("Error Get Assets:", e); }
                 
@@ -2506,14 +2588,15 @@
                         else if(a.cat === 'Transport') { bgCat = 'bg-pink-100 dark:bg-pink-900/40'; defBorder = 'border-pink-300 dark:border-pink-700'; }
                         
                         let borderCls = defBorder;
-                        if(a.status === 'Service') borderCls = 'border-orange-400 dark:border-orange-600 shadow-md';
+                        if(a.status === 'Sedang Diservis' || a.status === 'Service') borderCls = 'border-blue-400 dark:border-blue-600 shadow-md';
+                        else if(a.status === 'Menunggu Sparepart') borderCls = 'border-orange-400 dark:border-orange-600 shadow-md';
                         else if(a.status === 'Rusak') borderCls = 'border-red-400 dark:border-red-600 shadow-md';
                         else if(a.status === 'Hilang') borderCls = 'border-zinc-500 dark:border-zinc-500 shadow-md';
                         else if(a.status === 'Error') borderCls = 'border-purple-400 dark:border-purple-600 shadow-md';
 
                         return `
                         <div class="${bgCat} border ${borderCls} rounded-xl p-3 shadow-sm hover:shadow-md transition flex flex-col gap-2 relative overflow-hidden">
-                            ${a.status==='Service' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-orange-500"></div>` : a.status==='Rusak' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>` : a.status==='Hilang' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-zinc-600"></div>` : a.status==='Error' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div>` : ''}
+                            ${(a.status==='Service' || a.status==='Sedang Diservis') ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>` : a.status==='Menunggu Sparepart' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-orange-500"></div>` : a.status==='Rusak' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-red-500"></div>` : a.status==='Hilang' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-zinc-600"></div>` : a.status==='Error' ? `<div class="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div>` : ''}
                             <div class="flex justify-between items-start pl-2">
                                 <div class="flex-[3]">
                                     <p class="uppercase font-black text-[11px] text-gray-900 dark:text-white leading-tight">${escapeHTML(a.name)}</p>
@@ -2526,15 +2609,16 @@
                             
                             <div class="flex items-center gap-2 mt-1 pl-2">
                                 ${isAssetEditMode && isAdmin ? `
-                                    <select onchange="updateAssetField('${a.id}', 'status', this.value)" class="bg-white/50 dark:bg-black/20 backdrop-blur-sm text-[10px] font-black ${a.status==='Baik'?'text-green-600':a.status==='Service'?'text-orange-500':a.status==='Hilang'?'text-zinc-500':a.status==='Error'?'text-purple-500':'text-red-600'} border ${defBorder} rounded p-1 outline-none w-full">
+                                    <select onchange="updateAssetField('${a.id}', 'status', this.value)" class="bg-white/50 dark:bg-black/20 backdrop-blur-sm text-[10px] font-black ${a.status==='Baik'?'text-green-600':(a.status==='Sedang Diservis' || a.status==='Service')?'text-blue-600':a.status==='Menunggu Sparepart'?'text-orange-600':a.status==='Hilang'?'text-zinc-500':a.status==='Error'?'text-purple-500':'text-red-600'} border ${defBorder} rounded p-1 outline-none w-full">
                                         <option value="Baik" ${a.status==='Baik'?'selected':''}>Baik</option>
-                                        <option value="Service" ${a.status==='Service'?'selected':''}>Service</option>
+                                        <option value="Menunggu Sparepart" ${a.status==='Menunggu Sparepart'?'selected':''}>Menunggu Sparepart</option>
+                                        <option value="Sedang Diservis" ${a.status==='Sedang Diservis' || a.status==='Service'?'selected':''}>Sedang Diservis</option>
                                         <option value="Rusak" ${a.status==='Rusak'?'selected':''}>Rusak</option>
                                         <option value="Hilang" ${a.status==='Hilang'?'selected':''}>Hilang</option>
                                         <option value="Error" ${a.status==='Error'?'selected':''}>Error</option>
                                     </select>
                                 ` : `
-                                    <span class="font-black text-[9px] px-2 py-1 rounded bg-white/60 dark:bg-black/30 backdrop-blur-sm border ${defBorder} ${a.status==='Baik'?'text-green-600 dark:text-green-500':a.status==='Service'?'text-orange-600 dark:text-orange-500':a.status==='Hilang'?'text-zinc-600 dark:text-zinc-400':a.status==='Error'?'text-purple-600 dark:text-purple-400':'text-red-600 dark:text-red-500'}">${escapeHTML(a.status)}</span>
+                                    <span class="font-black text-[9px] px-2 py-1 rounded bg-white/60 dark:bg-black/30 backdrop-blur-sm border ${defBorder} ${a.status==='Baik'?'text-green-600 dark:text-green-500':(a.status==='Sedang Diservis' || a.status==='Service')?'text-blue-600 dark:text-blue-500':a.status==='Menunggu Sparepart'?'text-orange-600 dark:text-orange-500':a.status==='Hilang'?'text-zinc-600 dark:text-zinc-400':a.status==='Error'?'text-purple-600 dark:text-purple-400':'text-red-600 dark:text-red-500'}">${escapeHTML(a.status === 'Service' ? 'Sedang Diservis' : a.status)}</span>
                                 `}
                             </div>
                             
@@ -2701,7 +2785,10 @@
                         <div class="mt-1">
                             <p class="font-black text-sm uppercase group-hover:text-ygsred transition">${escapeHTML(u.fullName)}</p>
                             <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">${escapeHTML(u.position)} • @${escapeHTML(u.username)}</p>
-                            ${absenBadge}
+                            ${getCrewLevelBadge(u.nickname || u.fullName)}
+                            <div class="block mt-1">
+                                ${absenBadge}
+                            </div>
                         </div>
                         <div class="w-8 h-8 ${isAdmin?'bg-amber-200 dark:bg-amber-900/50 text-amber-700':'bg-red-50 dark:bg-red-950/30 text-ygsred border-red-100'} rounded-full flex items-center justify-center font-black text-[10px] border dark:border-red-900/50 mt-2 shrink-0">
                             <i data-lucide="book-open" class="w-4 h-4"></i>
@@ -2813,6 +2900,13 @@
         function renderProfile() {
             const u = currentUser;
             if (!u) return;
+            
+            // Suntikkan Badge Gamifikasi ke Profil
+            const badgeContainer = document.getElementById('profile-level-badge');
+            if(badgeContainer) {
+                badgeContainer.innerHTML = getCrewLevelBadge(u.nickname || u.fullName);
+            }
+
             const trxs = allTransactions.filter(t => t.id_kru === u.username).sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
             
             let runningSaldo = 0;
@@ -3250,14 +3344,15 @@
                 contentHTML = issuesFound.map(iss => {
                     let badgeClass = 'bg-gray-100 text-gray-600';
                     if(iss.status === 'Rusak') badgeClass = 'bg-red-100 text-red-600 dark:bg-red-900/30 border border-red-200 dark:border-red-800';
-                    if(iss.status === 'Service') badgeClass = 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800';
+                    if(iss.status === 'Service' || iss.status === 'Sedang Diservis') badgeClass = 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800';
+                    if(iss.status === 'Menunggu Sparepart') badgeClass = 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800';
                     if(iss.status === 'Hilang') badgeClass = 'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700';
                     if(iss.status === 'Error') badgeClass = 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800';
                     if(iss.status === 'Baik') badgeClass = 'bg-green-100 text-green-600 dark:bg-green-900/30 border border-green-200 dark:border-green-800';
 
                     return `
                     <div class="bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl border dark:border-zinc-800 shadow-sm flex flex-col gap-2 relative overflow-hidden">
-                        ${iss.status !== 'Baik' ? `<div class="absolute left-0 top-0 bottom-0 w-1 ${iss.status === 'Rusak' ? 'bg-red-500' : iss.status === 'Service' ? 'bg-orange-500' : iss.status === 'Hilang' ? 'bg-zinc-500' : 'bg-purple-500'}"></div>` : ''}
+                        ${iss.status !== 'Baik' ? `<div class="absolute left-0 top-0 bottom-0 w-1 ${iss.status === 'Rusak' ? 'bg-red-500' : (iss.status === 'Service' || iss.status === 'Sedang Diservis') ? 'bg-blue-500' : iss.status === 'Menunggu Sparepart' ? 'bg-orange-500' : iss.status === 'Hilang' ? 'bg-zinc-500' : 'bg-purple-500'}"></div>` : ''}
                         <div class="flex justify-between items-start pl-2">
                             <div>
                                 <p class="text-xs font-black uppercase text-gray-900 dark:text-white tracking-wide">${escapeHTML(iss.item.jenis)}</p>
@@ -3385,8 +3480,9 @@
                                 <span class="text-xs sm:text-sm font-black text-ygsred bg-red-50 dark:bg-red-950/40 px-2.5 py-0.5 rounded border border-red-100 dark:border-red-900/50">Qty: ${i.qty}</span>
                                 <select onchange="changeChkStatus('${i.id}', '${escapeHTML(i.brand)}', this.value)" class="p-1 rounded bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 text-[9px] font-black outline-none ${isChecklistEditMode ? 'cursor-pointer hover:border-ygsred' : 'pointer-events-none opacity-70'}">
                                     <option value="Baik" ${itemStatus === 'Baik' ? 'selected' : ''}>🟢 Baik</option>
+                                    <option value="Menunggu Sparepart" ${itemStatus === 'Menunggu Sparepart' ? 'selected' : ''}>🟡 Tunggu Part</option>
+                                    <option value="Sedang Diservis" ${itemStatus === 'Sedang Diservis' || itemStatus === 'Service' ? 'selected' : ''}>🔵 Servis</option>
                                     <option value="Rusak" ${itemStatus === 'Rusak' ? 'selected' : ''}>🔴 Rusak</option>
-                                    <option value="Service" ${itemStatus === 'Service' ? 'selected' : ''}>🟠 Service</option>
                                     <option value="Hilang" ${itemStatus === 'Hilang' ? 'selected' : ''}>⚫ Hilang</option>
                                     <option value="Error" ${itemStatus === 'Error' ? 'selected' : ''}>🟣 Error</option>
                                 </select>
@@ -3549,6 +3645,87 @@
                 renderAssets();
             }
             showToast("Catatan tersinkronisasi otomatis dengan Inventaris Alat!");
+        }
+
+        async function processMaintenanceStatus(id, newStatus) {
+            showLoading(true);
+            const asset = allAssets.find(a => a.id === id);
+            if(asset) asset.status = newStatus;
+            
+            await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id, field: 'status', value: newStatus } });
+            
+            showLoading(false);
+            if(newStatus === 'Baik') showToast("Servis Selesai! Alat kembali ke Inventaris siap pakai.");
+            else showToast("Status Tiket Perbaikan berhasil diperbarui!");
+            
+            renderMaintenance();
+            if(activeTab === 'assets') renderAssets();
+        }
+
+        function renderMaintenance() {
+            const container = document.getElementById('maint-list-container');
+            const brokenAssets = allAssets.filter(a => ['Rusak', 'Error', 'Menunggu Sparepart', 'Sedang Diservis', 'Service'].includes(a.status));
+
+            if(brokenAssets.length === 0) {
+                container.innerHTML = `
+                <div class="text-center p-8 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-900/30 rounded-2xl">
+                    <i data-lucide="check-circle" class="w-12 h-12 text-green-500 mx-auto mb-3"></i>
+                    <p class="text-xs font-black text-green-700 dark:text-green-500 uppercase tracking-widest">Semua Alat Prima</p>
+                    <p class="text-[10px] font-bold text-gray-500 mt-2">Tidak ada tiket perbaikan yang aktif saat ini. Tim Anda hebat!</p>
+                </div>`;
+                if(window.lucide) lucide.createIcons();
+                return;
+            }
+
+            let html = '';
+            brokenAssets.forEach(a => {
+                let statusColor = 'bg-red-100 text-red-600 border-red-200 dark:bg-red-900/30 dark:border-red-800';
+                let indicatorColor = 'bg-red-500';
+                let currentStatus = a.status;
+                
+                if(a.status === 'Service') currentStatus = 'Sedang Diservis';
+                
+                if(currentStatus === 'Menunggu Sparepart') {
+                    statusColor = 'bg-orange-100 text-orange-600 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800';
+                    indicatorColor = 'bg-orange-500';
+                }
+                if(currentStatus === 'Sedang Diservis') {
+                    statusColor = 'bg-blue-100 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:border-blue-800';
+                    indicatorColor = 'bg-blue-500';
+                }
+
+                html += `
+                <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800 shadow-sm relative overflow-hidden transition hover:shadow-md">
+                    <div class="absolute top-0 left-0 w-1.5 h-full ${indicatorColor}"></div>
+                    <div class="pl-2">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 class="text-xs font-black uppercase text-gray-900 dark:text-white">${escapeHTML(a.name)}</h4>
+                                <p class="text-[9px] font-bold text-gray-500 uppercase">${escapeHTML(a.cat)}</p>
+                            </div>
+                            <span class="text-[8px] font-black uppercase px-2 py-1 rounded-md border ${statusColor} shadow-sm">${escapeHTML(currentStatus)}</span>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-zinc-800/50 p-2.5 rounded-lg border dark:border-zinc-700 mt-2 mb-3">
+                            <p class="text-[8px] font-black text-gray-400 uppercase mb-0.5"><i data-lucide="alert-circle" class="w-3 h-3 inline align-middle"></i> Keluhan / Kerusakan:</p>
+                            <p class="text-[10px] font-bold text-gray-700 dark:text-gray-300 italic whitespace-pre-wrap break-words">"${escapeHTML(a.note || 'Belum ada catatan detail dari kru.')}"</p>
+                        </div>
+                        <div class="flex gap-2 flex-wrap sm:flex-nowrap pt-1">
+                            ${currentStatus === 'Rusak' || currentStatus === 'Error' ? `
+                                <button onclick="processMaintenanceStatus('${a.id}', 'Menunggu Sparepart')" class="flex-1 bg-orange-500 text-white text-[9px] font-black uppercase py-2.5 rounded-xl hover:bg-orange-600 shadow-md shadow-orange-900/20 transition flex items-center justify-center gap-1"><i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i> Order Part</button>
+                                <button onclick="processMaintenanceStatus('${a.id}', 'Sedang Diservis')" class="flex-1 bg-blue-500 text-white text-[9px] font-black uppercase py-2.5 rounded-xl hover:bg-blue-600 shadow-md shadow-blue-900/20 transition flex items-center justify-center gap-1"><i data-lucide="tool" class="w-3.5 h-3.5"></i> Mulai Servis</button>
+                            ` : ''}
+                            ${currentStatus === 'Menunggu Sparepart' ? `
+                                <button onclick="processMaintenanceStatus('${a.id}', 'Sedang Diservis')" class="flex-1 bg-blue-500 text-white text-[9px] font-black uppercase py-2.5 rounded-xl hover:bg-blue-600 shadow-md shadow-blue-900/20 transition flex items-center justify-center gap-1"><i data-lucide="package-check" class="w-3.5 h-3.5"></i> Part Tiba (Servis)</button>
+                            ` : ''}
+                            ${currentStatus === 'Sedang Diservis' ? `
+                                <button onclick="processMaintenanceStatus('${a.id}', 'Baik')" class="flex-1 bg-green-500 text-white text-[9px] font-black uppercase py-2.5 rounded-xl hover:bg-green-600 shadow-md shadow-green-900/20 transition flex items-center justify-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Selesai (Kembali Baik)</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+            if(window.lucide) lucide.createIcons();
         }
 
         // --- END SISTEM CHECKLIST ---
