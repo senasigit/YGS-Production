@@ -968,11 +968,25 @@
             );
         }
 
+        // FUNGSI UTILITAS: Pencarian Exact Match Nama Kru di Objek Manpower
+        function isCrewPlotted(manpowerObj, crewName) {
+            if (!manpowerObj) return false;
+            let isFound = false;
+            const search = (obj) => {
+                Object.values(obj).forEach(val => {
+                    if (typeof val === 'object' && val !== null) search(val);
+                    else if (val === crewName) isFound = true;
+                });
+            };
+            search(manpowerObj);
+            return isFound;
+        }
+
         // FUNGSI GAMIFIKASI LEVEL KRU BERDASARKAN JAM TERBANG
         function getCrewLevelBadge(nameStr) {
             if (!nameStr) return '';
             // Menghitung jumlah event "Completed" di mana nama kru ini diplot
-            const completedCount = allProjects.filter(p => p.status === 'Completed' && JSON.stringify(p.manpower).includes(nameStr)).length;
+            const completedCount = allProjects.filter(p => p.status === 'Completed' && isCrewPlotted(p.manpower, nameStr)).length;
             
             if(completedCount <= 10) {
                 return `<span class="bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-400 px-2 py-0.5 rounded text-[8px] font-black uppercase shadow-sm inline-block mt-1.5 border"><i data-lucide="award" class="w-2.5 h-2.5 inline align-middle mb-0.5"></i> Junior Crew 🥉 (${completedCount} Evt)</span>`;
@@ -994,17 +1008,35 @@
 
         function unformatRupiah(str) {
             if(!str) return 0;
+            const isMinus = str.toString().trim().startsWith('-');
             const parsed = parseInt(str.toString().replace(/[^0-9]/g, ''), 10);
-            return isNaN(parsed) ? 0 : parsed;
+            if(isNaN(parsed)) return 0;
+            return isMinus ? -parsed : parsed;
         }
 
         function formatInputRibuan(e) {
+            // Simpan posisi kursor awal dan panjang string sebelum diformat
+            let originalLen = e.target.value.length;
+            let caretPos = e.target.selectionStart;
+            
+            let isMinus = e.target.value.trim().startsWith('-');
             let val = e.target.value.replace(/[^0-9]/g, '');
+            
             if(val !== '') {
-                e.target.value = parseInt(val, 10).toLocaleString('id-ID');
+                e.target.value = (isMinus ? '-' : '') + parseInt(val, 10).toLocaleString('id-ID');
             } else {
-                e.target.value = '';
+                e.target.value = isMinus ? '-' : '';
             }
+            
+            // Hitung selisih panjang string (untuk mengantisipasi penambahan/pengurangan titik)
+            let newLen = e.target.value.length;
+            caretPos = caretPos + (newLen - originalLen);
+            
+            // Kembalikan posisi kursor ke tempat yang seharusnya
+            if (e.target.setSelectionRange) {
+                e.target.setSelectionRange(caretPos, caretPos);
+            }
+            
             calculateQuotation();
         }
 
@@ -1352,7 +1384,7 @@
                             const myName = currentUser.nickname || currentUser.fullName;
                             rD.data.forEach(newP => {
                                 const oldP = allProjects.find(op => op.id === newP.id);
-                                const involvesMe = JSON.stringify(newP.manpower).includes(myName);
+                                const involvesMe = isCrewPlotted(newP.manpower, myName);
                                 if (!oldP && involvesMe) {
                                     addNotification(`Event Baru: Anda ditugaskan di "${newP.eventName}"`);
                                 } else if (oldP && involvesMe && JSON.stringify(oldP) !== JSON.stringify(newP)) {
@@ -1614,7 +1646,7 @@
                 wGroups.classList.remove('hidden');
                 cKalender.classList.add('hidden');
 
-                let f = activeAgendaView === 'saya' && currentUser ? allProjects.filter(p => JSON.stringify(p.manpower).includes(currentUser.nickname||currentUser.fullName)) : [...allProjects]; 
+                let f = activeAgendaView === 'saya' && currentUser ? allProjects.filter(p => isCrewPlotted(p.manpower, currentUser.nickname||currentUser.fullName)) : [...allProjects]; 
                 
                 const sortBy = document.getElementById('event-sort-active').value;
                 if(sortBy === 'time-asc') f.sort((a,b) => new Date(a.eventDate) - new Date(b.eventDate));
@@ -3024,10 +3056,16 @@
                 renderEvaluations();
                 
                 showLoading(true);
-                // Hapus satu per satu di database untuk memastikan semuanya terhapus sampai bersih
-                for(let e of evalsToDelete) {
-                    await apiCall({ action: 'DELETE_EVAL', payload: { eventId: e.eventId, time: e.time } });
+                
+                // OPTIMASI: Batching dengan Promise.all untuk mencegah N+1 Timeout / Rate Limit GAS
+                const chunkSize = 5; // Eksekusi 5 request paralel sekaligus
+                for (let i = 0; i < evalsToDelete.length; i += chunkSize) {
+                    const chunk = evalsToDelete.slice(i, i + chunkSize);
+                    await Promise.all(chunk.map(e => 
+                        apiCall({ action: 'DELETE_EVAL', payload: { eventId: e.eventId, time: e.time } })
+                    ));
                 }
+                
                 showLoading(false); showToast(`Seluruh evaluasi untuk event ${eventName} telah dihapus.`);
                 fetchData(true); // Memastikan data 100% sama dengan server
             });
@@ -3481,7 +3519,7 @@
                             
                             <div class="flex items-center gap-2 mt-2 pt-2 border-t border-dashed border-gray-200 dark:border-zinc-700">
                                 <span class="text-xs sm:text-sm font-black text-ygsred bg-red-50 dark:bg-red-950/40 px-2.5 py-0.5 rounded border border-red-100 dark:border-red-900/50">Qty: ${i.qty}</span>
-                                <select onchange="changeChkStatus('${i.id}', '${escapeHTML(i.brand)}', this.value)" class="p-1 rounded bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 text-[9px] font-black outline-none ${isChecklistEditMode ? 'cursor-pointer hover:border-ygsred' : 'pointer-events-none opacity-70'}">
+                                <select onchange="changeChkStatus('${i.id}', this.value)" class="p-1 rounded bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 text-[9px] font-black outline-none ${isChecklistEditMode ? 'cursor-pointer hover:border-ygsred' : 'pointer-events-none opacity-70'}">
                                     <option value="Baik" ${itemStatus === 'Baik' ? 'selected' : ''}>🟢 Baik</option>
                                     <option value="Menunggu Sparepart" ${itemStatus === 'Menunggu Sparepart' ? 'selected' : ''}>🟡 Tunggu Part</option>
                                     <option value="Sedang Diservis" ${itemStatus === 'Sedang Diservis' || itemStatus === 'Service' ? 'selected' : ''}>🔵 Servis</option>
@@ -3503,7 +3541,7 @@
                         <td class="p-1 sm:p-2 border-r dark:border-zinc-800/50 align-middle">${renderCb('out')}</td>
                         <td class="p-1 sm:p-2 border-r dark:border-zinc-800/50 align-middle">${renderCb('gudang')}</td>
                         <td class="p-1 sm:p-2 align-middle text-center">
-                            <button onclick="openChkNote('${i.id}', '${escapeHTML(i.jenis)} - ${escapeHTML(i.brand)}', '${escapeHTML(i.brand)}')" class="text-gray-400 hover:text-ygsred transition p-2 bg-white dark:bg-zinc-800 border dark:border-zinc-700 rounded-xl shadow-sm hover:shadow-md ${isChecklistEditMode ? '' : 'hidden'}"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 mx-auto"></i></button>
+                            <button onclick="openChkNote('${i.id}')" class="text-gray-400 hover:text-ygsred transition p-2 bg-white dark:bg-zinc-800 border dark:border-zinc-700 rounded-xl shadow-sm hover:shadow-md ${isChecklistEditMode ? '' : 'hidden'}"><i data-lucide="edit-3" class="w-4 h-4 sm:w-5 sm:h-5 mx-auto"></i></button>
                         </td>
                     </tr>`;
                 });
@@ -3514,7 +3552,7 @@
             lucide.createIcons();
         }
 
-        async function changeChkStatus(itemId, brand, newStatus) {
+        async function changeChkStatus(itemId, newStatus) {
             if(!isChecklistEditMode) {
                 showToast("Mode View: Tidak dapat mengubah status.", true);
                 renderChecklistTable(); return;
@@ -3524,12 +3562,18 @@
             state.items[itemId].status = newStatus;
             saveChkState(currentChkEventId, state);
 
-            const asset = allAssets.find(a => a.name === brand);
-            if(asset) {
-                asset.status = newStatus; 
-                apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'status', value: newStatus } });
-                showToast(`Status ${brand} tersinkronisasi ke Inventaris!`);
-                if(activeTab === 'assets') renderAssets();
+            const p = allProjects.find(x => x.id === currentChkEventId);
+            const itemData = extractItemsForChecklist(p).find(x => x.id === itemId);
+            const brand = itemData ? itemData.brand : null;
+
+            if(brand) {
+                const asset = allAssets.find(a => a.name === brand);
+                if(asset) {
+                    asset.status = newStatus; 
+                    apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'status', value: newStatus } });
+                    showToast(`Status ${brand} tersinkronisasi ke Inventaris!`);
+                    if(activeTab === 'assets') renderAssets();
+                }
             }
         }
 
@@ -3619,7 +3663,7 @@
             document.getElementById('modal-chk-note').classList.add('flex');
         }
 
-        function saveChkNote() {
+        async function saveChkNote() {
             const eventId = document.getElementById('chk-note-eventid').value;
             const itemId = document.getElementById('chk-note-itemid').value;
             const brand = document.getElementById('chk-note-brand').value;
@@ -3634,8 +3678,10 @@
             // SINKRONISASI KE INVENTARIS ASET
             const asset = allAssets.find(a => a.name === brand);
             if(asset) {
+                showLoading(true);
                 asset.note = noteText;
-                apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'note', value: noteText } });
+                await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'note', value: noteText } });
+                showLoading(false);
             }
             
             document.getElementById('modal-chk-note').classList.add('hidden');
@@ -3784,9 +3830,8 @@
 
             allProjects.forEach(p => {
                 if(p.status === 'Cancelled') return; 
-                const strManpower = JSON.stringify(p.manpower || {});
                 Object.keys(crewCounts).forEach(name => {
-                    if (strManpower.includes(name)) crewCounts[name]++;
+                    if (isCrewPlotted(p.manpower, name)) crewCounts[name]++;
                 });
             });
 
