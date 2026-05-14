@@ -857,6 +857,147 @@
                 </div>
             </div>
 
+            <!-- TAB: ROUTING AUDIO -->
+            <div id="view-routing" class="hidden animate-fade space-y-6 pb-24 no-print">
+                <div class="flex justify-between items-center border-b-2 border-blue-500 pb-1">
+                    <h2 class="text-lg font-black uppercase text-gray-900 dark:text-white">System Routing</h2>
+                </div>
+                
+                <form id="routing-form" class="space-y-6">
+                    <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-blue-600 shadow-sm">
+                        <h3 class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2 border-b dark:border-zinc-800 pb-2">Integrasi Event</h3>
+                        <div class="space-y-2">
+                            <select id="route-event-id" required class="w-full p-2.5 rounded input-dark font-black text-xs" onchange="loadRoutingData(this.value)">
+                                <option value="" disabled selected>Pilih Event Aktif...</option>
+                            </select>
+                            <p id="route-event-info" class="text-[9px] font-bold text-gray-500 hidden mt-2"></p>
+                        </div>
+                    </div>
+
+                    <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-orange-500 shadow-sm">
+                        <h3 class="text-[10px] font-black text-orange-600 uppercase mb-2 border-b dark:border-zinc-800 pb-2">1. Speaker Placement & Zoning</h3>
+                        
+                        <div class="overflow-x-auto border border-gray-200 dark:border-zinc-700 rounded-lg shadow-sm">
+                            <table class="w-full text-left text-[9px] min-w-[600px]">
+                                <thead class="bg-gray-100 dark:bg-zinc-800 text-gray-500 uppercase">
+                                    <tr>
+                                        <th class="p-2 w-[25%] border-r dark:border-zinc-700">Zona (Posisi)</th>
+                                        <th class="p-2 w-[25%] border-r dark:border-zinc-700">Jml & Format / Sisi</th>
+                                        <th class="p-2 w-[20%] border-r dark:border-zinc-700">Trim Height (m)</th>
+                                        <th class="p-2 w-[30%]">Splay Angles / Pin</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-zinc-700 bg-white dark:bg-zinc-900">
+                                    <tr>
+                                        <td class="p-2 font-black uppercase text-gray-700 dark:text-gray-300 border-r dark:border-zinc-700">Main PA Stage</td>
+                                        <td class="p-1 border-r dark:border-zinc-700"><input type="text" id="rt-main-qty" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: 6 Box / Sisi"></td>
+                                        <td class="p-1 border-r dark:border-zinc-700"><input type="text" id="rt-main-trim" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: 8m"></td>
+                                        <td class="p-1"><input type="text" id="rt-main-splay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="0, 1, 2.5, 4..."></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-black uppercase text-gray-700 dark:text-gray-300 border-r dark:border-zinc-700">Front Fill</td>
+                                        <td class="p-1 border-r dark:border-zinc-700"><input type="text" id="rt-front-qty" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: 4 Box di bibir stage"></td>
+                                        <td class="p-1 border-r dark:border-zinc-700"><input type="text" id="rt-front-trim" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                        <td class="p-1"><input type="text" id="rt-front-splay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-black uppercase text-gray-700 dark:text-gray-300 border-r dark:border-zinc-700">Out Fill</td>
+                                        <td class="p-1 border-r dark:border-zinc-700"><input type="text" id="rt-out-qty" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                        <td class="p-1 border-r dark:border-zinc-700"><input type="text" id="rt-out-trim" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                        <td class="p-1"><input type="text" id="rt-out-splay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-black uppercase text-gray-700 dark:text-gray-300 border-r dark:border-zinc-700">Delay Fill</td>
+                                        <td class="p-1 border-r dark:border-zinc-700"><input type="text" id="rt-delay-qty" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                        <td class="p-1 border-r dark:border-zinc-700"><input type="text" id="rt-delay-trim" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                        <td class="p-1"><input type="text" id="rt-delay-splay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-black uppercase text-gray-700 dark:text-gray-300 border-r dark:border-zinc-700">Lainnya (Others)</td>
+                                        <td class="p-1 border-r dark:border-zinc-700"><input type="text" id="rt-others-qty" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                        <td class="p-1 border-r dark:border-zinc-700"><input type="text" id="rt-others-trim" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                        <td class="p-1"><input type="text" id="rt-others-splay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="-"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h4 class="text-[9px] font-black text-gray-700 dark:text-gray-300 uppercase mt-4 border-b dark:border-zinc-800 pb-1">Subwoofer Configuration</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg border dark:border-zinc-800">
+                            <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Total Boks & Posisi</label><input type="text" id="rt-sub-total" class="w-full p-2.5 rounded input-dark font-bold text-xs" placeholder="Cth: 12 Box (Tengah/Center)"></div>
+                            <div class="space-y-1">
+                                <label class="text-[9px] font-bold text-gray-500 uppercase">Config Type</label>
+                                <select id="rt-sub-config" class="w-full p-2.5 rounded input-dark font-bold text-xs" onchange="toggleSubRoutingUI()">
+                                    <option value="L/R Standard">L/R Standard</option>
+                                    <option value="Cardioid">Cardioid (Gradient)</option>
+                                    <option value="Broadside Array">Broadside Array</option>
+                                    <option value="End-Fire">End-Fire</option>
+                                    <option value="End-Fire Broadside">End-Fire Broadside</option>
+                                </select>
+                            </div>
+                            <div id="sub-param-space" class="space-y-1 hidden">
+                                <label class="text-[9px] font-bold text-orange-600 dark:text-orange-500 uppercase">Spacing (Jarak Antar Boks/Center)</label>
+                                <input type="text" id="rt-sub-space" class="w-full p-2.5 rounded input-dark font-bold text-xs focus:border-orange-500" placeholder="Cth: 1.5 Meter antar box">
+                            </div>
+                            <div id="sub-param-gap" class="space-y-1 hidden">
+                                <label class="text-[9px] font-bold text-blue-600 dark:text-blue-500 uppercase">Sub Gap (Depan - Belakang)</label>
+                                <input type="text" id="rt-sub-gap" class="w-full p-2.5 rounded input-dark font-bold text-xs focus:border-blue-500" placeholder="Cth: 1.2m (Tuning 1/4 Lambda)">
+                            </div>
+                            <div class="col-span-1 sm:col-span-2 space-y-1">
+                                <label class="text-[9px] font-bold text-gray-500 uppercase">Parameter Lainnya / Delay Tambahan</label>
+                                <input type="text" id="rt-sub-param" class="w-full p-2.5 rounded input-dark font-bold text-xs" placeholder="Cth: Delay Ch 1-4 = 0, 2, 4, 6ms...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-emerald-500 shadow-sm overflow-hidden">
+                        <h3 class="text-[10px] font-black text-emerald-600 uppercase mb-2 border-b dark:border-zinc-800 pb-2">2. DSP & Routing (DLMS)</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                            <div class="space-y-1"><label class="text-[8px] font-bold text-gray-500 uppercase">IN A</label><input type="text" id="rt-in-A" class="w-full p-2 rounded input-dark font-bold text-[10px]" placeholder="Main L"></div>
+                            <div class="space-y-1"><label class="text-[8px] font-bold text-gray-500 uppercase">IN B</label><input type="text" id="rt-in-B" class="w-full p-2 rounded input-dark font-bold text-[10px]" placeholder="Main R"></div>
+                            <div class="space-y-1"><label class="text-[8px] font-bold text-gray-500 uppercase">IN C</label><input type="text" id="rt-in-C" class="w-full p-2 rounded input-dark font-bold text-[10px]" placeholder="Sub L"></div>
+                            <div class="space-y-1"><label class="text-[8px] font-bold text-gray-500 uppercase">IN D</label><input type="text" id="rt-in-D" class="w-full p-2 rounded input-dark font-bold text-[10px]" placeholder="Sub R"></div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-[9px] min-w-[500px]">
+                                <thead class="bg-gray-100 dark:bg-zinc-800 text-gray-500 uppercase">
+                                    <tr><th class="p-2 w-8">Out</th><th class="p-2">Destinasi / Speaker</th><th class="p-2">X-Over (HPF/LPF)</th><th class="p-2 w-16">Delay</th><th class="p-2 w-16">Limiter</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-zinc-800">
+                                    <tr><td class="p-2 font-black text-center">1</td><td class="p-1"><input type="text" id="rt-out-1-dest" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-1-xover" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-1-delay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="ms/m"></td><td class="p-1"><input type="text" id="rt-out-1-limit" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="dB"></td></tr>
+                                    <tr><td class="p-2 font-black text-center">2</td><td class="p-1"><input type="text" id="rt-out-2-dest" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-2-xover" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-2-delay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="ms/m"></td><td class="p-1"><input type="text" id="rt-out-2-limit" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="dB"></td></tr>
+                                    <tr><td class="p-2 font-black text-center">3</td><td class="p-1"><input type="text" id="rt-out-3-dest" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-3-xover" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-3-delay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="ms/m"></td><td class="p-1"><input type="text" id="rt-out-3-limit" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="dB"></td></tr>
+                                    <tr><td class="p-2 font-black text-center">4</td><td class="p-1"><input type="text" id="rt-out-4-dest" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-4-xover" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-4-delay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="ms/m"></td><td class="p-1"><input type="text" id="rt-out-4-limit" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="dB"></td></tr>
+                                    <tr><td class="p-2 font-black text-center">5</td><td class="p-1"><input type="text" id="rt-out-5-dest" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-5-xover" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-5-delay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="ms/m"></td><td class="p-1"><input type="text" id="rt-out-5-limit" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="dB"></td></tr>
+                                    <tr><td class="p-2 font-black text-center">6</td><td class="p-1"><input type="text" id="rt-out-6-dest" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-6-xover" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-6-delay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="ms/m"></td><td class="p-1"><input type="text" id="rt-out-6-limit" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="dB"></td></tr>
+                                    <tr><td class="p-2 font-black text-center">7</td><td class="p-1"><input type="text" id="rt-out-7-dest" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-7-xover" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-7-delay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="ms/m"></td><td class="p-1"><input type="text" id="rt-out-7-limit" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="dB"></td></tr>
+                                    <tr><td class="p-2 font-black text-center">8</td><td class="p-1"><input type="text" id="rt-out-8-dest" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-8-xover" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..."></td><td class="p-1"><input type="text" id="rt-out-8-delay" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="ms/m"></td><td class="p-1"><input type="text" id="rt-out-8-limit" class="w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="dB"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-purple-500 shadow-sm">
+                        <h3 class="text-[10px] font-black text-purple-600 uppercase mb-2 border-b dark:border-zinc-800 pb-2">3. Amplifikasi & Wiring</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Amp Type</label><select id="rt-amp-type" class="w-full p-2.5 rounded input-dark font-bold text-xs"><option>4-Channel</option><option>2-Channel</option></select></div>
+                            <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Amp Mode</label><select id="rt-amp-mode" class="w-full p-2.5 rounded input-dark font-bold text-xs"><option>Stereo</option><option>Bridge</option><option>Parallel/Mono</option></select></div>
+                            <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Input Sens.</label><select id="rt-amp-sens" class="w-full p-2.5 rounded input-dark font-bold text-xs"><option>0.775V</option><option>1.0V</option><option>1.4V</option><option>32dB</option></select></div>
+                            <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Load Impedance</label><input type="text" id="rt-amp-imp" class="w-full p-2.5 rounded input-dark font-bold text-xs" placeholder="Cth: 4 Ohm (2 Box Paralel)"></div>
+                            <div class="col-span-1 sm:col-span-2 space-y-1">
+                                <label class="text-[9px] font-bold text-gray-500 uppercase">Wiring Route (Patch to Speaker)</label>
+                                <textarea id="rt-amp-wiring" class="w-full p-2.5 rounded-xl input-dark font-bold text-xs" rows="2" placeholder="Cth: Amp 1 Ch A -> Top L, Amp 1 Ch B -> Mid L..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-blue-900/30 flex justify-center items-center gap-2 hover:bg-blue-700 transition">
+                        <i data-lucide="save" class="w-5 h-5"></i> Simpan Routing System
+                    </button>
+                </form>
+            </div>
+
             <!-- TAB: STATISTIK (ADMIN ONLY) -->
             <div id="view-stats" class="hidden animate-fade space-y-6 pb-20">
                 <div class="flex justify-between items-center border-b-2 border-ygsred pb-2">
@@ -919,6 +1060,9 @@
             <button onclick="switchTab('maint')" class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred" id="nav-maint">
                 <i data-lucide="wrench" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Maint</span>
                 <span id="badge-maint" class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
+            </button>
+            <button onclick="switchTab('routing'); updateRoutingDropdown();" class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-blue-500" id="nav-routing">
+                <i data-lucide="sliders" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Routing</span>
             </button>
             <button onclick="switchTab('team')" class="hidden shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred admin-only" id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Tim</span></button>
             <button onclick="switchTab('stats')" class="hidden shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred admin-only" id="nav-stats"><i data-lucide="pie-chart" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase tracking-wide">Stats</span></button>
@@ -1372,7 +1516,7 @@
         }
 
         function switchTab(tab) {
-            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-eval', 'view-team', 'view-profile', 'view-checklist', 'view-maint', 'view-stats'].forEach(v => {
+            ['view-list', 'view-add', 'view-chat', 'view-assets', 'view-eval', 'view-team', 'view-profile', 'view-checklist', 'view-maint', 'view-routing', 'view-stats'].forEach(v => {
                 const el = document.getElementById(v);
                 if(el) {
                     el.classList.add('hidden');
@@ -1380,10 +1524,13 @@
                 }
             });
             
-            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile', 'nav-checklist', 'nav-maint', 'nav-stats'].forEach(n => {
+            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile', 'nav-checklist', 'nav-maint', 'nav-routing', 'nav-stats'].forEach(n => {
                 const nav = document.getElementById(n); if(!nav) return;
-                nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
-                if(n === 'nav-' + tab) nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
+                nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20', 'text-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+                if(n === 'nav-' + tab) {
+                    if(tab === 'routing') nav.classList.add('text-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+                    else nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
+                }
             });
             
             const targetEl = document.getElementById('view-' + tab);
@@ -1724,8 +1871,103 @@
             if(p.specDyn.lighting) { let cL = []; p.specDyn.lighting.forEach(l => { if(l.data) l.data.forEach(item => { if(item.brand || item.qty) cL.push({ ...item, jenis: l.sub }); }); }); addCategory('LIGHTING', cL); }
             addCategory('LED SCREEN', p.specDyn.led); addCategory('RIGGING & STAGE', p.specDyn.rigging); addCategory('GENSET', p.specDyn.genset); addCategory('BARIKADE', p.specDyn.barikade);
             addCategory('LAIN-LAIN (OTHERS)', p.specDyn.others_pendukung);
-            if (!tableRows) return '';
-            return `<div style="page-break-inside: avoid;" class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800"><h4 class="text-[10px] font-black uppercase text-ygsred mb-3 border-b dark:border-zinc-800 pb-1">Spesifikasi Produksi (Detail)</h4><div class="border border-gray-300 dark:border-zinc-700 rounded-lg overflow-hidden shadow-sm"><table class="w-full text-left"><thead class="bg-orange-400 dark:bg-orange-600 text-black dark:text-white uppercase text-[9px]"><tr><th class="p-2 w-8 text-center border-r border-orange-300 dark:border-orange-500">No</th><th class="p-2 w-1/3 border-r border-orange-300 dark:border-orange-500">Equipment</th><th class="p-2 border-r border-orange-300 dark:border-orange-500">Brand/Type</th><th class="p-2 w-16 text-center">Qty</th></tr></thead><tbody>${tableRows}</tbody></table></div></div>`;
+            
+            let finalHtml = '';
+            if (tableRows) {
+                finalHtml += `<div style="page-break-inside: avoid;" class="bg-white dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800"><h4 class="text-[10px] font-black uppercase text-ygsred mb-3 border-b dark:border-zinc-800 pb-1">Spesifikasi Produksi (Detail)</h4><div class="border border-gray-300 dark:border-zinc-700 rounded-lg overflow-hidden shadow-sm"><table class="w-full text-left"><thead class="bg-orange-400 dark:bg-orange-600 text-black dark:text-white uppercase text-[9px]"><tr><th class="p-2 w-8 text-center border-r border-orange-300 dark:border-orange-500">No</th><th class="p-2 w-1/3 border-r border-orange-300 dark:border-orange-500">Equipment</th><th class="p-2 border-r border-orange-300 dark:border-orange-500">Brand/Type</th><th class="p-2 w-16 text-center">Qty</th></tr></thead><tbody>${tableRows}</tbody></table></div></div>`;
+            }
+
+            // INJEKSI MODUL ROUTING AUDIO (Aman dari undefined)
+            if (p.specDyn && p.specDyn.routing) {
+                const r = p.specDyn.routing;
+                const plc = r.placement || {};
+                const dlm = r.dlms || { in: [], out: [] };
+                const amp = r.amps || {};
+
+                finalHtml += `
+                <div style="page-break-inside: avoid;" class="bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800 mt-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-3 border-b dark:border-zinc-800 pb-2">
+                        <h4 class="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400"><i data-lucide="sliders" class="w-3.5 h-3.5 inline align-middle mr-1"></i> Speaker Placement & System Routing</h4>
+                        <span class="text-[7px] bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-0.5 rounded uppercase font-black border border-blue-200 dark:border-blue-800 shadow-sm">Audio SE Modul</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <h5 class="text-[9px] font-black uppercase text-gray-500 mb-1">1. Speaker Placement & Zoning</h5>
+                            <table class="w-full text-left text-[9px] border dark:border-zinc-700 rounded-lg overflow-hidden shadow-sm">
+                                <thead class="bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400 font-black uppercase tracking-widest border-b dark:border-orange-800/50">
+                                    <tr><th class="p-2 border-r dark:border-orange-800/50">Zona Posisi</th><th class="p-2 border-r dark:border-orange-800/50">Format Qty</th><th class="p-2 border-r dark:border-orange-800/50">Trim</th><th class="p-2">Splay Angles</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-zinc-700 bg-white dark:bg-zinc-800">
+                                    ${(() => {
+                                        const safeExt = (k) => typeof plc[k] === 'object' ? plc[k] : { qty: plc[k]||'-', trim: k==='main'?(plc.trim||'-'):'-', splay: k==='main'?(plc.splay||'-'):'-' };
+                                        const dM=safeExt('main'), dF=safeExt('front'), dO=safeExt('out'), dD=safeExt('delay'), dOt=safeExt('others');
+                                        let h = '';
+                                        const r = (lbl, o) => { if(o.qty && o.qty !== '-') h+= `<tr><td class="p-2 font-bold text-gray-600 dark:text-gray-400 border-r dark:border-zinc-700">${lbl}</td><td class="p-2 font-black text-gray-900 dark:text-white border-r dark:border-zinc-700">${escapeHTML(o.qty)}</td><td class="p-2 text-orange-600 dark:text-orange-400 font-black border-r dark:border-zinc-700">${escapeHTML(o.trim)}</td><td class="p-2 font-bold text-gray-700 dark:text-gray-300 whitespace-pre-wrap">${escapeHTML(o.splay)}</td></tr>`; };
+                                        r('Main PA', dM); r('Front Fill', dF); r('Out Fill', dO); r('Delay Fill', dD); r('Others', dOt);
+                                        return h || '<tr><td colspan="4" class="p-2 text-center text-gray-500 italic">Belum ada data speaker array.</td></tr>';
+                                    })()}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div>
+                            <h5 class="text-[9px] font-black uppercase text-gray-500 mb-1">Subwoofer Configuration</h5>
+                            <table class="w-full text-left text-[9px] border dark:border-zinc-700 rounded-lg overflow-hidden shadow-sm">
+                                <tbody class="divide-y divide-gray-200 dark:divide-zinc-700 bg-white dark:bg-zinc-800">
+                                    <tr><td class="p-2 font-bold w-[35%] text-gray-600 dark:text-gray-400">Total Boks & Posisi</td><td class="p-2 font-black text-gray-900 dark:text-white">${escapeHTML(plc.subTotal || '-')}</td></tr>
+                                    <tr><td class="p-2 font-bold text-gray-600 dark:text-gray-400">Config Type</td><td class="p-2 font-black text-ygsred tracking-widest">${escapeHTML(plc.subConfig || '-')}</td></tr>
+                                    ${(plc.subConfig === 'Broadside Array' || plc.subConfig === 'End-Fire Broadside') ? `<tr><td class="p-2 font-bold text-orange-600 dark:text-orange-500">Spacing Antar Boks</td><td class="p-2 font-black text-gray-900 dark:text-white">${escapeHTML(plc.subSpace || '-')}</td></tr>` : ''}
+                                    ${(plc.subConfig === 'End-Fire' || plc.subConfig === 'End-Fire Broadside') ? `<tr><td class="p-2 font-bold text-blue-600 dark:text-blue-500">Sub Gap (Depan-Belakang)</td><td class="p-2 font-black text-gray-900 dark:text-white">${escapeHTML(plc.subGap || '-')}</td></tr>` : ''}
+                                    <tr><td class="p-2 font-bold text-gray-600 dark:text-gray-400">Other Params & Delay</td><td class="p-2 font-bold text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${escapeHTML(plc.subParams || '-')}</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div>
+                            <h5 class="text-[9px] font-black uppercase text-gray-500 mb-1">Subwoofer Configuration</h5>
+                            <table class="w-full text-left text-[9px] border dark:border-zinc-700 rounded-lg overflow-hidden shadow-sm">
+                                <tbody class="divide-y divide-gray-200 dark:divide-zinc-700">
+                                    <tr class="bg-white dark:bg-zinc-800"><td class="p-2 font-bold w-[35%] text-gray-600 dark:text-gray-400">Total Boks</td><td class="p-2 font-black text-gray-900 dark:text-white">${escapeHTML(plc.subTotal || '-')}</td></tr>
+                                    <tr class="bg-white dark:bg-zinc-800"><td class="p-2 font-bold text-gray-600 dark:text-gray-400">Config Type</td><td class="p-2 font-black text-ygsred tracking-widest">${escapeHTML(plc.subConfig || '-')}</td></tr>
+                                    <tr class="bg-white dark:bg-zinc-800"><td class="p-2 font-bold text-gray-600 dark:text-gray-400">Parameter Fisik/Delay</td><td class="p-2 font-bold text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${escapeHTML(plc.subParams || '-')}</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div>
+                            <h5 class="text-[9px] font-black uppercase text-gray-500 mb-1">2. DLMS Patching & DSP</h5>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+                                ${['A','B','C','D'].map((ch, idx) => (dlm.in && dlm.in[idx]) ? `<div class="bg-white dark:bg-zinc-800 p-2 rounded-lg text-[9px] border dark:border-zinc-700 shadow-sm"><span class="font-black text-gray-400 bg-gray-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded mr-1">IN ${ch}</span> <span class="font-bold text-gray-800 dark:text-gray-200">${escapeHTML(dlm.in[idx])}</span></div>` : '').join('')}
+                            </div>
+                            <table class="w-full text-left text-[8px] border dark:border-zinc-700 rounded-lg overflow-hidden shadow-sm">
+                                <thead class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 font-black uppercase tracking-widest">
+                                    <tr><th class="p-2 text-center w-8">Out</th><th class="p-2">Destinasi</th><th class="p-2">X-Over</th><th class="p-2">Delay</th><th class="p-2">Limiter</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-zinc-700 bg-white dark:bg-zinc-800">
+                                    ${[1,2,3,4,5,6,7,8].map(ch => {
+                                        const out = (dlm.out && dlm.out[ch-1]) ? dlm.out[ch-1] : null;
+                                        if(!out || (!out.dest && !out.xover)) return '';
+                                        return `<tr><td class="p-2 text-center font-black text-emerald-600">${ch}</td><td class="p-2 font-black text-gray-900 dark:text-white uppercase">${escapeHTML(out.dest)}</td><td class="p-2 font-bold text-gray-600 dark:text-gray-300">${escapeHTML(out.xover || '-')}</td><td class="p-2 font-bold text-gray-600 dark:text-gray-300">${escapeHTML(out.delay || '-')}</td><td class="p-2 font-bold text-gray-600 dark:text-gray-300">${escapeHTML(out.limit || '-')}</td></tr>`;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div>
+                            <h5 class="text-[9px] font-black uppercase text-gray-500 mb-1">3. Amplifikasi & Wiring</h5>
+                            <table class="w-full text-left text-[9px] border dark:border-zinc-700 rounded-lg overflow-hidden shadow-sm">
+                                <tbody class="divide-y divide-gray-200 dark:divide-zinc-700">
+                                    <tr class="bg-white dark:bg-zinc-800"><td class="p-2 font-bold w-[35%] text-gray-600 dark:text-gray-400">Amp Type & Mode</td><td class="p-2 font-bold text-gray-800 dark:text-gray-200">${escapeHTML(amp.type || '-')} <span class="text-gray-300 dark:text-zinc-600 mx-1">|</span> <span class="font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest">${escapeHTML(amp.mode || '-')}</span></td></tr>
+                                    <tr class="bg-white dark:bg-zinc-800"><td class="p-2 font-bold text-gray-600 dark:text-gray-400">Sens & Impedance</td><td class="p-2 font-bold text-gray-800 dark:text-gray-200"><span class="bg-gray-100 dark:bg-zinc-900 border dark:border-zinc-700 px-1 py-0.5 rounded text-gray-500">${escapeHTML(amp.sens || '-')}</span> <span class="text-gray-300 dark:text-zinc-600 mx-1">|</span> Load: ${escapeHTML(amp.imp || '-')}</td></tr>
+                                    <tr class="bg-white dark:bg-zinc-800"><td class="p-2 font-bold text-gray-600 dark:text-gray-400 align-top">Wiring Route</td><td class="p-2 font-bold text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${escapeHTML(amp.wiring || '-')}</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
+            }
+            return finalHtml;
         }
 
         function buildEventDetailHTML(p) {
@@ -3140,6 +3382,160 @@
             document.getElementById('eval-msg').value = '';
             showLoading(false); showToast("Terima kasih atas evaluasinya!"); fetchData();
         };
+
+        // --- SISTEM ROUTING AUDIO AMAN DARI UNDEFINED ---
+        function toggleSubRoutingUI() {
+            const val = document.getElementById('rt-sub-config').value;
+            const pGap = document.getElementById('sub-param-gap');
+            const pSpace = document.getElementById('sub-param-space');
+            
+            pGap.classList.add('hidden');
+            pSpace.classList.add('hidden');
+            
+            if(val === 'End-Fire') {
+                pGap.classList.remove('hidden');
+            } else if (val === 'Broadside Array') {
+                pSpace.classList.remove('hidden');
+            } else if (val === 'End-Fire Broadside') {
+                pGap.classList.remove('hidden');
+                pSpace.classList.remove('hidden');
+            }
+        }
+
+        function updateRoutingDropdown() {
+            const select = document.getElementById('route-event-id');
+            if(!select) return;
+            const currentVal = select.value;
+            const activeEvents = allProjects.filter(p => p.status !== 'Completed' && p.status !== 'Cancelled');
+            select.innerHTML = '<option value="" disabled selected>Pilih Event Aktif...</option>' + 
+                               activeEvents.map(p => `<option value="${escapeHTML(p.id)}">${escapeHTML(p.eventName)}</option>`).join('');
+            if (currentVal && activeEvents.some(p => p.id === currentVal)) select.value = currentVal;
+        }
+
+        function loadRoutingData(eventId) {
+            const p = allProjects.find(x => x.id === eventId);
+            if(!p) return;
+            
+            const info = document.getElementById('route-event-info');
+            if(info) {
+                info.innerHTML = `<i data-lucide="map-pin" class="w-3 h-3 inline align-middle"></i> Lokasi: ${escapeHTML(p.mapsLink !== '-' ? p.mapsLink : 'TBA')} • ${escapeHTML(p.eventDate)} <br> <span class="text-blue-500 mt-1 block">[Status: Tersinkronisasi dengan Detail Event]</span>`;
+                info.classList.remove('hidden');
+                lucide.createIcons();
+            }
+
+            // Gunakan optional chaining & fallback object agar tidak error "Cannot read properties of undefined"
+            const r = (p.specDyn && p.specDyn.routing) ? p.specDyn.routing : {};
+            const plc = r.placement || {};
+            const dlm = r.dlms || { in: [], out: [] };
+            const amp = r.amps || {};
+            
+            // Kompatibilitas mundur untuk data lama (format text) -> format objek (per posisi)
+            const safeExtract = (k) => typeof plc[k] === 'object' ? plc[k] : { qty: plc[k]||'', trim: k==='main'?(plc.trim||''):'', splay: k==='main'?(plc.splay||''):'' };
+            
+            const pMain = safeExtract('main');
+            const pFront = safeExtract('front');
+            const pOut = safeExtract('out');
+            const pDelay = safeExtract('delay');
+            const pOthers = safeExtract('others');
+
+            document.getElementById('rt-main-qty').value = pMain.qty;
+            document.getElementById('rt-main-trim').value = pMain.trim;
+            document.getElementById('rt-main-splay').value = pMain.splay;
+
+            document.getElementById('rt-front-qty').value = pFront.qty;
+            document.getElementById('rt-front-trim').value = pFront.trim;
+            document.getElementById('rt-front-splay').value = pFront.splay;
+
+            document.getElementById('rt-out-qty').value = pOut.qty;
+            document.getElementById('rt-out-trim').value = pOut.trim;
+            document.getElementById('rt-out-splay').value = pOut.splay;
+
+            document.getElementById('rt-delay-qty').value = pDelay.qty;
+            document.getElementById('rt-delay-trim').value = pDelay.trim;
+            document.getElementById('rt-delay-splay').value = pDelay.splay;
+
+            document.getElementById('rt-others-qty').value = pOthers.qty;
+            document.getElementById('rt-others-trim').value = pOthers.trim;
+            document.getElementById('rt-others-splay').value = pOthers.splay;
+
+            document.getElementById('rt-sub-total').value = plc.subTotal || '';
+            document.getElementById('rt-sub-config').value = plc.subConfig || 'L/R Standard';
+            document.getElementById('rt-sub-gap').value = plc.subGap || '';
+            document.getElementById('rt-sub-space').value = plc.subSpace || '';
+            document.getElementById('rt-sub-param').value = plc.subParams || '';
+
+            toggleSubRoutingUI(); // Inisialisasi UI
+
+            ['A','B','C','D'].forEach((ch, i) => document.getElementById('rt-in-'+ch).value = dlm.in[i] || '');
+            
+            for(let i=1; i<=8; i++) {
+                const out = dlm.out[i-1] || {dest:'', xover:'', delay:'', limit:''};
+                document.getElementById(`rt-out-${i}-dest`).value = out.dest || '';
+                document.getElementById(`rt-out-${i}-xover`).value = out.xover || '';
+                document.getElementById(`rt-out-${i}-delay`).value = out.delay || '';
+                document.getElementById(`rt-out-${i}-limit`).value = out.limit || '';
+            }
+
+            document.getElementById('rt-amp-type').value = amp.type || '4-Channel';
+            document.getElementById('rt-amp-mode').value = amp.mode || 'Stereo';
+            document.getElementById('rt-amp-sens').value = amp.sens || '0.775V';
+            document.getElementById('rt-amp-imp').value = amp.imp || '';
+            document.getElementById('rt-amp-wiring').value = amp.wiring || '';
+        }
+
+        const routingForm = document.getElementById('routing-form');
+        if (routingForm) {
+            routingForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const eventId = document.getElementById('route-event-id').value;
+                if(!eventId) { showToast("Pilih event terlebih dahulu!", true); return; }
+                const p = allProjects.find(x => x.id === eventId);
+                if(!p) return;
+
+                if(!p.specDyn) p.specDyn = {};
+                
+                const inA = document.getElementById('rt-in-A').value, inB = document.getElementById('rt-in-B').value, inC = document.getElementById('rt-in-C').value, inD = document.getElementById('rt-in-D').value;
+                const outs = [];
+                for(let i=1; i<=8; i++) {
+                    outs.push({
+                        dest: document.getElementById(`rt-out-${i}-dest`).value,
+                        xover: document.getElementById(`rt-out-${i}-xover`).value,
+                        delay: document.getElementById(`rt-out-${i}-delay`).value,
+                        limit: document.getElementById(`rt-out-${i}-limit`).value
+                    });
+                }
+
+                p.specDyn.routing = {
+                    placement: {
+                        main: { qty: document.getElementById('rt-main-qty').value, trim: document.getElementById('rt-main-trim').value, splay: document.getElementById('rt-main-splay').value },
+                        front: { qty: document.getElementById('rt-front-qty').value, trim: document.getElementById('rt-front-trim').value, splay: document.getElementById('rt-front-splay').value },
+                        out: { qty: document.getElementById('rt-out-qty').value, trim: document.getElementById('rt-out-trim').value, splay: document.getElementById('rt-out-splay').value },
+                        delay: { qty: document.getElementById('rt-delay-qty').value, trim: document.getElementById('rt-delay-trim').value, splay: document.getElementById('rt-delay-splay').value },
+                        others: { qty: document.getElementById('rt-others-qty').value, trim: document.getElementById('rt-others-trim').value, splay: document.getElementById('rt-others-splay').value },
+                        subTotal: document.getElementById('rt-sub-total').value,
+                        subConfig: document.getElementById('rt-sub-config').value,
+                        subGap: document.getElementById('rt-sub-gap').value,
+                        subSpace: document.getElementById('rt-sub-space').value,
+                        subParams: document.getElementById('rt-sub-param').value
+                    },
+                    dlms: { in: [inA, inB, inC, inD], out: outs },
+                    amps: {
+                        type: document.getElementById('rt-amp-type').value,
+                        mode: document.getElementById('rt-amp-mode').value,
+                        sens: document.getElementById('rt-amp-sens').value,
+                        imp: document.getElementById('rt-amp-imp').value,
+                        wiring: document.getElementById('rt-amp-wiring').value
+                    }
+                };
+
+                showLoading(true);
+                await apiCall({ action: 'ADD_DATA', payload: p });
+                showLoading(false);
+                showToast("Routing Audio Berhasil Disimpan!");
+                fetchData(true); // Merefresh data di latar belakang
+            });
+        }
+        // --- END SISTEM ROUTING AUDIO ---
 
         function logout() { currentUser = null; location.reload(); }
         
