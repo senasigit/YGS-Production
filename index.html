@@ -3728,12 +3728,19 @@
         }
 
         function getChkState(eventId) {
-            const data = localStorage.getItem('ygs_chk_' + eventId);
-            return data ? JSON.parse(data) : { items: {}, locks: { muat: false, tiba: false, out: false, gudang: false } };
+            const p = allProjects.find(x => x.id === eventId);
+            if (p && p.checklistState) {
+                return typeof p.checklistState === 'string' ? JSON.parse(p.checklistState) : p.checklistState;
+            }
+            return { items: {}, locks: { muat: false, tiba: false, out: false, gudang: false } };
         }
         
-        function saveChkState(eventId, state) {
-            localStorage.setItem('ygs_chk_' + eventId, JSON.stringify(state));
+        async function saveChkState(eventId, state) {
+            const p = allProjects.find(x => x.id === eventId);
+            if(p) {
+                p.checklistState = state;
+                await apiCall({ action: 'ADD_DATA', payload: p });
+            }
         }
 
         function openReauth(callback) {
@@ -3800,6 +3807,7 @@
             document.getElementById('modal-checklist-detail').classList.remove('flex');
             currentChkEventId = null;
             isChecklistEditMode = false;
+            fetchData(true); // Refresh data saat menutup agar manifest terbaru terambil
         }
 
         function openChecklistReport(eventId) {
@@ -3973,7 +3981,7 @@
                             
                             <div class="flex items-center gap-2 mt-2 pt-2 border-t border-dashed border-gray-200 dark:border-zinc-700">
                                 <span class="text-xs sm:text-sm font-black text-ygsred bg-red-50 dark:bg-red-950/40 px-2.5 py-0.5 rounded border border-red-100 dark:border-red-900/50">Qty: ${i.qty}</span>
-                                <select onchange="changeChkStatus('${i.id}', this.value)" class="p-1 rounded bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 text-[9px] font-black outline-none ${isChecklistEditMode ? 'cursor-pointer hover:border-ygsred' : 'pointer-events-none opacity-70'}">
+                                <select onchange="changeChkStatus('${i.id}', '${escapeHTML(i.brand)}', this.value)" class="p-1 rounded bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 text-[9px] font-black outline-none ${isChecklistEditMode ? 'cursor-pointer hover:border-ygsred' : 'pointer-events-none opacity-70'}">
                                     <option value="Baik" ${itemStatus === 'Baik' ? 'selected' : ''}>🟢 Baik</option>
                                     <option value="Menunggu Sparepart" ${itemStatus === 'Menunggu Sparepart' ? 'selected' : ''}>🟡 Tunggu Part</option>
                                     <option value="Sedang Diservis" ${itemStatus === 'Sedang Diservis' || itemStatus === 'Service' ? 'selected' : ''}>🔵 Servis</option>
@@ -4014,20 +4022,24 @@
             const state = getChkState(currentChkEventId);
             if(!state.items[itemId]) state.items[itemId] = {};
             state.items[itemId].status = newStatus;
-            saveChkState(currentChkEventId, state);
+            
+            showLoading(true);
+            await saveChkState(currentChkEventId, state);
 
             const asset = allAssets.find(a => a.name === brand);
             if(asset) {
-                showLoading(true);
                 asset.status = newStatus; 
                 await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'status', value: newStatus } });
-                showLoading(false);
                 showToast(`Status ${brand} tersinkronisasi ke Inventaris!`);
                 if(activeTab === 'assets') renderAssets();
+            } else {
+                showToast(`Status item berhasil diubah!`);
             }
+            showLoading(false);
+            renderChecklistTable();
         }
 
-        function toggleChkItem(itemId, col) {
+        async function toggleChkItem(itemId, col) {
             if(!isChecklistEditMode) {
                 showToast("Anda harus dalam Mode Edit untuk mencentang.", true);
                 return;
@@ -4045,7 +4057,9 @@
                 time: isNowChecked ? new Date().toISOString() : null
             };
             
-            saveChkState(currentChkEventId, state);
+            showLoading(true);
+            await saveChkState(currentChkEventId, state);
+            showLoading(false);
             renderChecklistTable();
         }
 
@@ -4060,17 +4074,18 @@
                     showCustomConfirm("Buka Kunci Tahap", `Tahap ${col.toUpperCase()} sudah terkunci. Apakah Anda yakin ingin MEMBUKA kunci ini?`, () => {
                         openReauth(async (user) => {
                             state.locks[col] = false;
-                            saveChkState(currentChkEventId, state);
-                            renderChecklistTable();
-                            showToast(`Kunci Tahap ${col.toUpperCase()} berhasil dibuka!`);
+                            
+                            showLoading(true);
+                            await saveChkState(currentChkEventId, state);
 
                             const p = allProjects.find(x => x.id === currentChkEventId);
                             const reportMsg = `LAPORAN CHECKLIST: Kunci tahap [${col.toUpperCase()}] telah DIBUKA KEMBALI oleh Admin: ${user.nickname || user.fullName}.`;
                             
-                            showLoading(true);
                             await apiCall({ action: 'ADD_EVAL', payload: { eventId: p.id, eventName: p.eventName, msg: reportMsg, sender: 'SYSTEM (CHECKLIST)', time: new Date().toISOString() } });
                             showLoading(false);
                             
+                            renderChecklistTable();
+                            showToast(`Kunci Tahap ${col.toUpperCase()} berhasil dibuka!`);
                             fetchData(true);
                         });
                     });
@@ -4082,17 +4097,18 @@
             
             openReauth(async (user) => {
                 state.locks[col] = true;
-                saveChkState(currentChkEventId, state);
-                renderChecklistTable();
-                showToast(`Tahap ${col.toUpperCase()} berhasil dikunci!`);
+                
+                showLoading(true);
+                await saveChkState(currentChkEventId, state);
 
                 const p = allProjects.find(x => x.id === currentChkEventId);
                 const reportMsg = `LAPORAN CHECKLIST: Manifest untuk tahap [${col.toUpperCase()}] telah di-verifikasi, disahkan, dan dikunci secara permanen oleh kru bertugas: ${user.nickname || user.fullName}. Seluruh aset telah tercatat di dalam sistem pada jam ${new Date().toLocaleTimeString('id-ID')}.`;
                 
-                showLoading(true);
                 await apiCall({ action: 'ADD_EVAL', payload: { eventId: p.id, eventName: p.eventName, msg: reportMsg, sender: 'SYSTEM (CHECKLIST)', time: new Date().toISOString() } });
                 showLoading(false);
                 
+                renderChecklistTable();
+                showToast(`Tahap ${col.toUpperCase()} berhasil dikunci secara global!`);
                 fetchData(true); // refresh evals background
             });
         }
@@ -4123,16 +4139,16 @@
             if(!state.items[itemId]) state.items[itemId] = {};
             state.items[itemId].note = noteText;
             
-            saveChkState(eventId, state);
+            showLoading(true);
+            await saveChkState(eventId, state);
             
             // SINKRONISASI KE INVENTARIS ASET
             const asset = allAssets.find(a => a.name === brand);
             if(asset) {
-                showLoading(true);
                 asset.note = noteText;
                 await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'note', value: noteText } });
-                showLoading(false);
             }
+            showLoading(false);
             
             document.getElementById('modal-chk-note').classList.add('hidden');
             document.getElementById('modal-chk-note').classList.remove('flex');
