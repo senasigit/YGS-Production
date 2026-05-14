@@ -494,13 +494,18 @@
                     class="text-[10px] font-bold text-gray-500 dark:text-gray-400 italic leading-relaxed px-2"></p>
             </div>
 
-            <div class="pt-2 flex gap-2">
-                <button id="btn-submit-absen" onclick="submitAbsen()"
-                    class="w-full py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px] shadow-lg shadow-red-900/30 transition hover:bg-red-700 flex items-center justify-center gap-1.5"><i
-                        data-lucide="check-square" class="w-4 h-4"></i> Absen Hadir Hari Ini!</button>
-                <button id="btn-close-daily" onclick="closeDailyModal()"
-                    class="hidden w-full py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-black uppercase text-[10px] transition hover:bg-gray-300 dark:hover:bg-zinc-700 flex items-center justify-center gap-1.5"><i
-                        data-lucide="check-circle" class="w-4 h-4 text-green-500"></i> Sudah Absen (Tutup)</button>
+            <div class="pt-2 flex flex-col gap-2">
+                <p id="daily-status-label" class="hidden text-[10px] font-black text-green-600 uppercase text-center bg-green-50 dark:bg-green-900/20 py-2 rounded-lg border border-green-200 dark:border-green-900/50 animate-pulse">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5 inline align-middle mr-1"></i> Anda sudah absen hari ini. Semangat bekerja!
+                </p>
+                <div class="flex gap-2">
+                    <button id="btn-submit-absen" onclick="submitAbsen()"
+                        class="w-full py-3.5 rounded-xl bg-ygsred text-white font-black uppercase text-[10px] shadow-lg shadow-red-900/30 transition hover:bg-red-700 flex items-center justify-center gap-1.5"><i
+                            data-lucide="check-square" class="w-4 h-4"></i> Absen Hadir Hari Ini!</button>
+                    <button id="btn-close-daily" onclick="closeDailyModal()"
+                        class="hidden w-full py-3.5 rounded-xl bg-gray-200 dark:bg-zinc-800 text-gray-800 dark:text-white font-black uppercase text-[10px] transition hover:bg-gray-300 dark:hover:bg-zinc-700 flex items-center justify-center gap-1.5"><i
+                            data-lucide="check-circle" class="w-4 h-4 text-green-500"></i> Sudah Absen (Tutup)</button>
+                </div>
             </div>
         </div>
     </div>
@@ -522,6 +527,13 @@
                     class="text-gray-500 hover:text-red-500 bg-gray-100 dark:bg-zinc-800 p-2 rounded-xl transition shadow-sm">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
+            </div>
+        </div>
+        <div class="p-3 bg-gray-50 dark:bg-zinc-900/50 border-b dark:border-zinc-800 flex items-center gap-2 shrink-0">
+            <div class="relative flex-1">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="chk-search" oninput="renderChecklistTable()" placeholder="Cari Alat, Brand, atau Spesifikasi..." 
+                    class="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-zinc-800 border dark:border-zinc-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-ygsred/20 focus:border-ygsred transition shadow-sm">
             </div>
         </div>
         <div class="p-2 sm:p-4 overflow-y-auto flex-1 w-full max-w-5xl mx-auto space-y-4" id="chk-detail-content">
@@ -2025,12 +2037,15 @@
             document.getElementById('daily-agenda-summary').innerHTML = agendaHtml;
 
             // Toggle Tombol Absen
+            const statusLabel = document.getElementById('daily-status-label');
             if (alreadyAbsen) {
                 document.getElementById('btn-submit-absen').classList.add('hidden');
                 document.getElementById('btn-close-daily').classList.remove('hidden');
+                if (statusLabel) statusLabel.classList.remove('hidden');
             } else {
                 document.getElementById('btn-submit-absen').classList.remove('hidden');
                 document.getElementById('btn-close-daily').classList.add('hidden');
+                if (statusLabel) statusLabel.classList.add('hidden');
             }
 
             document.getElementById('modal-daily').classList.remove('hidden');
@@ -2070,7 +2085,11 @@
             e.preventDefault(); showLoading(true);
             const res = await apiCall({ action: 'LOGIN', payload: { username: document.getElementById('log-username').value.toLowerCase(), password: document.getElementById('log-password').value } });
             showLoading(false);
-            if (res.success) { currentUser = res.user; initApp(); showDailyBriefing(); }
+            if (res.success) { 
+                currentUser = res.user; 
+                await initApp(); 
+                showDailyBriefing(); 
+            }
             else showToast(res.message, true);
         };
 
@@ -2083,8 +2102,9 @@
             showLoading(false); if (res.success) { showToast("Berhasil! Login sekarang."); toggleAuth('login'); } else showToast(res.message, true);
         };
 
-        function initApp() {
-            document.getElementById('view-auth').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden');
+        async function initApp() {
+            document.getElementById('view-auth').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
 
             const posStr = escapeHTML(currentUser.position || 'Crew');
             const safeName = escapeHTML(currentUser.nickname || currentUser.fullName);
@@ -2115,24 +2135,22 @@
                 document.getElementById('btn-view-saya').classList.add('hidden');
             }
 
-            // Akses tab buat untuk Admin & Pangat
             if (isAdmin || isPangat) {
                 document.getElementById('nav-add').classList.remove('hidden');
             }
 
-            // Sembunyikan mode penawaran secara dinamis jika bukan Admin
             const btnPenawaran = document.getElementById('btn-mode-penawaran');
             if (btnPenawaran) {
                 if (isAdmin) {
                     btnPenawaran.classList.remove('hidden');
                 } else {
                     btnPenawaran.classList.add('hidden');
-                    // Pastikan user biasa/Pangat tidak stuck di state penawaran
                     if (formMode === 'penawaran') setFormMode('produksi');
                 }
             }
 
-            fetchData(); initDynForms();
+            await fetchData(); 
+            initDynForms();
 
             setInterval(() => fetchData(true), 30000);
         }
@@ -4605,7 +4623,6 @@
             try {
                 const res = await apiCall({ action: 'ADD_DATA', payload: updatedP });
                 if (res.success) {
-                    // Sinkronisasi status & catatan ke Master Inventaris secara background (Batch)
                     const items = extractItemsForChecklist(p);
                     const syncPromises = [];
 
@@ -4615,25 +4632,38 @@
                         if (itemDef) {
                             const asset = allAssets.find(a => a.name === itemDef.brand);
                             if (asset) {
-                                // Update Status Master jika berbeda
                                 if (s.status && s.status !== asset.status) {
-                                    asset.status = s.status;
-                                    syncPromises.push(apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'status', value: s.status } }));
+                                    syncPromises.push(async () => {
+                                        asset.status = s.status;
+                                        await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'status', value: s.status } });
+                                    });
                                 }
-                                // Update Catatan Master jika berbeda
-                                if (s.note && s.note !== asset.note) {
-                                    asset.note = s.note;
-                                    syncPromises.push(apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'note', value: s.note } }));
+                                if (s.note !== undefined && s.note !== asset.note) {
+                                    syncPromises.push(async () => {
+                                        asset.note = s.note;
+                                        await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id: asset.id, field: 'note', value: s.note } });
+                                    });
                                 }
                             }
                         }
                     }
 
-                    // Kita tunggu semua update master selesai agar data konsisten
-                    if (syncPromises.length > 0) await Promise.all(syncPromises);
+                    // Kita lakukan update master secara BERURUTAN (Sequential)
+                    // Agar tidak menabrak limit Google Apps Script jika item sangat banyak
+                    if (syncPromises.length > 0) {
+                        for (let i = 0; i < syncPromises.length; i++) {
+                            const pcent = Math.round(((i + 1) / syncPromises.length) * 100);
+                            showToast(`Sinkronisasi Aset Master: ${pcent}%...`);
+                            await syncPromises[i](); 
+                        }
+                    }
 
                     showToast("Berhasil Sinkron! Data checklist & kondisi alat tersimpan di database server.");
                     p.checklist = updatedP.checklist; // Update local cache
+                    
+                    // Hapus localStorage setelah sync berhasil agar data server menjadi truth kembali
+                    localStorage.removeItem('ygs_chk_' + currentChkEventId);
+
                     if (btn) {
                         btn.classList.add('hidden');
                         btn.classList.remove('flex', 'animate-pulse');
@@ -4717,8 +4747,20 @@
         }
 
         function closeChecklistDetail() {
+            const hasLocal = localStorage.getItem('ygs_chk_' + currentChkEventId);
+            if (hasLocal && isChecklistEditMode) {
+                showCustomConfirm("Perubahan Belum Disimpan", "Ada perubahan checklist yang belum dikirim ke Cloud. Jika ditutup sekarang, kru lain tidak akan melihat update ini. Tetap tutup?", () => {
+                    forceCloseChecklist();
+                });
+                return;
+            }
+            forceCloseChecklist();
+        }
+
+        function forceCloseChecklist() {
             document.getElementById('modal-checklist-detail').classList.add('hidden');
             document.getElementById('modal-checklist-detail').classList.remove('flex');
+            document.getElementById('chk-search').value = '';
             currentChkEventId = null;
             isChecklistEditMode = false;
         }
@@ -4860,20 +4902,33 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-zinc-800">`;
 
-            Object.keys(grouped).forEach(cat => {
-                html += `<tr class="bg-red-50 dark:bg-red-950/20"><td colspan="6" class="p-2.5 font-black text-xs text-ygsred uppercase tracking-widest">${escapeHTML(cat)}</td></tr>`;
-                grouped[cat].forEach(i => {
-                    const s = state.items[i.id] || { muat: null, tiba: null, out: null, gudang: null, note: '', status: 'Baik' };
+            const searchVal = document.getElementById('chk-search')?.value.toLowerCase() || '';
 
-                    // SINKRONISASI 2 ARAH: Prioritaskan status & catatan terbaru dari DB Inventaris Alat
+            Object.keys(grouped).forEach(cat => {
+                const categoryItems = grouped[cat].filter(i => {
+                    if (!searchVal) return true;
+                    return i.jenis.toLowerCase().includes(searchVal) || i.brand.toLowerCase().includes(searchVal);
+                });
+
+                if (categoryItems.length === 0) return;
+
+                html += `<tr class="bg-red-50 dark:bg-red-950/20"><td colspan="6" class="p-2.5 font-black text-xs text-ygsred uppercase tracking-widest">${escapeHTML(cat)}</td></tr>`;
+                categoryItems.forEach(i => {
+                    const itemState = state.items[i.id] || {};
                     const asset = allAssets.find(a => a.name === i.brand);
-                    const itemStatus = asset && asset.status ? asset.status : (s.status || 'Baik');
-                    const itemNote = asset && asset.note ? asset.note : (s.note || '');
+                    
+                    // PRIORITAS: 
+                    // 1. Data di 'itemState' (perubahan lokal yang belum/baru di-sync)
+                    // 2. Data di 'asset' (Master Inventaris)
+                    // 3. Default
+                    const itemStatus = itemState.status || (asset && asset.status ? asset.status : 'Baik');
+                    const itemNote = (itemState.note !== undefined) ? itemState.note : (asset && asset.note ? asset.note : '');
 
                     const hasNote = itemNote && itemNote.trim() !== '';
                     const rowClass = hasNote ? "bg-yellow-50/50 dark:bg-yellow-900/10" : "hover:bg-gray-50 dark:hover:bg-zinc-800/50";
 
                     const renderCb = (col) => {
+                        const s = state.items[i.id] || {};
                         const isLocked = state.locks[col];
                         const isChecked = s[col] && s[col].checked;
                         const icon = isChecked ? 'check-square' : 'square';
