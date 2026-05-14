@@ -4591,7 +4591,12 @@
             }).join('');
 
             const chatCont = document.getElementById('chat-container');
-            chatCont.scrollTop = chatCont.scrollHeight;
+            
+            // BUG FIX: Jangan menarik paksa layar ke bawah jika user sedang men-scroll membaca history di atas!
+            const isScrolledToBottom = chatCont.scrollHeight - chatCont.clientHeight <= chatCont.scrollTop + 50;
+            if (isScrolledToBottom) {
+                chatCont.scrollTop = chatCont.scrollHeight;
+            }
         }
 
         document.getElementById('chat-form').onsubmit = async (e) => {
@@ -4930,6 +4935,13 @@
             document.getElementById('modal-checklist-detail').classList.add('hidden');
             document.getElementById('modal-checklist-detail').classList.remove('flex');
             document.getElementById('chk-search').value = '';
+
+            // BUG FIX: Hapus state memori lokal jika user menutup modal tanpa menekan tombol "Simpan"
+            // Hal ini mencegah "Data Stale/Kusam" menimpa data baru dari server di masa mendatang.
+            if (currentChkEventId) {
+                localStorage.removeItem('ygs_chk_' + currentChkEventId);
+            }
+
             currentChkEventId = null;
             isChecklistEditMode = false;
         }
