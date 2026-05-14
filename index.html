@@ -1313,6 +1313,15 @@
                                 Baru</span></button>
                     </div>
                 </div>
+                <!-- Live Search Inventaris -->
+                <div class="relative">
+                    <input type="text" id="asset-search" oninput="renderAssets()"
+                        placeholder="Cari alat (Nama / Jenis)..."
+                        class="w-full p-2.5 pl-10 rounded-xl bg-gray-50 dark:bg-zinc-900 border dark:border-zinc-800 font-bold text-[10px] focus:border-ygsred transition outline-none">
+                    <i data-lucide="search"
+                        class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+
                 <!-- Container list Asset -->
                 <div id="asset-list-container" class="space-y-4"></div>
             </div>
@@ -1373,7 +1382,14 @@
                         <option value="bon-desc">Kasbon Keluar Terbanyak</option>
                     </select>
                 </div>
-
+                <!-- Live Search Kru -->
+                <div class="relative">
+                    <input type="text" id="team-search" oninput="renderTeam()"
+                        placeholder="Cari kru (Nama / @Username)..."
+                        class="w-full p-2.5 pl-10 rounded-xl bg-gray-50 dark:bg-zinc-900 border dark:border-zinc-800 font-bold text-[10px] focus:border-ygsred transition outline-none">
+                    <i data-lucide="search"
+                        class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
                 <!-- Widget Total Kewajiban -->
                 <div
                     class="bg-gray-900 dark:bg-black p-5 rounded-2xl border border-zinc-800 shadow-xl relative overflow-hidden flex items-center justify-between">
@@ -2269,7 +2285,16 @@
                 await fetchData(); 
                 initDynForms();
 
-                setInterval(() => fetchData(true), 30000);
+                // OPTIMASI API: Fetch data setiap 3 menit (sebelumnya 30 detik) untuk menjaga kuota Google Apps Script
+                // Serta hanya melakukan request jika aplikasi sedang dilihat (Page Visibility API)
+                setInterval(() => {
+                    if (document.visibilityState === 'visible') fetchData(true);
+                }, 180000);
+
+                // Tarik data terbaru seketika saat user kembali membuka aplikasi dari background
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') fetchData(true);
+                });
 
                 // Mobile Keyboard Fix for Chat (Robust VisualViewport)
                 if (window.visualViewport) {
@@ -3756,10 +3781,16 @@
 
         function renderAssets() {
             const container = document.getElementById('asset-list-container');
+            const searchVal = (document.getElementById('asset-search')?.value || "").toLowerCase();
+            
             // Menghapus batasan role. Semua bisa edit
             const isAdmin = true;
 
-            let sortedAssets = [...allAssets];
+            let sortedAssets = allAssets.filter(a => 
+                a.name.toLowerCase().includes(searchVal) || 
+                (a.category && a.category.toLowerCase().includes(searchVal)) ||
+                (a.cat && a.cat.toLowerCase().includes(searchVal))
+            );
             let html = '';
 
             const renderTable = (assetsToRender) => {
@@ -3938,6 +3969,7 @@
 
         function renderTeam() {
             const sortBy = document.getElementById('team-sort').value;
+            const searchVal = document.getElementById('team-search').value.toLowerCase();
             const todayStr = getJakartaDateString();
 
             let usersWithStats = allUsers.map(u => {
@@ -3956,6 +3988,13 @@
 
                 return { ...u, saldo, totalBon, hasAbsen, safeName };
             });
+
+            // Filtering berdasarkan Search Bar
+            usersWithStats = usersWithStats.filter(u => 
+                u.fullName.toLowerCase().includes(searchVal) || 
+                u.username.toLowerCase().includes(searchVal) || 
+                (u.nickname && u.nickname.toLowerCase().includes(searchVal))
+            );
 
             let totalKewajiban = 0;
             usersWithStats.forEach(u => { if (u.saldo > 0) totalKewajiban += u.saldo; });
