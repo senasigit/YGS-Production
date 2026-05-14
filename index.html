@@ -601,6 +601,75 @@
         </div>
     </div>
 
+    <!-- MODAL MENU (DRAWER) -->
+    <div id="modal-menu"
+        class="fixed inset-0 bg-black/60 z-[950] hidden flex-col justify-end backdrop-blur-[2px] animate-fade"
+        onclick="if(event.target===this) toggleMenu(false)">
+        <div class="bg-white dark:bg-[#111] rounded-t-[2.5rem] w-full max-w-xl mx-auto p-8 pt-6 pb-12 space-y-6 shadow-2xl border-t dark:border-zinc-800 transform transition-transform duration-300 translate-y-0 relative overflow-hidden">
+            <div class="w-12 h-1.5 bg-gray-200 dark:bg-zinc-800 rounded-full mx-auto mb-6 opacity-50"></div>
+            
+            <div class="grid grid-cols-3 gap-4">
+                <button onclick="toggleMenu(false); switchTab('profile')" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                        <i data-lucide="wallet" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Dompet</span>
+                </button>
+
+                <button onclick="toggleMenu(false); switchTab('assets')" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                        <i data-lucide="box" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Aset</span>
+                </button>
+
+                <button onclick="toggleMenu(false); switchTab('maint')" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                        <i data-lucide="wrench" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Servis</span>
+                </button>
+
+                <button onclick="toggleMenu(false); switchTab('eval')" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                        <i data-lucide="clipboard-list" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Eval</span>
+                </button>
+
+                <button onclick="toggleMenu(false); switchTab('team')" class="hidden admin-only flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                        <i data-lucide="users" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Tim</span>
+                </button>
+
+                <button onclick="toggleMenu(false); switchTab('stats')" class="hidden admin-only flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                        <i data-lucide="pie-chart" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Stats</span>
+                </button>
+
+                <button id="menu-add" onclick="toggleMenu(false); resetEventForm(); switchTab('add')" class="hidden flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-blue-600">
+                        <i data-lucide="plus-square" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Buat</span>
+                </button>
+
+                <button onclick="logout()" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-red-50 dark:bg-red-900/5 hover:bg-red-100 dark:hover:bg-red-900/20 transition group">
+                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-red-500">
+                        <i data-lucide="log-out" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-red-600">Logout</span>
+                </button>
+            </div>
+            
+            <button onclick="toggleMenu(false)" class="w-full py-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-gray-500 font-black uppercase text-xs tracking-widest hover:bg-gray-200 dark:hover:bg-zinc-700 transition">Tutup</button>
+        </div>
+    </div>
+
     <!-- MODAL RE-AUTH (SECURITY CHECK) -->
     <div id="modal-reauth"
         class="fixed inset-0 bg-black/80 z-[1050] hidden flex-col justify-center items-center p-4 backdrop-blur-sm animate-fade"
@@ -1632,75 +1701,41 @@
         </main>
 
         <nav
-            class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t dark:border-zinc-800 flex justify-start sm:justify-around p-2 z-[100] backdrop-blur-md shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] overflow-x-auto gap-1">
+            class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-black/95 border-t dark:border-zinc-800 flex justify-around items-center p-2 pt-3 pb-6 z-[100] backdrop-blur-md shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] no-print">
             <button onclick="switchTab('list')"
-                class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred"
+                class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred group"
                 id="nav-list">
-                <i data-lucide="calendar" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Jadwal</span>
+                <i data-lucide="calendar" class="w-6 h-6 group-hover:scale-110 transition"></i><span
+                    class="text-[9px] font-bold uppercase tracking-tighter">Jadwal</span>
                 <span id="badge-list"
-                    class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
+                    class="hidden absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-zinc-900 animate-pulse"></span>
             </button>
             <button onclick="switchTab('chat')"
-                class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred"
+                class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred group"
                 id="nav-chat">
-                <i data-lucide="message-square" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Chat</span>
+                <i data-lucide="message-square" class="w-6 h-6 group-hover:scale-110 transition"></i><span
+                    class="text-[9px] font-bold uppercase tracking-tighter">Chat</span>
                 <span id="badge-chat"
-                    class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
-            </button>
-            <button onclick="resetEventForm(); switchTab('add')"
-                class="hidden shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred"
-                id="nav-add"><i data-lucide="plus-square" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Buat</span></button>
-            <button onclick="switchTab('assets')"
-                class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred"
-                id="nav-assets">
-                <i data-lucide="box" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Aset</span>
-                <span id="badge-assets"
-                    class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
-            </button>
-            <button onclick="switchTab('eval')"
-                class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred"
-                id="nav-eval">
-                <i data-lucide="clipboard-list" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Eval</span>
-                <span id="badge-eval"
-                    class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
+                    class="hidden absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white dark:border-zinc-900 animate-pulse"></span>
             </button>
             <button onclick="switchTab('checklist')"
-                class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred"
+                class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred group"
                 id="nav-checklist">
-                <i data-lucide="list-checks" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Checklist</span>
-            </button>
-            <button onclick="switchTab('maint')"
-                class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred"
-                id="nav-maint">
-                <i data-lucide="wrench" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Maint</span>
-                <span id="badge-maint"
-                    class="hidden absolute top-1 right-2 sm:right-4 w-2 h-2 bg-red-600 rounded-full border border-white dark:border-zinc-900 animate-pulse"></span>
+                <i data-lucide="list-checks" class="w-6 h-6 group-hover:scale-110 transition"></i><span
+                    class="text-[9px] font-bold uppercase tracking-tighter">Checklist</span>
             </button>
             <button onclick="switchTab('routing'); updateRoutingDropdown();"
-                class="shrink-0 min-w-[50px] relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-blue-500"
+                class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-blue-500 group"
                 id="nav-routing">
-                <i data-lucide="sliders" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Routing</span>
+                <i data-lucide="sliders" class="w-6 h-6 group-hover:scale-110 transition"></i><span
+                    class="text-[9px] font-bold uppercase tracking-tighter">Routing</span>
             </button>
-            <button onclick="switchTab('team')"
-                class="hidden shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred admin-only"
-                id="nav-team"><i data-lucide="users" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Tim</span></button>
-            <button onclick="switchTab('stats')"
-                class="hidden shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred admin-only"
-                id="nav-stats"><i data-lucide="pie-chart" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Stats</span></button>
-            <button onclick="switchTab('profile')"
-                class="shrink-0 min-w-[50px] flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred"
-                id="nav-profile"><i data-lucide="wallet" class="w-5 h-5"></i><span
-                    class="text-[8px] font-bold uppercase tracking-wide">Dompet</span></button>
+            <button onclick="toggleMenu(true)"
+                class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred group"
+                id="nav-menu">
+                <i data-lucide="menu" class="w-6 h-6 group-hover:scale-110 transition"></i><span
+                    class="text-[9px] font-bold uppercase tracking-tighter">Menu</span>
+            </button>
         </nav>
     </div>
 
@@ -2130,13 +2165,16 @@
             const isPangat = isUserPangat();
 
             if (isAdmin) {
-                document.getElementById('nav-team').classList.remove('hidden');
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
                 document.getElementById('btn-view-saya').classList.add('hidden');
             }
 
             if (isAdmin || isPangat) {
-                document.getElementById('nav-add').classList.remove('hidden');
+                const addBtns = ['nav-add', 'menu-add'];
+                addBtns.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.remove('hidden');
+                });
             }
 
             const btnPenawaran = document.getElementById('btn-mode-penawaran');
@@ -2164,12 +2202,21 @@
                 }
             });
 
-            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile', 'nav-checklist', 'nav-maint', 'nav-routing', 'nav-stats'].forEach(n => {
+            const primaryTabs = ['list', 'chat', 'checklist', 'routing'];
+            const menuTabs = ['add', 'assets', 'eval', 'team', 'profile', 'maint', 'stats'];
+
+            ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile', 'nav-checklist', 'nav-maint', 'nav-routing', 'nav-stats', 'nav-menu'].forEach(n => {
                 const nav = document.getElementById(n); if (!nav) return;
                 nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20', 'text-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+                
                 if (n === 'nav-' + tab) {
                     if (tab === 'routing') nav.classList.add('text-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
                     else nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
+                }
+
+                // Jika tab aktif ada di menu, highlight tombol Menu
+                if (n === 'nav-menu' && menuTabs.includes(tab)) {
+                    nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
                 }
             });
 
@@ -2178,6 +2225,7 @@
 
             activeTab = tab;
             hideBadge(tab);
+            window.scrollTo(0, 0);
 
             if (tab === 'chat') {
                 targetEl.classList.add('flex');
@@ -2195,6 +2243,18 @@
             if (tab === 'checklist') renderChecklistDashboard();
             if (tab === 'maint') renderMaintenance();
             if (tab === 'stats') renderStats();
+        }
+
+        function toggleMenu(show) {
+            const menu = document.getElementById('modal-menu');
+            if (show) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+                lucide.createIcons();
+            } else {
+                menu.classList.add('hidden');
+                menu.classList.remove('flex');
+            }
         }
 
         async function fetchData(silent = false) {
@@ -4066,7 +4126,12 @@
             const select = document.getElementById('route-event-id');
             if (!select) return;
             const currentVal = select.value;
-            const activeEvents = allProjects.filter(p => p.status !== 'Completed' && p.status !== 'Cancelled');
+            const today = getJakartaDateString();
+            const activeEvents = allProjects.filter(p => 
+                p.status !== 'Completed' && 
+                p.status !== 'Cancelled' && 
+                p.eventDate >= today
+            );
             select.innerHTML = '<option value="" disabled selected>Pilih Event Aktif...</option>' +
                 activeEvents.map(p => `<option value="${escapeHTML(p.id)}">${escapeHTML(p.eventName)}</option>`).join('');
             if (currentVal && activeEvents.some(p => p.id === currentVal)) select.value = currentVal;
@@ -4159,12 +4224,16 @@
             div.id = `dsp-unit-${idx}`;
             div.className = 'bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl border dark:border-zinc-800 space-y-3 relative';
             div.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <div class="flex-1 mr-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
                         <label class="text-[8px] font-bold text-gray-500 uppercase">Nama DSP / Processor</label>
                         <input type="text" class="dsp-name w-full p-2 rounded input-dark font-bold text-xs mt-0.5" placeholder="Cth: Dolby Lake LP4D12, dbx DriveRack PA2..." value="${escapeHTML(d.name || '')}">
                     </div>
-                    <button type="button" onclick="removeDspUnit(${idx})" class="text-red-500 hover:text-red-700 transition p-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg mt-3"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    <div class="space-y-1 relative">
+                        <label class="text-[8px] font-bold text-emerald-600 uppercase">Kegunaan / Zoning</label>
+                        <input type="text" class="dsp-purpose w-full p-2 rounded input-dark font-bold text-xs mt-0.5" placeholder="Cth: Processing Main PA, Delay System..." value="${escapeHTML(d.purpose || '')}">
+                        <button type="button" onclick="removeDspUnit(${idx})" class="absolute -top-1 -right-1 text-red-500 hover:text-red-700 transition p-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <div class="space-y-1"><label class="text-[8px] font-bold text-gray-500 uppercase">IN A</label><input type="text" class="dsp-in-a w-full p-2 rounded input-dark font-bold text-[10px]" placeholder="Main L" value="${escapeHTML((d.in && d.in[0]) || '')}"></div>
@@ -4175,10 +4244,19 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-[9px] min-w-[300px]">
                         <thead class="bg-gray-100 dark:bg-zinc-800 text-gray-500 uppercase">
-                            <tr><th class="p-2 w-8">Out</th><th class="p-2">Destinasi / Speaker</th></tr>
+                            <tr>
+                                <th class="p-2 w-8 text-center">Out</th>
+                                <th class="p-2">Destinasi / Speaker</th>
+                            </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-zinc-800">
-                            ${[1, 2, 3, 4, 5, 6, 7, 8].map(n => `<tr><td class="p-2 font-black text-center">${n}</td><td class="p-1"><input type="text" class="dsp-out-${n} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..." value="${escapeHTML((d.out && d.out[n - 1] && d.out[n - 1].dest) || '')}"></td></tr>`).join('')}
+                            ${[1, 2, 3, 4, 5, 6, 7, 8].map(n => {
+                                const outData = (d.out && d.out[n - 1]) || {};
+                                return `<tr>
+                                    <td class="p-2 font-black text-center">${n}</td>
+                                    <td class="p-1"><input type="text" class="dsp-out-${n} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..." value="${escapeHTML(outData.dest || outData.item || '')}"></td>
+                                </tr>`;
+                            }).join('')}
                         </tbody>
                     </table>
                 </div>
@@ -4196,6 +4274,7 @@
             const units = [];
             document.querySelectorAll('#dsp-units-container > div').forEach(div => {
                 const name = div.querySelector('.dsp-name')?.value || '';
+                const purpose = div.querySelector('.dsp-purpose')?.value || '';
                 const inA = div.querySelector('.dsp-in-a')?.value || '';
                 const inB = div.querySelector('.dsp-in-b')?.value || '';
                 const inC = div.querySelector('.dsp-in-c')?.value || '';
@@ -4204,7 +4283,7 @@
                 for (let i = 1; i <= 8; i++) {
                     outs.push({ dest: div.querySelector(`.dsp-out-${i}`)?.value || '' });
                 }
-                units.push({ name, in: [inA, inB, inC, inD], out: outs });
+                units.push({ name, purpose, in: [inA, inB, inC, inD], out: outs });
             });
             return units;
         }
@@ -4223,12 +4302,16 @@
             const channels = a.channels || [];
 
             div.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <div class="flex-1 mr-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
                         <label class="text-[8px] font-bold text-gray-500 uppercase">Nama Amplifier</label>
                         <input type="text" class="amp-name w-full p-2 rounded input-dark font-bold text-xs mt-0.5" placeholder="Cth: Powersoft X4, Crown iTech 4x3500HD..." value="${escapeHTML(a.name || '')}">
                     </div>
-                    <button type="button" onclick="removeAmpUnit(${idx})" class="text-red-500 hover:text-red-700 transition p-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg mt-3"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    <div class="space-y-1 relative">
+                        <label class="text-[8px] font-bold text-emerald-600 uppercase">Kegunaan / Zoning</label>
+                        <input type="text" class="amp-purpose w-full p-2 rounded input-dark font-bold text-xs mt-0.5" placeholder="Cth: Amp Rack L - Main PA..." value="${escapeHTML(a.purpose || '')}">
+                        <button type="button" onclick="removeAmpUnit(${idx})" class="absolute -top-1 -right-1 text-red-500 hover:text-red-700 transition p-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div class="space-y-1">
@@ -4261,11 +4344,11 @@
                     <input type="text" class="amp-imp w-full p-2.5 rounded input-dark font-bold text-xs" placeholder="Cth: 4 Ohm (2 Box Paralel)" value="${escapeHTML(a.imp || '')}">
                 </div>
                 <div class="amp-channels-area">
-                    <label class="text-[8px] font-bold text-emerald-600 uppercase mb-1 block">Channel I/O & Kegunaan</label>
+                    <label class="text-[8px] font-bold text-emerald-600 uppercase mb-1 block">Channel I/O</label>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-[9px] min-w-[400px]">
+                        <table class="w-full text-left text-[9px] min-w-[300px]">
                             <thead class="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400 font-black uppercase tracking-widest">
-                                <tr><th class="p-2 w-12">Ch</th><th class="p-2">Input (Dari)</th><th class="p-2">Output (Ke)</th><th class="p-2">Kegunaan (Untuk Box)</th></tr>
+                                <tr><th class="p-2 w-12">Ch</th><th class="p-2">Input (Dari)</th><th class="p-2">Output (Ke)</th></tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-zinc-800">
                                 ${Array.from({ length: chCount }, (_, ci) => {
@@ -4274,8 +4357,7 @@
                 return `<tr>
                                         <td class="p-2 font-black text-center text-purple-600">${labels[ci]}</td>
                                         <td class="p-1"><input type="text" class="amp-ch-in-${ci} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: DSP Out 1" value="${escapeHTML(ch.input || '')}"></td>
-                                        <td class="p-1"><input type="text" class="amp-ch-out-${ci} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: Speaker Out A" value="${escapeHTML(ch.output || '')}"></td>
-                                        <td class="p-1"><input type="text" class="amp-ch-use-${ci} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: Top L 6 Box" value="${escapeHTML(ch.usage || '')}"></td>
+                                        <td class="p-1"><input type="text" class="amp-ch-out-${ci} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: Speaker Out A" value="${escapeHTML(ch.output || ch.usage || '')}"></td>
                                     </tr>`;
             }).join('')}
                             </tbody>
@@ -4309,18 +4391,17 @@
                 });
             }
             area.innerHTML = `
-                <label class="text-[8px] font-bold text-emerald-600 uppercase mb-1 block">Channel I/O & Kegunaan</label>
+                <label class="text-[8px] font-bold text-emerald-600 uppercase mb-1 block">Channel I/O</label>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-[9px] min-w-[400px]">
+                    <table class="w-full text-left text-[9px] min-w-[300px]">
                         <thead class="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400 font-black uppercase tracking-widest">
-                            <tr><th class="p-2 w-12">Ch</th><th class="p-2">Input (Dari)</th><th class="p-2">Output (Ke)</th><th class="p-2">Kegunaan (Untuk Box)</th></tr>
+                            <tr><th class="p-2 w-12">Ch</th><th class="p-2">Input (Dari)</th><th class="p-2">Output (Ke)</th></tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-zinc-800">
                             ${Array.from({ length: chCount }, (_, ci) => `<tr>
                                 <td class="p-2 font-black text-center text-purple-600">${labels[ci]}</td>
                                 <td class="p-1"><input type="text" class="amp-ch-in-${ci} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: DSP Out 1" value="${escapeHTML(existing[ci]?.input || '')}"></td>
-                                <td class="p-1"><input type="text" class="amp-ch-out-${ci} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: Speaker Out A" value="${escapeHTML(existing[ci]?.output || '')}"></td>
-                                <td class="p-1"><input type="text" class="amp-ch-use-${ci} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: Top L 6 Box" value="${escapeHTML(existing[ci]?.usage || '')}"></td>
+                                <td class="p-1"><input type="text" class="amp-ch-out-${ci} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Cth: Speaker Out A" value="${escapeHTML(existing[ci]?.output || existing[ci]?.usage || '')}"></td>
                             </tr>`).join('')}
                         </tbody>
                     </table>
@@ -4332,6 +4413,7 @@
             const units = [];
             document.querySelectorAll('#amp-units-container > div').forEach(div => {
                 const name = div.querySelector('.amp-name')?.value || '';
+                const purpose = div.querySelector('.amp-purpose')?.value || '';
                 const type = div.querySelector('.amp-type')?.value || '4-Channel';
                 const mode = div.querySelector('.amp-mode')?.value || 'Stereo';
                 const sens = div.querySelector('.amp-sens')?.value || '0.775V';
@@ -4343,11 +4425,10 @@
                     channels.push({
                         label: labels[i],
                         input: div.querySelector(`.amp-ch-in-${i}`)?.value || '',
-                        output: div.querySelector(`.amp-ch-out-${i}`)?.value || '',
-                        usage: div.querySelector(`.amp-ch-use-${i}`)?.value || ''
+                        output: div.querySelector(`.amp-ch-out-${i}`)?.value || ''
                     });
                 }
-                units.push({ name, type, mode, sens, imp, channels });
+                units.push({ name, purpose, type, mode, sens, imp, channels });
             });
             return units;
         }
