@@ -25,6 +25,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Library untuk Chart/Statistik -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Library untuk Date Picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
 
     <script>
         // Sinkronisasi Mode Gelap/Terang Otomatis mengikuti Sistem
@@ -214,7 +219,7 @@
 
     <!-- Animasi Loading Kustom Vector -->
     <div id="loading-overlay" style="display: none;"
-        class="fixed inset-0 bg-white/95 dark:bg-black/95 z-[700] flex-col justify-center items-center backdrop-blur-md">
+        class="fixed inset-0 bg-white/95 dark:bg-black/95 z-[9999] flex-col justify-center items-center backdrop-blur-md">
         <div class="animate-push drop-shadow-xl w-48 sm:w-64 h-auto">
             <svg viewBox="0 0 200 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
                 stroke-linejoin="round" class="text-gray-800 dark:text-gray-200">
@@ -970,12 +975,22 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
-                            <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Tgl
-                                    Mulai</label><input type="date" id="startDate" required
-                                    class="w-full p-2.5 rounded input-dark font-bold" onchange="generateDays()"></div>
-                            <div class="space-y-1"><label class="text-[9px] font-bold text-gray-500 uppercase">Tgl
-                                    Selesai</label><input type="date" id="endDate" required
-                                    class="w-full p-2.5 rounded input-dark font-bold" onchange="generateDays()"></div>
+                            <div class="space-y-1 relative">
+                                <label class="text-[9px] font-bold text-gray-500 uppercase">Tgl Mulai</label>
+                                <div class="relative">
+                                    <input type="text" id="startDate" required readonly autocomplete="off"
+                                        class="w-full p-2.5 pl-8 rounded input-dark font-bold cursor-pointer" placeholder="Pilih Tanggal">
+                                    <i data-lucide="calendar" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="space-y-1 relative">
+                                <label class="text-[9px] font-bold text-gray-500 uppercase">Tgl Selesai</label>
+                                <div class="relative">
+                                    <input type="text" id="endDate" required readonly autocomplete="off"
+                                        class="w-full p-2.5 pl-8 rounded input-dark font-bold cursor-pointer" placeholder="Pilih Tanggal">
+                                    <i data-lucide="calendar" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"></i>
+                                </div>
+                            </div>
                         </div>
                         <input type="text" id="eventName" autocomplete="off" placeholder="Nama Event" required
                             class="w-full p-2.5 rounded input-dark font-black text-sm text-ygsred">
@@ -1724,6 +1739,12 @@
                 <i data-lucide="list-checks" class="w-6 h-6 group-hover:scale-110 transition"></i><span
                     class="text-[9px] font-bold uppercase tracking-tighter">Checklist</span>
             </button>
+            <button onclick="switchTab('add'); resetEventForm();"
+                class="hidden relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred group"
+                id="nav-add">
+                <i data-lucide="plus-square" class="w-6 h-6 group-hover:scale-110 transition"></i><span
+                    class="text-[9px] font-bold uppercase tracking-tighter">Buat</span>
+            </button>
             <button onclick="switchTab('routing'); updateRoutingDropdown();"
                 class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-blue-500 group"
                 id="nav-routing">
@@ -1733,7 +1754,7 @@
             <button onclick="toggleMenu(true)"
                 class="relative flex flex-col items-center gap-1 text-gray-400 p-2 transition hover:text-ygsred group"
                 id="nav-menu">
-                <i data-lucide="menu" class="w-6 h-6 group-hover:scale-110 transition"></i><span
+                <i data-lucide="more-horizontal" class="w-6 h-6 group-hover:scale-110 transition"></i><span
                     class="text-[9px] font-bold uppercase tracking-tighter">Menu</span>
             </button>
         </nav>
@@ -1774,6 +1795,12 @@
             let y = jktDate.getFullYear();
             let m = String(jktDate.getMonth() + 1).padStart(2, '0');
             let day = String(jktDate.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+        function toISOLocalDate(d) {
+            let y = d.getFullYear();
+            let m = String(d.getMonth() + 1).padStart(2, '0');
+            let day = String(d.getDate()).padStart(2, '0');
             return `${y}-${m}-${day}`;
         }
 
@@ -1937,6 +1964,7 @@
             backline: ['Drum Kit', 'Keyboard', 'Ampli Gitar', 'Ampli Bass', 'Ampli Keys', 'Stand Gitar', 'Stand Keys', 'Others'],
             stand: ['Stand Panjang', 'Stand Pendek', 'Stand Speaker', 'Claw', 'Others'],
             cable: ['Splitter', 'Junction Box', 'Rumbai', 'Multicore', 'XLR Cables', 'TS Cables', 'LAN', 'Kabel Protector', 'Others'],
+            others: ['Lain-lain / Tambahan'],
             lighting: ['Consoles', 'Moving Beam', 'Parled', 'Fresnel', 'Minibrute', 'Stormy', 'Wallwasher', 'Follow Spot', 'Penerangan', 'Tripod', 'Hazer', 'Smoke Gun', 'Splitter', 'Others']
         };
 
@@ -2031,11 +2059,12 @@
         ];
 
         function showDailyBriefing() {
-            const todayStr = getJakartaDateString();
-            const myName = currentUser.nickname || currentUser.fullName;
+            try {
+                const todayStr = getJakartaDateString();
+                const myName = (currentUser.nickname || currentUser.fullName || '').trim();
 
-            // Cek apakah user sudah absen hari ini
-            const alreadyAbsen = allEvals.some(e => e.eventId === 'ABSEN_' + todayStr && e.sender === myName);
+                // Cek apakah user sudah absen hari ini
+                const alreadyAbsen = allEvals.some(e => e.eventId === 'ABSEN_' + todayStr && e.sender === myName);
 
             // Set Quote
             const randomIndex = Math.floor(Math.random() * crewQuotes.length);
@@ -2083,9 +2112,10 @@
                 if (statusLabel) statusLabel.classList.add('hidden');
             }
 
-            document.getElementById('modal-daily').classList.remove('hidden');
-            document.getElementById('modal-daily').classList.add('flex');
-            lucide.createIcons();
+                document.getElementById('modal-daily').classList.remove('hidden');
+                document.getElementById('modal-daily').classList.add('flex');
+                lucide.createIcons();
+            } catch (e) { console.error("Briefing Error:", e); }
         }
 
         function closeDailyModal() {
@@ -2123,7 +2153,6 @@
             if (res.success) { 
                 currentUser = res.user; 
                 await initApp(); 
-                showDailyBriefing(); 
             }
             else showToast(res.message, true);
         };
@@ -2140,6 +2169,22 @@
         async function initApp() {
             document.getElementById('view-auth').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
+
+            // Initialize Flatpickr EARLY to avoid being blocked by fetchData
+            try {
+                if (typeof flatpickr !== 'undefined') {
+                    const fpConfig = {
+                        locale: "id",
+                        firstDayOfWeek: 1, 
+                        dateFormat: "Y-m-d",
+                        disableMobile: true,
+                        allowInput: false,
+                        onChange: function() { generateDays(); }
+                    };
+                    flatpickr("#startDate", fpConfig);
+                    flatpickr("#endDate", fpConfig);
+                }
+            } catch (e) { console.error("Flatpickr Error:", e); }
 
             const posStr = escapeHTML(currentUser.position || 'Crew');
             const safeName = escapeHTML(currentUser.nickname || currentUser.fullName);
@@ -2191,6 +2236,24 @@
             initDynForms();
 
             setInterval(() => fetchData(true), 30000);
+
+            // Mobile Keyboard Fix for Chat (Robust VisualViewport)
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    if (activeTab === 'chat' && window.visualViewport.height < window.innerHeight * 0.8) {
+                        setTimeout(() => {
+                            window.scrollTo(0, document.body.scrollHeight);
+                            const chatCont = document.getElementById('chat-container');
+                            if (chatCont) chatCont.scrollTop = chatCont.scrollHeight;
+                        }, 50);
+                    }
+                });
+            }
+
+            applyAgendaView();
+            updateTodayStatus();
+            showDailyBriefing();
+            isFirstLoad = false;
         }
 
         function switchTab(tab) {
@@ -2243,6 +2306,7 @@
             if (tab === 'checklist') renderChecklistDashboard();
             if (tab === 'maint') renderMaintenance();
             if (tab === 'stats') renderStats();
+            if (tab === 'add') { initDynForms(); generateDays(); }
         }
 
         function toggleMenu(show) {
@@ -2778,8 +2842,8 @@
                 listEl.innerHTML = '<p class="text-[10px] text-gray-500 italic text-center py-4">Belum ada crew yang di-plot di event ini.</p>';
             } else {
                 listEl.innerHTML = crewArr.map(c => {
-                    // Cari Username asli dari Nama panggilan / Nama lengkap yang diplot di Event
-                    const kruUser = allUsers.find(u => (u.nickname || u.fullName) === c);
+                    // Cari Username asli dengan mencocokkan Nickname ATAU Full Name
+                    const kruUser = allUsers.find(u => u.nickname === c || u.fullName === c);
                     const actualUsername = kruUser ? kruUser.username : c;
 
                     // Cek apakah mutasi event ini sudah dibayarkan untuk USERNAME tersebut
@@ -2808,12 +2872,12 @@
             const inputs = document.querySelectorAll('.gaji-input:not([disabled])');
             let trxs = [];
 
-            inputs.forEach(inp => {
+            inputs.forEach((inp, index) => {
                 const nominal = unformatRupiah(inp.value);
                 if (nominal > 0) {
                     const actualUsername = inp.name.replace('gaji_', '');
                     trxs.push({
-                        id: 'TRX-' + Date.now() + Math.floor(Math.random() * 1000),
+                        id: 'TRX-' + Date.now() + '-' + index + '-' + Math.floor(Math.random() * 10000),
                         id_kru: actualUsername,
                         tanggal: new Date().toISOString(),
                         jenis_transaksi: 'IN_GAJI_EVENT',
@@ -3389,7 +3453,7 @@
         function initDynForms() {
             const aC = document.getElementById('dyn-audio-container'), lC = document.getElementById('dyn-lighting-container');
             if (!aC) return; aC.innerHTML = ''; lC.innerHTML = '';
-            ['pa', 'monitor', 'console', 'mic', 'backline', 'stand', 'cable'].forEach(c => {
+            ['pa', 'monitor', 'console', 'mic', 'backline', 'stand', 'cable', 'others'].forEach(c => {
                 const catDiv = document.createElement('div'); catDiv.className = 'bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-xl border dark:border-zinc-800/50';
                 catDiv.innerHTML = `<p class="text-[11px] font-black uppercase text-blue-600 mb-2">${c}</p><div id="dyn-audio-${c}" class="space-y-2"></div>`; aC.appendChild(catDiv);
                 MASTER_GROUPS[c].forEach(s => {
@@ -3453,7 +3517,7 @@
             let htmlBuffer = '';
             let cur = new Date(sV), end = new Date(eV);
             while (end >= cur) {
-                const dStr = cur.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' }), iso = cur.toISOString().split('T')[0];
+                const dStr = cur.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' }), iso = toISOLocalDate(cur);
                 htmlBuffer += `<div class="day-row bg-gray-50 dark:bg-zinc-900 p-4 rounded-xl border dark:border-zinc-800" data-date="${iso}"><p class="text-[9px] font-black uppercase text-ygsred mb-2">${dStr}</p><div class="grid grid-cols-2 gap-2 mb-2"><input type="time" class="time-start p-2 rounded input-dark font-bold" value="08:00"><input type="time" class="time-end p-2 rounded input-dark font-bold" value="23:00"></div><div class="flex flex-wrap gap-1">${['Muat Gudang', 'Berangkat', 'load-in', 'preparation', 'System Tuning & Alignment', 'RF Optimization & Coordination', 'Line Check', 'soundcheck', 'gladi kotor', 'gladi bersih', 'main event', 'Dismantle', 'load-out', 'Pulang', 'Lanjut'].map(a => {
                     let formattedA = toTitleCase(a);
                     return `<label class="text-[8px] bg-white dark:bg-zinc-800 px-2 py-1 rounded border dark:border-zinc-700 font-bold cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition"><input type="checkbox" class="act-check" value="${formattedA}"> ${formattedA}</label>`;
@@ -3466,6 +3530,7 @@
         function resetEventForm() {
             document.getElementById('event-form').reset();
             document.getElementById('edit-id').value = '';
+            setFormMode('produksi');
 
             const todayStr = getJakartaDateString();
             document.getElementById('startDate').value = todayStr;
@@ -3714,7 +3779,11 @@
             lucide.createIcons();
         }
 
-        async function updateAssetField(id, f, v) { await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id, field: f, value: v } }); }
+        async function updateAssetField(id, f, v) { 
+            const asset = allAssets.find(a => a.id === id);
+            if (asset) asset[f] = v;
+            await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id, field: f, value: v } }); 
+        }
         async function deleteAsset(id) { showCustomConfirm("Hapus Aset", "Hapus aset ini secara permanen?", async () => { showLoading(true); await apiCall({ action: 'DELETE_ASSET', payload: { id } }); showLoading(false); fetchData(); showToast("Aset dihapus."); }); }
 
         // FUNGSI INPUT BARIS MASSAL INVENTARIS
@@ -3917,6 +3986,11 @@
             const nominal = unformatRupiah(document.getElementById('trx-nominal').value);
             const jenis = document.getElementById('trx-jenis').value;
             const currentSaldo = Number(e.target.dataset.currentSaldo || 0);
+
+            if (nominal <= 0) {
+                showToast("Gagal: Nominal transaksi harus lebih dari Rp 0!", true);
+                return;
+            }
 
             if (jenis === 'OUT_PENCAIRAN' && nominal > currentSaldo) {
                 showToast("Gagal: Nominal Pencairan melebihi Saldo Dompet kru saat ini!", true);
@@ -4130,7 +4204,7 @@
             const activeEvents = allProjects.filter(p => 
                 p.status !== 'Completed' && 
                 p.status !== 'Cancelled' && 
-                p.eventDate >= today
+                (p.eventDate >= today || (p.activities && p.activities.some(a => a.date >= today)))
             );
             select.innerHTML = '<option value="" disabled selected>Pilih Event Aktif...</option>' +
                 activeEvents.map(p => `<option value="${escapeHTML(p.id)}">${escapeHTML(p.eventName)}</option>`).join('');
@@ -4672,11 +4746,18 @@
             const data = localStorage.getItem('ygs_chk_' + eventId);
             const localState = data ? JSON.parse(data) : null;
 
-            // Jika ada data di server, kita gunakan itu sebagai basis (truth).
-            // Tapi jika di localStorage ada data yang lebih baru (belum sync), kita pakai local.
-            // Namun agar user lain bisa melihat, kita prioritaskan data yang sudah di-sync.
-            // Untuk kenyamanan UX: Gunakan localState jika ada, karena mungkin user baru saja klik sesuatu tapi belum klik Simpan.
-            return localState || serverState || { items: {}, locks: { muat: false, tiba: false, out: false, gudang: false } };
+            const defaultState = { items: {}, locks: { muat: false, tiba: false, out: false, gudang: false } };
+            
+            if (!localState) return serverState || defaultState;
+            if (!serverState) return localState;
+
+            // MERGE LOGIC: Prioritaskan data server sebagai basis (truth), 
+            // lalu timpa dengan perubahan lokal yang belum di-sync (delta).
+            return {
+                ...serverState,
+                items: { ...serverState.items, ...localState.items },
+                locks: { ...serverState.locks, ...localState.locks }
+            };
         }
 
         function saveChkState(eventId, state) {
@@ -4829,13 +4910,20 @@
 
         function closeChecklistDetail() {
             const hasLocal = localStorage.getItem('ygs_chk_' + currentChkEventId);
-            if (hasLocal && isChecklistEditMode) {
-                showCustomConfirm("Perubahan Belum Disimpan", "Ada perubahan checklist yang belum dikirim ke Cloud. Jika ditutup sekarang, kru lain tidak akan melihat update ini. Tetap tutup?", () => {
-                    forceCloseChecklist();
-                });
-                return;
+            const syncBtn = document.getElementById('btn-sync-checklist');
+            const hasUnsavedChanges = syncBtn && !syncBtn.classList.contains('hidden');
+
+            if (isChecklistEditMode && hasUnsavedChanges) {
+                showCustomConfirm(
+                    "Simpan ke Cloud?", 
+                    "Ada perubahan yang belum disinkronkan ke server. Jika ditutup sekarang, kru lain tidak akan melihat update Anda sampai Anda membukanya lagi dan klik 'Simpan'. Tetap tutup?", 
+                    () => {
+                        forceCloseChecklist();
+                    }
+                );
+            } else {
+                forceCloseChecklist();
             }
-            forceCloseChecklist();
         }
 
         function forceCloseChecklist() {
@@ -5030,7 +5118,7 @@
                             
                             <div class="flex items-center gap-2 mt-2 pt-2 border-t border-dashed border-gray-200 dark:border-zinc-700">
                                 <span class="text-xs sm:text-sm font-black text-ygsred bg-red-50 dark:bg-red-950/40 px-2.5 py-0.5 rounded border border-red-100 dark:border-red-900/50">Qty: ${i.qty}</span>
-                                <select onchange="changeChkStatus('${i.id}', this.value)" class="p-1 rounded bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 text-[9px] font-black outline-none ${isChecklistEditMode ? 'cursor-pointer hover:border-ygsred' : 'pointer-events-none opacity-70'}">
+                                <select onchange="changeChkStatus('${i.id}', '${escapeHTML(i.brand).replace(/'/g, "\\'")}', this.value)" class="p-1 rounded bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 text-[9px] font-black outline-none ${isChecklistEditMode ? 'cursor-pointer hover:border-ygsred' : 'pointer-events-none opacity-70'}">
                                     <option value="Baik" ${itemStatus === 'Baik' ? 'selected' : ''}>🟢 Baik</option>
                                     <option value="Menunggu Sparepart" ${itemStatus === 'Menunggu Sparepart' ? 'selected' : ''}>🟡 Tunggu Part</option>
                                     <option value="Sedang Diservis" ${itemStatus === 'Sedang Diservis' || itemStatus === 'Service' ? 'selected' : ''}>🔵 Servis</option>
@@ -5063,7 +5151,7 @@
             lucide.createIcons();
         }
 
-        async function changeChkStatus(itemId, newStatus) {
+        async function changeChkStatus(itemId, brand, newStatus) {
             if (!isChecklistEditMode) {
                 showToast("Mode View: Tidak dapat mengubah status.", true);
                 renderChecklistTable(); return;
@@ -5072,6 +5160,13 @@
             if (!state.items[itemId]) state.items[itemId] = {};
             state.items[itemId].status = newStatus;
             saveChkState(currentChkEventId, state);
+
+            // TRIGGER TOMBOL SYNC AGAR MENYALA
+            const btnSync = document.getElementById('btn-sync-checklist');
+            if (btnSync && isChecklistEditMode) {
+                btnSync.classList.remove('hidden');
+                btnSync.classList.add('flex', 'animate-pulse');
+            }
             renderChecklistTable();
             showToast("Status diperbarui secara lokal. Jangan lupa klik 'Simpan ke Cloud'.");
         }
@@ -5166,6 +5261,13 @@
             state.items[itemId].note = noteText;
 
             saveChkState(eventId, state);
+
+            // TRIGGER TOMBOL SYNC AGAR MENYALA (Tanda ada perubahan belum di-save)
+            const btnSync = document.getElementById('btn-sync-checklist');
+            if (btnSync && isChecklistEditMode) {
+                btnSync.classList.remove('hidden');
+                btnSync.classList.add('flex', 'animate-pulse');
+            }
 
             document.getElementById('modal-chk-note').classList.add('hidden');
             document.getElementById('modal-chk-note').classList.remove('flex');
@@ -5279,10 +5381,10 @@
                     else evTentative++;
 
                     if (p.finance && p.status !== 'Cancelled') {
-                        const ga = Number(p.finance.globalAudio) || 0;
-                        const gl = Number(p.finance.globalLighting) || 0;
-                        const gp = Number(p.finance.globalPendukung) || 0;
-                        const disc = Number(p.finance.discount) || 0;
+                        const ga = unformatRupiah(p.finance.globalAudio);
+                        const gl = unformatRupiah(p.finance.globalLighting);
+                        const gp = unformatRupiah(p.finance.globalPendukung);
+                        const disc = unformatRupiah(p.finance.discount);
                         totalRevenue += (ga + gl + gp - disc);
                     }
                 }
