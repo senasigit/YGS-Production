@@ -500,8 +500,10 @@
             </div>
 
             <div class="pt-2 flex flex-col gap-2">
-                <p id="daily-status-label" class="hidden text-[10px] font-black text-green-600 uppercase text-center bg-green-50 dark:bg-green-900/20 py-2 rounded-lg border border-green-200 dark:border-green-900/50 animate-pulse">
-                    <i data-lucide="check-circle" class="w-3.5 h-3.5 inline align-middle mr-1"></i> Anda sudah absen hari ini. Semangat bekerja!
+                <p id="daily-status-label"
+                    class="hidden text-[10px] font-black text-green-600 uppercase text-center bg-green-50 dark:bg-green-900/20 py-2 rounded-lg border border-green-200 dark:border-green-900/50 animate-pulse">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5 inline align-middle mr-1"></i> Anda sudah absen
+                    hari ini. Semangat bekerja!
                 </p>
                 <div class="flex gap-2">
                     <button id="btn-submit-absen" onclick="submitAbsen()"
@@ -518,13 +520,14 @@
     <!-- MODAL CHECKLIST DETAIL -->
     <div id="modal-checklist-detail"
         class="fixed inset-0 bg-gray-100 dark:bg-zinc-950 z-[600] hidden flex-col animate-fade overflow-hidden">
-        <div class="p-4 border-b dark:border-zinc-800 flex justify-between items-center bg-white dark:bg-zinc-900 shrink-0 shadow-sm z-10">
+        <div
+            class="p-4 border-b dark:border-zinc-800 flex justify-between items-center bg-white dark:bg-zinc-900 shrink-0 shadow-sm z-10">
             <div class="flex-1 min-w-0 mr-2">
                 <h3 class="text-sm font-black uppercase text-ygsred truncate" id="chk-detail-title">Checklist Event</h3>
                 <p class="text-[9px] text-gray-500 font-bold uppercase truncate" id="chk-detail-subtitle">Loading...</p>
             </div>
             <div class="flex items-center gap-2">
-                <button id="btn-sync-checklist" onclick="syncChecklistToServer()" 
+                <button id="btn-sync-checklist" onclick="syncChecklistToServer()"
                     class="hidden bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-[9px] font-black uppercase transition flex items-center gap-1.5 shadow-md shadow-blue-900/20">
                     <i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i> Simpan ke Cloud
                 </button>
@@ -537,7 +540,8 @@
         <div class="p-3 bg-gray-50 dark:bg-zinc-900/50 border-b dark:border-zinc-800 flex items-center gap-2 shrink-0">
             <div class="relative flex-1">
                 <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="chk-search" oninput="renderChecklistTable()" placeholder="Cari Alat, Brand, atau Spesifikasi..." 
+                <input type="text" id="chk-search" oninput="renderChecklistTable()"
+                    placeholder="Cari Alat, Brand, atau Spesifikasi..."
                     class="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-zinc-800 border dark:border-zinc-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-ygsred/20 focus:border-ygsred transition shadow-sm">
             </div>
         </div>
@@ -610,68 +614,93 @@
     <div id="modal-menu"
         class="fixed inset-0 bg-black/60 z-[950] hidden flex-col justify-end backdrop-blur-[2px] animate-fade"
         onclick="if(event.target===this) toggleMenu(false)">
-        <div class="bg-white dark:bg-[#111] rounded-t-[2.5rem] w-full max-w-xl mx-auto p-8 pt-6 pb-12 space-y-6 shadow-2xl border-t dark:border-zinc-800 transform transition-transform duration-300 translate-y-0 relative overflow-hidden">
+        <div
+            class="bg-white dark:bg-[#111] rounded-t-[2.5rem] w-full max-w-xl mx-auto p-8 pt-6 pb-12 space-y-6 shadow-2xl border-t dark:border-zinc-800 transform transition-transform duration-300 translate-y-0 relative overflow-hidden">
             <div class="w-12 h-1.5 bg-gray-200 dark:bg-zinc-800 rounded-full mx-auto mb-6 opacity-50"></div>
-            
+
             <div class="grid grid-cols-3 gap-4">
-                <button onclick="toggleMenu(false); switchTab('profile')" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                <button onclick="toggleMenu(false); switchTab('profile')"
+                    class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
                         <i data-lucide="wallet" class="w-6 h-6"></i>
                     </div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Dompet</span>
+                    <span
+                        class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Dompet</span>
                 </button>
 
-                <button onclick="toggleMenu(false); switchTab('assets')" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                <button onclick="toggleMenu(false); switchTab('assets')"
+                    class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
                         <i data-lucide="box" class="w-6 h-6"></i>
                     </div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Aset</span>
+                    <span
+                        class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Aset</span>
                 </button>
 
-                <button onclick="toggleMenu(false); switchTab('maint')" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                <button onclick="toggleMenu(false); switchTab('maint')"
+                    class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
                         <i data-lucide="wrench" class="w-6 h-6"></i>
                     </div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Servis</span>
+                    <span
+                        class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Servis</span>
                 </button>
 
-                <button onclick="toggleMenu(false); switchTab('eval')" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                <button onclick="toggleMenu(false); switchTab('eval')"
+                    class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
                         <i data-lucide="clipboard-list" class="w-6 h-6"></i>
                     </div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Eval</span>
+                    <span
+                        class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Eval</span>
                 </button>
 
-                <button onclick="toggleMenu(false); switchTab('team')" class="hidden admin-only flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                <button onclick="toggleMenu(false); switchTab('team')"
+                    class="hidden admin-only flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
                         <i data-lucide="users" class="w-6 h-6"></i>
                     </div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Tim</span>
+                    <span
+                        class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Tim</span>
                 </button>
 
-                <button onclick="toggleMenu(false); switchTab('stats')" class="hidden admin-only flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
+                <button onclick="toggleMenu(false); switchTab('stats')"
+                    class="hidden admin-only flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-red-50 dark:hover:bg-red-900/10 transition group">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-ygsred">
                         <i data-lucide="pie-chart" class="w-6 h-6"></i>
                     </div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Stats</span>
+                    <span
+                        class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Stats</span>
                 </button>
 
-                <button id="menu-add" onclick="toggleMenu(false); resetEventForm(); switchTab('add')" class="hidden flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-blue-600">
+                <button id="menu-add" onclick="toggleMenu(false); resetEventForm(); switchTab('add')"
+                    class="hidden flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-900/50 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition group">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-gray-500 group-hover:text-blue-600">
                         <i data-lucide="plus-square" class="w-6 h-6"></i>
                     </div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Buat</span>
+                    <span
+                        class="text-[9px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-400">Buat</span>
                 </button>
 
-                <button onclick="logout()" class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-red-50 dark:bg-red-900/5 hover:bg-red-100 dark:hover:bg-red-900/20 transition group">
-                    <div class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-red-500">
+                <button onclick="logout()"
+                    class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-red-50 dark:bg-red-900/5 hover:bg-red-100 dark:hover:bg-red-900/20 transition group">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm group-hover:scale-110 transition text-red-500">
                         <i data-lucide="log-out" class="w-6 h-6"></i>
                     </div>
                     <span class="text-[9px] font-black uppercase tracking-widest text-red-600">Logout</span>
                 </button>
             </div>
-            
-            <button onclick="toggleMenu(false)" class="w-full py-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-gray-500 font-black uppercase text-xs tracking-widest hover:bg-gray-200 dark:hover:bg-zinc-700 transition">Tutup</button>
+
+            <button onclick="toggleMenu(false)"
+                class="w-full py-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 text-gray-500 font-black uppercase text-xs tracking-widest hover:bg-gray-200 dark:hover:bg-zinc-700 transition">Tutup</button>
         </div>
     </div>
 
@@ -979,16 +1008,20 @@
                                 <label class="text-[9px] font-bold text-gray-500 uppercase">Tgl Mulai</label>
                                 <div class="relative">
                                     <input type="text" id="startDate" required readonly autocomplete="off"
-                                        class="w-full p-2.5 pl-8 rounded input-dark font-bold cursor-pointer" placeholder="Pilih Tanggal">
-                                    <i data-lucide="calendar" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"></i>
+                                        class="w-full p-2.5 pl-8 rounded input-dark font-bold cursor-pointer"
+                                        placeholder="Pilih Tanggal">
+                                    <i data-lucide="calendar"
+                                        class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"></i>
                                 </div>
                             </div>
                             <div class="space-y-1 relative">
                                 <label class="text-[9px] font-bold text-gray-500 uppercase">Tgl Selesai</label>
                                 <div class="relative">
                                     <input type="text" id="endDate" required readonly autocomplete="off"
-                                        class="w-full p-2.5 pl-8 rounded input-dark font-bold cursor-pointer" placeholder="Pilih Tanggal">
-                                    <i data-lucide="calendar" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"></i>
+                                        class="w-full p-2.5 pl-8 rounded input-dark font-bold cursor-pointer"
+                                        placeholder="Pilih Tanggal">
+                                    <i data-lucide="calendar"
+                                        class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"></i>
                                 </div>
                             </div>
                         </div>
@@ -1313,13 +1346,13 @@
                                 Baru</span></button>
                     </div>
                 </div>
-                <!-- Live Search Inventaris -->
-                <div class="relative">
+
+                <!-- NEW: Live Search Bar untuk Aset -->
+                <div class="relative w-full shadow-sm">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input type="text" id="asset-search" oninput="renderAssets()"
-                        placeholder="Cari alat (Nama / Jenis)..."
-                        class="w-full p-2.5 pl-10 rounded-xl bg-gray-50 dark:bg-zinc-900 border dark:border-zinc-800 font-bold text-[10px] focus:border-ygsred transition outline-none">
-                    <i data-lucide="search"
-                        class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        placeholder="Cari nama alat, kategori, atau status..."
+                        class="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-ygsred/20 focus:border-ygsred transition text-gray-800 dark:text-gray-200">
                 </div>
 
                 <!-- Container list Asset -->
@@ -1382,14 +1415,7 @@
                         <option value="bon-desc">Kasbon Keluar Terbanyak</option>
                     </select>
                 </div>
-                <!-- Live Search Kru -->
-                <div class="relative">
-                    <input type="text" id="team-search" oninput="renderTeam()"
-                        placeholder="Cari kru (Nama / @Username)..."
-                        class="w-full p-2.5 pl-10 rounded-xl bg-gray-50 dark:bg-zinc-900 border dark:border-zinc-800 font-bold text-[10px] focus:border-ygsred transition outline-none">
-                    <i data-lucide="search"
-                        class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                </div>
+
                 <!-- Widget Total Kewajiban -->
                 <div
                     class="bg-gray-900 dark:bg-black p-5 rounded-2xl border border-zinc-800 shadow-xl relative overflow-hidden flex items-center justify-between">
@@ -1513,10 +1539,41 @@
                         </div>
                     </div>
 
+                    <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-red-500 shadow-sm">
+                        <div class="flex justify-between items-center border-b dark:border-zinc-800 pb-2 mb-2">
+                            <h3 class="text-[10px] font-black text-red-600 uppercase">1. Input Patch List (FOH &
+                                Monitor)</h3>
+                            <button type="button" onclick="addInputBand()"
+                                class="text-[9px] bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold shadow-sm hover:bg-red-700 transition flex items-center gap-1"><i
+                                    data-lucide="plus" class="w-3 h-3"></i> Tambah Band / Sesi</button>
+                        </div>
+                        <p class="text-[9px] text-gray-500 font-bold mb-2">Gunakan fitur ini untuk membuat daftar input
+                            (Channel List). Anda bisa membuat banyak list untuk setingan Festival.</p>
+
+                        <div id="input-bands-container" class="space-y-4">
+                            <!-- Input Bands will be injected here -->
+                        </div>
+                    </div>
+
+                    <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-purple-500 shadow-sm">
+                        <div class="flex justify-between items-center border-b dark:border-zinc-800 pb-2 mb-2">
+                            <h3 class="text-[10px] font-black text-purple-600 uppercase">2. Stage Output Routing</h3>
+                            <button type="button" onclick="addOutputGroup()"
+                                class="text-[9px] bg-purple-600 text-white px-3 py-1.5 rounded-lg font-bold shadow-sm hover:bg-purple-700 transition flex items-center gap-1"><i
+                                    data-lucide="plus" class="w-3 h-3"></i> Tambah Output List</button>
+                        </div>
+                        <p class="text-[9px] text-gray-500 font-bold mb-2">Rute Output (Mix/Matrix) untuk pengiriman ke
+                            Wedges, IEM, atau Sidefill per band/switcher.</p>
+
+                        <div id="output-groups-container" class="space-y-4">
+                            <!-- Output Groups will be injected here -->
+                        </div>
+                    </div>
+
                     <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-orange-500 shadow-sm">
                         <h3
                             class="text-[10px] font-black text-orange-600 uppercase mb-2 border-b dark:border-zinc-800 pb-2">
-                            1. Speaker Placement & Zoning</h3>
+                            3. Speaker Placement & Zoning</h3>
 
                         <div class="overflow-x-auto border border-gray-200 dark:border-zinc-700 rounded-lg shadow-sm">
                             <table class="w-full text-left text-[9px] min-w-[600px]">
@@ -1660,7 +1717,7 @@
                     <div
                         class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-emerald-500 shadow-sm overflow-hidden">
                         <div class="flex justify-between items-center border-b dark:border-zinc-800 pb-2 mb-2">
-                            <h3 class="text-[10px] font-black text-emerald-600 uppercase">2. DSP & Routing (DLMS)</h3>
+                            <h3 class="text-[10px] font-black text-emerald-600 uppercase">4. DSP & Routing (DLMS)</h3>
                             <button type="button" onclick="addDspUnit()"
                                 class="text-[9px] bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold shadow-sm hover:bg-emerald-700 transition flex items-center gap-1"><i
                                     data-lucide="plus" class="w-3 h-3"></i> Tambah DSP</button>
@@ -1668,9 +1725,9 @@
                         <div id="dsp-units-container" class="space-y-4"></div>
                     </div>
 
-                    <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-purple-500 shadow-sm">
+                    <div class="card-dark p-5 rounded-xl space-y-4 border-l-4 border-l-blue-500 shadow-sm">
                         <div class="flex justify-between items-center border-b dark:border-zinc-800 pb-2 mb-2">
-                            <h3 class="text-[10px] font-black text-purple-600 uppercase">3. Amplifikasi & Wiring</h3>
+                            <h3 class="text-[10px] font-black text-blue-600 uppercase">5. Amplifikasi & Wiring</h3>
                             <button type="button" onclick="addAmpUnit()"
                                 class="text-[9px] bg-purple-600 text-white px-3 py-1.5 rounded-lg font-bold shadow-sm hover:bg-purple-700 transition flex items-center gap-1"><i
                                     data-lucide="plus" class="w-3 h-3"></i> Tambah Amplifier</button>
@@ -2100,51 +2157,51 @@
                 // Cek apakah user sudah absen hari ini
                 const alreadyAbsen = allEvals.some(e => e.eventId === 'ABSEN_' + todayStr && e.sender === myName);
 
-            // Set Quote
-            const randomIndex = Math.floor(Math.random() * crewQuotes.length);
-            document.getElementById('daily-quote').innerText = `"${crewQuotes[randomIndex]}"`;
+                // Set Quote
+                const randomIndex = Math.floor(Math.random() * crewQuotes.length);
+                document.getElementById('daily-quote').innerText = `"${crewQuotes[randomIndex]}"`;
 
-            // Set Jadwal Hari Ini
-            const evs = allProjects.filter(p => p.eventDate === todayStr || (p.activities && p.activities.some(a => a.date === todayStr)));
-            const activeEvs = evs.filter(p => p.status !== 'Cancelled');
+                // Set Jadwal Hari Ini
+                const evs = allProjects.filter(p => p.eventDate === todayStr || (p.activities && p.activities.some(a => a.date === todayStr)));
+                const activeEvs = evs.filter(p => p.status !== 'Cancelled');
 
-            let agendaHtml = `<p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5"><i data-lucide="calendar" class="w-3 h-3 inline align-middle mb-0.5"></i> Jadwal Anda Hari Ini</p>`;
+                let agendaHtml = `<p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5"><i data-lucide="calendar" class="w-3 h-3 inline align-middle mb-0.5"></i> Jadwal Anda Hari Ini</p>`;
 
-            if (activeEvs.length > 0) {
-                activeEvs.forEach(p => {
-                    let taskStr = "Tim Produksi";
-                    if (p.manpower) {
-                        const isAudio = Object.values(p.manpower.audio || {}).includes(myName);
-                        const isLight = Object.values(p.manpower.lighting || {}).includes(myName);
-                        const isRoadie = Object.values(p.manpower.roadies || {}).includes(myName);
-                        if (isAudio) taskStr = "Divisi Audio";
-                        if (isLight) taskStr = "Divisi Lighting";
-                        if (isRoadie) taskStr = "Roadies/Pendukung";
-                        if (p.manpower.pic === myName) taskStr = "PIC Event";
-                    }
-                    agendaHtml += `<div class="bg-white dark:bg-black p-2 rounded-lg border dark:border-zinc-800 shadow-sm mb-1.5 last:mb-0">
+                if (activeEvs.length > 0) {
+                    activeEvs.forEach(p => {
+                        let taskStr = "Tim Produksi";
+                        if (p.manpower) {
+                            const isAudio = Object.values(p.manpower.audio || {}).includes(myName);
+                            const isLight = Object.values(p.manpower.lighting || {}).includes(myName);
+                            const isRoadie = Object.values(p.manpower.roadies || {}).includes(myName);
+                            if (isAudio) taskStr = "Divisi Audio";
+                            if (isLight) taskStr = "Divisi Lighting";
+                            if (isRoadie) taskStr = "Roadies/Pendukung";
+                            if (p.manpower.pic === myName) taskStr = "PIC Event";
+                        }
+                        agendaHtml += `<div class="bg-white dark:bg-black p-2 rounded-lg border dark:border-zinc-800 shadow-sm mb-1.5 last:mb-0">
                         <p class="text-[10px] font-black text-ygsred uppercase truncate">${escapeHTML(p.eventName)}</p>
                         <p class="text-[9px] text-gray-600 dark:text-gray-400 font-bold">${escapeHTML(p.mapsLink !== '-' ? p.mapsLink : 'Lokasi TBA')} • <span class="text-blue-500">${taskStr}</span></p>
                     </div>`;
-                });
-            } else {
-                agendaHtml += `<div class="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg border border-green-200 dark:border-green-900/50 text-center">
+                    });
+                } else {
+                    agendaHtml += `<div class="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg border border-green-200 dark:border-green-900/50 text-center">
                     <p class="text-[10px] font-black text-green-600 uppercase"><i data-lucide="coffee" class="w-3 h-3 inline align-middle"></i> Tidak ada event. Standby/Libur.</p>
                 </div>`;
-            }
-            document.getElementById('daily-agenda-summary').innerHTML = agendaHtml;
+                }
+                document.getElementById('daily-agenda-summary').innerHTML = agendaHtml;
 
-            // Toggle Tombol Absen
-            const statusLabel = document.getElementById('daily-status-label');
-            if (alreadyAbsen) {
-                document.getElementById('btn-submit-absen').classList.add('hidden');
-                document.getElementById('btn-close-daily').classList.remove('hidden');
-                if (statusLabel) statusLabel.classList.remove('hidden');
-            } else {
-                document.getElementById('btn-submit-absen').classList.remove('hidden');
-                document.getElementById('btn-close-daily').classList.add('hidden');
-                if (statusLabel) statusLabel.classList.add('hidden');
-            }
+                // Toggle Tombol Absen
+                const statusLabel = document.getElementById('daily-status-label');
+                if (alreadyAbsen) {
+                    document.getElementById('btn-submit-absen').classList.add('hidden');
+                    document.getElementById('btn-close-daily').classList.remove('hidden');
+                    if (statusLabel) statusLabel.classList.remove('hidden');
+                } else {
+                    document.getElementById('btn-submit-absen').classList.remove('hidden');
+                    document.getElementById('btn-close-daily').classList.add('hidden');
+                    if (statusLabel) statusLabel.classList.add('hidden');
+                }
 
                 document.getElementById('modal-daily').classList.remove('hidden');
                 document.getElementById('modal-daily').classList.add('flex');
@@ -2184,18 +2241,18 @@
             e.preventDefault();
             try {
                 showLoading(true);
-                const res = await apiCall({ 
-                    action: 'LOGIN', 
-                    payload: { 
-                        username: document.getElementById('log-username').value.toLowerCase(), 
-                        password: document.getElementById('log-password').value 
-                    } 
+                const res = await apiCall({
+                    action: 'LOGIN',
+                    payload: {
+                        username: document.getElementById('log-username').value.toLowerCase(),
+                        password: document.getElementById('log-password').value
+                    }
                 });
                 showLoading(false);
-                
-                if (res.success && res.user) { 
-                    currentUser = res.user; 
-                    await initApp(); 
+
+                if (res.success && res.user) {
+                    currentUser = res.user;
+                    await initApp();
                 } else {
                     showToast(res.message || "Login Gagal. Periksa kembali username/password.", true);
                 }
@@ -2225,11 +2282,11 @@
                     if (typeof flatpickr !== 'undefined') {
                         const fpConfig = {
                             locale: "id",
-                            firstDayOfWeek: 1, 
+                            firstDayOfWeek: 1,
                             dateFormat: "Y-m-d",
                             disableMobile: true,
                             allowInput: false,
-                            onChange: function() { generateDays(); }
+                            onChange: function () { generateDays(); }
                         };
                         flatpickr("#startDate", fpConfig);
                         flatpickr("#endDate", fpConfig);
@@ -2282,18 +2339,23 @@
                     }
                 }
 
-                await fetchData(); 
+                await fetchData();
                 initDynForms();
 
-                // OPTIMASI API: Fetch data setiap 3 menit (sebelumnya 30 detik) untuk menjaga kuota Google Apps Script
-                // Serta hanya melakukan request jika aplikasi sedang dilihat (Page Visibility API)
-                setInterval(() => {
-                    if (document.visibilityState === 'visible') fetchData(true);
-                }, 180000);
+                // PENINGKATAN PERFORMA 1: Ubah dari 30 Detik menjadi 3 Menit (180000ms) untuk menghemat Kuota API GAS.
+                let pollInterval = setInterval(() => fetchData(true), 180000);
 
-                // Tarik data terbaru seketika saat user kembali membuka aplikasi dari background
-                document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'visible') fetchData(true);
+                // PENINGKATAN PERFORMA 2: Smart Polling (Hanya refresh data jika aplikasi sedang dilihat di layar)
+                document.addEventListener("visibilitychange", () => {
+                    if (document.visibilityState === 'visible') {
+                        // User kembali ke aplikasi, langsung refresh data dan mulai ulang interval
+                        fetchData(true);
+                        clearInterval(pollInterval);
+                        pollInterval = setInterval(() => fetchData(true), 180000);
+                    } else {
+                        // User me-minimize aplikasi / pindah tab, hentikan interval agar hemat baterai & API
+                        clearInterval(pollInterval);
+                    }
                 });
 
                 // Mobile Keyboard Fix for Chat (Robust VisualViewport)
@@ -2337,7 +2399,7 @@
             ['nav-list', 'nav-chat', 'nav-add', 'nav-assets', 'nav-eval', 'nav-team', 'nav-profile', 'nav-checklist', 'nav-maint', 'nav-routing', 'nav-stats', 'nav-menu'].forEach(n => {
                 const nav = document.getElementById(n); if (!nav) return;
                 nav.classList.remove('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20', 'text-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
-                
+
                 if (n === 'nav-' + tab) {
                     if (tab === 'routing') nav.classList.add('text-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
                     else nav.classList.add('text-ygsred', 'bg-red-50', 'dark:bg-red-900/20');
@@ -3046,7 +3108,7 @@
             let pdfExecuted = false; // Flag keamanan agar tidak ter-execute 2x
 
             const executePDF = () => {
-                if(pdfExecuted) return;
+                if (pdfExecuted) return;
                 pdfExecuted = true;
                 setTimeout(() => {
                     html2pdf().set(opt).from(container).save().then(() => {
@@ -3082,10 +3144,10 @@
                         img.onerror = () => { imagesLoaded++; if (imagesLoaded === totalImages) executePDF(); }; // Abaikan jika error agar tidak stuck
                     }
                 });
-                
+
                 // Fallback: Jika setelah 6 detik gambar gagal load semua, paksa eksekusi PDF!
                 setTimeout(() => {
-                    if(!pdfExecuted) {
+                    if (!pdfExecuted) {
                         console.warn("PDF fallback timeout triggered. Beberapa gambar mungkin gagal dimuat.");
                         executePDF();
                     }
@@ -3622,7 +3684,7 @@
             const todayStr = getJakartaDateString();
             document.getElementById('startDate').value = todayStr;
             document.getElementById('endDate').value = todayStr;
-            
+
             // Sinkronisasi Flatpickr Calendar Internal State
             if (document.getElementById('startDate')._flatpickr) {
                 document.getElementById('startDate')._flatpickr.setDate(todayStr);
@@ -3653,7 +3715,7 @@
             if (p.activities && p.activities.length > 0) {
                 document.getElementById('startDate').value = p.activities[0].date;
                 document.getElementById('endDate').value = p.activities[p.activities.length - 1].date;
-                
+
                 if (document.getElementById('startDate')._flatpickr) {
                     document.getElementById('startDate')._flatpickr.setDate(p.activities[0].date);
                     document.getElementById('endDate')._flatpickr.setDate(p.activities[p.activities.length - 1].date);
@@ -3674,7 +3736,7 @@
             } else {
                 document.getElementById('startDate').value = p.eventDate || getJakartaDateString();
                 document.getElementById('endDate').value = p.eventDate || getJakartaDateString();
-                
+
                 if (document.getElementById('startDate')._flatpickr) {
                     document.getElementById('startDate')._flatpickr.setDate(p.eventDate || getJakartaDateString());
                     document.getElementById('endDate')._flatpickr.setDate(p.eventDate || getJakartaDateString());
@@ -3781,16 +3843,20 @@
 
         function renderAssets() {
             const container = document.getElementById('asset-list-container');
-            const searchVal = (document.getElementById('asset-search')?.value || "").toLowerCase();
-            
             // Menghapus batasan role. Semua bisa edit
             const isAdmin = true;
 
-            let sortedAssets = allAssets.filter(a => 
-                a.name.toLowerCase().includes(searchVal) || 
-                (a.category && a.category.toLowerCase().includes(searchVal)) ||
-                (a.cat && a.cat.toLowerCase().includes(searchVal))
-            );
+            // AMBIL NILAI PENCARIAN
+            const searchVal = document.getElementById('asset-search')?.value.toLowerCase() || '';
+
+            // FILTER BERDASARKAN PENCARIAN (Jika ada)
+            let sortedAssets = allAssets.filter(a => {
+                if (!searchVal) return true;
+                return a.name.toLowerCase().includes(searchVal) ||
+                    a.cat.toLowerCase().includes(searchVal) ||
+                    a.status.toLowerCase().includes(searchVal);
+            });
+
             let html = '';
 
             const renderTable = (assetsToRender) => {
@@ -3887,14 +3953,22 @@
                 html = renderTable(sortedAssets);
             }
 
-            container.innerHTML = html || '<p class="text-center text-xs font-bold text-gray-500 italic p-6">Inventaris kosong.</p>';
+            // PESAN JIKA PENCARIAN TIDAK DITEMUKAN
+            if (!html && searchVal) {
+                container.innerHTML = `<div class="text-center p-8 bg-gray-50 dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl mt-4">
+                    <i data-lucide="search-x" class="w-10 h-10 text-gray-400 mx-auto mb-2"></i>
+                    <p class="text-xs font-bold text-gray-500">Tidak menemukan aset dengan kata kunci "${escapeHTML(searchVal)}"</p>
+                </div>`;
+            } else {
+                container.innerHTML = html || '<p class="text-center text-xs font-bold text-gray-500 italic p-6">Inventaris kosong.</p>';
+            }
             lucide.createIcons();
         }
 
-        async function updateAssetField(id, f, v) { 
+        async function updateAssetField(id, f, v) {
             const asset = allAssets.find(a => a.id === id);
             if (asset) asset[f] = v;
-            await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id, field: f, value: v } }); 
+            await apiCall({ action: 'UPDATE_ASSET_FIELD', payload: { id, field: f, value: v } });
         }
         async function deleteAsset(id) { showCustomConfirm("Hapus Aset", "Hapus aset ini secara permanen?", async () => { showLoading(true); await apiCall({ action: 'DELETE_ASSET', payload: { id } }); showLoading(false); fetchData(); showToast("Aset dihapus."); }); }
 
@@ -3969,7 +4043,6 @@
 
         function renderTeam() {
             const sortBy = document.getElementById('team-sort').value;
-            const searchVal = document.getElementById('team-search').value.toLowerCase();
             const todayStr = getJakartaDateString();
 
             let usersWithStats = allUsers.map(u => {
@@ -3988,13 +4061,6 @@
 
                 return { ...u, saldo, totalBon, hasAbsen, safeName };
             });
-
-            // Filtering berdasarkan Search Bar
-            usersWithStats = usersWithStats.filter(u => 
-                u.fullName.toLowerCase().includes(searchVal) || 
-                u.username.toLowerCase().includes(searchVal) || 
-                (u.nickname && u.nickname.toLowerCase().includes(searchVal))
-            );
 
             let totalKewajiban = 0;
             usersWithStats.forEach(u => { if (u.saldo > 0) totalKewajiban += u.saldo; });
@@ -4294,16 +4360,16 @@
             if (!msg.trim()) return;
 
             // OPTIMISTIC UI: Langsung munculkan di layar tanpa menunggu loading server
-            const newEval = { 
-                eventId: eid, 
-                eventName, 
-                msg, 
-                sender: currentUser.nickname || currentUser.fullName, 
-                time: new Date().toISOString() 
+            const newEval = {
+                eventId: eid,
+                eventName,
+                msg,
+                sender: currentUser.nickname || currentUser.fullName,
+                time: new Date().toISOString()
             };
             allEvals.unshift(newEval);
             renderEvaluations();
-            
+
             document.getElementById('eval-msg').value = '';
             showToast("Mengirim evaluasi...");
 
@@ -4316,6 +4382,244 @@
         };
 
         // --- SISTEM ROUTING AUDIO AMAN DARI UNDEFINED ---
+
+        let inputBandCounter = 0;
+        let outputGroupCounter = 0;
+
+        function addInputBand(data = null) {
+            const idx = inputBandCounter++;
+            const bandName = data ? data.bandName : (idx === 0 ? 'Master Patch / Main Band' : `Band ${idx + 1}`);
+            const stagebox = data ? data.stagebox : 'Local / AES50 A';
+            const channels = data && data.channels ? data.channels : Array.from({ length: 32 }, (_, i) => ({ ch: i + 1, name: '', mic: '', stand: '', phantom: false }));
+
+            const container = document.getElementById('input-bands-container');
+            const div = document.createElement('div');
+            div.id = `input-band-${idx}`;
+            div.className = 'bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl border dark:border-zinc-800 relative';
+
+            div.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 pr-4">
+                        <div>
+                            <label class="text-[8px] font-black text-red-600 uppercase tracking-widest">Nama Band / Sesi</label>
+                            <input type="text" class="inp-band-name w-full p-2.5 rounded-lg input-dark font-black text-xs uppercase" placeholder="Nama Band..." value="${escapeHTML(bandName)}">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-gray-500 uppercase">Source / Stagebox Patcher</label>
+                            <input type="text" class="inp-band-stagebox w-full p-2.5 rounded-lg input-dark font-bold text-xs" placeholder="Cth: AES50 A (DL32), Local In..." value="${escapeHTML(stagebox)}">
+                        </div>
+                    </div>
+                    <button type="button" onclick="document.getElementById('input-band-${idx}').remove()" class="text-gray-400 hover:text-red-600 bg-white dark:bg-zinc-800 p-2 rounded-lg shadow-sm border dark:border-zinc-700 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+                
+                <div class="overflow-x-auto border border-gray-200 dark:border-zinc-700 rounded-lg shadow-sm max-h-[400px] overflow-y-auto">
+                    <table class="w-full text-left text-[9px] min-w-[500px]">
+                        <thead class="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 font-black uppercase tracking-widest sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th class="p-2 w-10 text-center border-r dark:border-red-800/50">Ch</th>
+                                <th class="p-2 w-1/3 border-r dark:border-red-800/50">Source / Instrument</th>
+                                <th class="p-2 w-1/4 border-r dark:border-red-800/50">Mic / DI Box</th>
+                                <th class="p-2 w-1/5 border-r dark:border-red-800/50">Mic Stand</th>
+                                <th class="p-2 w-12 text-center text-red-600">+48V</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-input-${idx}" class="divide-y divide-gray-200 dark:divide-zinc-700 bg-white dark:bg-zinc-800">
+                            <!-- Channels will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" onclick="addInputChannelRow(${idx})" class="mt-2 text-[9px] bg-white dark:bg-zinc-800 border dark:border-zinc-700 font-bold px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:text-ygsred transition shadow-sm w-full text-center">+ Tambah Baris Channel Khusus</button>
+            `;
+            container.appendChild(div);
+
+            const tbody = document.getElementById(`tbody-input-${idx}`);
+            channels.forEach((ch, chIdx) => {
+                appendInputRowHTML(tbody, idx, chIdx + 1, ch);
+            });
+            lucide.createIcons();
+        }
+
+        function appendInputRowHTML(tbody, bandIdx, rowNum, chData = null) {
+            const chNo = chData && chData.ch ? chData.ch : rowNum;
+            const name = chData && chData.name ? chData.name : '';
+            const mic = chData && chData.mic ? chData.mic : '';
+            const stand = chData && chData.stand ? chData.stand : '';
+            const is48V = chData && chData.phantom ? true : false;
+
+            const tr = document.createElement('tr');
+            tr.className = 'inp-row hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition';
+            tr.innerHTML = `
+                <td class="p-1 border-r dark:border-zinc-700 text-center font-black text-gray-500">
+                    <input type="text" class="inp-ch-no w-full text-center bg-transparent border-none font-black focus:outline-none" value="${escapeHTML(chNo)}">
+                </td>
+                <td class="p-1 border-r dark:border-zinc-700">
+                    <input type="text" class="inp-ch-name w-full p-1.5 rounded input-dark font-black text-[10px] text-gray-900 dark:text-white" placeholder="Kick, Snare, Vox..." value="${escapeHTML(name)}">
+                </td>
+                <td class="p-1 border-r dark:border-zinc-700">
+                    <input type="text" list="list-inventory" class="inp-ch-mic w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="B52, SM57, DI BSS..." value="${escapeHTML(mic)}">
+                </td>
+                <td class="p-1 border-r dark:border-zinc-700">
+                    <select class="inp-ch-stand w-full p-1.5 rounded input-dark font-bold text-[10px] appearance-none">
+                        <option value="" ${!stand ? 'selected' : ''}>- Pilih Stand -</option>
+                        <option value="Panjang" ${stand === 'Panjang' ? 'selected' : ''}>Panjang (Boom)</option>
+                        <option value="Pendek" ${stand === 'Pendek' ? 'selected' : ''}>Pendek (Short)</option>
+                        <option value="Jepit/Claw" ${stand === 'Jepit/Claw' ? 'selected' : ''}>Jepit / Claw</option>
+                        <option value="Tanpa Stand" ${stand === 'Tanpa Stand' ? 'selected' : ''}>Tanpa Stand</option>
+                    </select>
+                </td>
+                <td class="p-1 text-center align-middle">
+                    <button type="button" onclick="togglePhantom(this)" class="inp-ch-48v w-full py-1.5 rounded font-black text-[9px] transition-all shadow-sm border ${is48V ? 'bg-red-600 text-white border-red-700 animate-pulse' : 'bg-gray-100 dark:bg-zinc-900 text-gray-400 border-gray-200 dark:border-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-800'}" data-active="${is48V ? 'true' : 'false'}">48V</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function addInputChannelRow(bandIdx) {
+            const tbody = document.getElementById(`tbody-input-${bandIdx}`);
+            if (tbody) {
+                const currentRows = tbody.querySelectorAll('.inp-row').length;
+                appendInputRowHTML(tbody, bandIdx, currentRows + 1);
+            }
+        }
+
+        function togglePhantom(btn) {
+            const isActive = btn.dataset.active === 'true';
+            if (isActive) {
+                btn.dataset.active = 'false';
+                btn.className = 'inp-ch-48v w-full py-1.5 rounded font-black text-[9px] transition-all shadow-sm border bg-gray-100 dark:bg-zinc-900 text-gray-400 border-gray-200 dark:border-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-800';
+            } else {
+                btn.dataset.active = 'true';
+                btn.className = 'inp-ch-48v w-full py-1.5 rounded font-black text-[9px] transition-all shadow-sm border bg-red-600 text-white border-red-700 shadow-[0_0_10px_rgba(220,38,38,0.5)]';
+            }
+        }
+
+        function addOutputGroup(data = null) {
+            const idx = outputGroupCounter++;
+            const groupName = data ? data.groupName : (idx === 0 ? 'Output A / Master' : `Output ${idx + 1}`);
+            const source = data ? data.source : 'Console Local Out';
+            const channels = data && data.channels ? data.channels : Array.from({ length: 16 }, (_, i) => ({ ch: i + 1, name: '', unit: '' }));
+
+            const container = document.getElementById('output-groups-container');
+            const div = document.createElement('div');
+            div.id = `output-group-${idx}`;
+            div.className = 'bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-xl border dark:border-zinc-800 relative';
+
+            div.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 pr-4">
+                        <div>
+                            <label class="text-[8px] font-black text-purple-600 uppercase tracking-widest">Grup Output / Band</label>
+                            <input type="text" class="out-group-name w-full p-2.5 rounded-lg input-dark font-black text-xs uppercase" placeholder="Cth: Output A, Band X..." value="${escapeHTML(groupName)}">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-gray-500 uppercase">Hardware Source</label>
+                            <input type="text" class="out-group-source w-full p-2.5 rounded-lg input-dark font-bold text-xs" placeholder="Cth: Local Out, Stagebox DL16..." value="${escapeHTML(source)}">
+                        </div>
+                    </div>
+                    <button type="button" onclick="document.getElementById('output-group-${idx}').remove()" class="text-gray-400 hover:text-red-600 bg-white dark:bg-zinc-800 p-2 rounded-lg shadow-sm border dark:border-zinc-700 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+                
+                <div class="overflow-x-auto border border-gray-200 dark:border-zinc-700 rounded-lg shadow-sm max-h-[300px] overflow-y-auto">
+                    <table class="w-full text-left text-[9px] min-w-[400px]">
+                        <thead class="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400 font-black uppercase tracking-widest sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th class="p-2 w-10 text-center border-r dark:border-purple-800/50">Out</th>
+                                <th class="p-2 w-1/2 border-r dark:border-purple-800/50">Mix / Destination Name</th>
+                                <th class="p-2 w-1/2">Tipe Unit (Wedges/IEM/Lainnya)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-output-${idx}" class="divide-y divide-gray-200 dark:divide-zinc-700 bg-white dark:bg-zinc-800">
+                            <!-- Channels will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" onclick="addOutputChannelRow(${idx})" class="mt-2 text-[9px] bg-white dark:bg-zinc-800 border dark:border-zinc-700 font-bold px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:text-purple-600 transition shadow-sm w-full text-center">+ Tambah Baris Output Ekstra</button>
+            `;
+            container.appendChild(div);
+
+            const tbody = document.getElementById(`tbody-output-${idx}`);
+            channels.forEach((ch, chIdx) => {
+                appendOutputRowHTML(tbody, idx, chIdx + 1, ch);
+            });
+            lucide.createIcons();
+        }
+
+        function appendOutputRowHTML(tbody, groupIdx, rowNum, chData = null) {
+            const chNo = chData && chData.ch ? chData.ch : rowNum;
+            const name = chData && chData.name ? chData.name : '';
+            const unit = chData && chData.unit ? chData.unit : '';
+
+            const tr = document.createElement('tr');
+            tr.className = 'out-row hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition';
+            tr.innerHTML = `
+                <td class="p-1 border-r dark:border-zinc-700 text-center font-black text-gray-500">
+                    <input type="text" class="out-ch-no w-full text-center bg-transparent border-none font-black focus:outline-none" value="${escapeHTML(chNo)}">
+                </td>
+                <td class="p-1 border-r dark:border-zinc-700">
+                    <input type="text" class="out-ch-name w-full p-1.5 rounded input-dark font-black text-[10px] text-gray-900 dark:text-white" placeholder="Cth: Mix 1 (Vocal), Matrix L..." value="${escapeHTML(name)}">
+                </td>
+                <td class="p-1">
+                    <input type="text" list="list-inventory" class="out-ch-unit w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="Wedges, IEM, Sidefill, Frontfill..." value="${escapeHTML(unit)}">
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function addOutputChannelRow(groupIdx) {
+            const tbody = document.getElementById(`tbody-output-${groupIdx}`);
+            if (tbody) {
+                const currentRows = tbody.querySelectorAll('.out-row').length;
+                appendOutputRowHTML(tbody, groupIdx, currentRows + 1);
+            }
+        }
+
+        function collectInputBands() {
+            const bands = [];
+            document.querySelectorAll('#input-bands-container > div').forEach(bandDiv => {
+                const bandName = bandDiv.querySelector('.inp-band-name')?.value || '';
+                const stagebox = bandDiv.querySelector('.inp-band-stagebox')?.value || '';
+                const channels = [];
+                bandDiv.querySelectorAll('.inp-row').forEach(row => {
+                    const name = row.querySelector('.inp-ch-name')?.value || '';
+                    const mic = row.querySelector('.inp-ch-mic')?.value || '';
+                    if (name || mic) { // Hanya simpan baris yang diisi untuk menghemat database
+                        channels.push({
+                            ch: row.querySelector('.inp-ch-no')?.value || '',
+                            name: name,
+                            mic: mic,
+                            stand: row.querySelector('.inp-ch-stand')?.value || '',
+                            phantom: row.querySelector('.inp-ch-48v')?.dataset.active === 'true'
+                        });
+                    }
+                });
+                // Tetap simpan jika ada isinya, atau jika bandName diubah (untuk template kosongan)
+                bands.push({ bandName, stagebox, channels });
+            });
+            return bands;
+        }
+
+        function collectOutputGroups() {
+            const groups = [];
+            document.querySelectorAll('#output-groups-container > div').forEach(groupDiv => {
+                const groupName = groupDiv.querySelector('.out-group-name')?.value || '';
+                const source = groupDiv.querySelector('.out-group-source')?.value || '';
+                const channels = [];
+                groupDiv.querySelectorAll('.out-row').forEach(row => {
+                    const name = row.querySelector('.out-ch-name')?.value || '';
+                    const unit = row.querySelector('.out-ch-unit')?.value || '';
+                    if (name || unit) {
+                        channels.push({
+                            ch: row.querySelector('.out-ch-no')?.value || '',
+                            name: name,
+                            unit: unit
+                        });
+                    }
+                });
+                groups.push({ groupName, source, channels });
+            });
+            return groups;
+        }
+
         function toggleSubRoutingUI() {
             const val = document.getElementById('rt-sub-config').value;
             const pGap = document.getElementById('sub-param-gap');
@@ -4339,9 +4643,9 @@
             if (!select) return;
             const currentVal = select.value;
             const today = getJakartaDateString();
-            const activeEvents = allProjects.filter(p => 
-                p.status !== 'Completed' && 
-                p.status !== 'Cancelled' && 
+            const activeEvents = allProjects.filter(p =>
+                p.status !== 'Completed' &&
+                p.status !== 'Cancelled' &&
                 (p.eventDate >= today || (p.activities && p.activities.some(a => a.date >= today)))
             );
             select.innerHTML = '<option value="" disabled selected>Pilih Event Aktif...</option>' +
@@ -4360,8 +4664,26 @@
                 lucide.createIcons();
             }
 
-            // Gunakan optional chaining & fallback object agar tidak error "Cannot read properties of undefined"
             const r = (p.specDyn && p.specDyn.routing) ? p.specDyn.routing : {};
+
+            const inputContainer = document.getElementById('input-bands-container');
+            inputContainer.innerHTML = '';
+            const inputsList = r.inputs || [];
+            if (inputsList.length === 0) {
+                addInputBand(); // Default 1 Band (32 ch)
+            } else {
+                inputsList.forEach(band => addInputBand(band));
+            }
+
+            const outputContainer = document.getElementById('output-groups-container');
+            outputContainer.innerHTML = '';
+            const outputsList = r.outputs || [];
+            if (outputsList.length === 0) {
+                addOutputGroup(); // Default 1 Group (16 ch)
+            } else {
+                outputsList.forEach(grp => addOutputGroup(grp));
+            }
+
             const plc = r.placement || {};
             const dlm = r.dlms || { in: [], out: [] };
             const amp = r.amps || {};
@@ -4463,12 +4785,12 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-zinc-800">
                             ${[1, 2, 3, 4, 5, 6, 7, 8].map(n => {
-                                const outData = (d.out && d.out[n - 1]) || {};
-                                return `<tr>
+                const outData = (d.out && d.out[n - 1]) || {};
+                return `<tr>
                                     <td class="p-2 font-black text-center">${n}</td>
                                     <td class="p-1"><input type="text" class="dsp-out-${n} w-full p-1.5 rounded input-dark font-bold text-[10px]" placeholder="..." value="${escapeHTML(outData.dest || outData.item || '')}"></td>
                                 </tr>`;
-                            }).join('')}
+            }).join('')}
                         </tbody>
                     </table>
                 </div>
@@ -4657,6 +4979,8 @@
                 if (!p.specDyn) p.specDyn = {};
 
                 p.specDyn.routing = {
+                    inputs: collectInputBands(),
+                    outputs: collectOutputGroups(),
                     placement: {
                         main: { qty: document.getElementById('rt-main-qty').value, trim: document.getElementById('rt-main-trim').value, splay: document.getElementById('rt-main-splay').value },
                         front: { qty: document.getElementById('rt-front-qty').value, trim: document.getElementById('rt-front-trim').value, splay: document.getElementById('rt-front-splay').value },
@@ -4676,7 +5000,7 @@
                 showLoading(true);
                 await apiCall({ action: 'ADD_DATA', payload: p });
                 showLoading(false);
-                showToast("Routing Audio Berhasil Disimpan!");
+                showToast("Routing Audio & Patch List Berhasil Disimpan!");
                 fetchData(true); // Merefresh data di latar belakang
             });
         }
@@ -4729,7 +5053,7 @@
             }).join('');
 
             const chatCont = document.getElementById('chat-container');
-            
+
             // BUG FIX: Jangan menarik paksa layar ke bawah jika user sedang men-scroll membaca history di atas!
             const isScrolledToBottom = chatCont.scrollHeight - chatCont.clientHeight <= chatCont.scrollTop + 50;
             if (isScrolledToBottom) {
@@ -4891,7 +5215,7 @@
             const localState = data ? JSON.parse(data) : null;
 
             const defaultState = { items: {}, locks: { muat: false, tiba: false, out: false, gudang: false } };
-            
+
             if (!localState) return serverState || defaultState;
             if (!serverState) return localState;
 
@@ -4972,7 +5296,7 @@
 
                     showToast("Berhasil Sinkron! Data checklist & kondisi alat tersimpan di database server.");
                     p.checklist = updatedP.checklist; // Update local cache
-                    
+
                     // Hapus localStorage setelah sync berhasil agar data server menjadi truth kembali
                     localStorage.removeItem('ygs_chk_' + currentChkEventId);
 
@@ -5065,8 +5389,8 @@
 
             if (isChecklistEditMode && hasUnsavedChanges) {
                 showCustomConfirm(
-                    "Simpan ke Cloud?", 
-                    "Ada perubahan yang belum disinkronkan ke server. Jika ditutup sekarang, kru lain tidak akan melihat update Anda sampai Anda membukanya lagi dan klik 'Simpan'. Tetap tutup?", 
+                    "Simpan ke Cloud?",
+                    "Ada perubahan yang belum disinkronkan ke server. Jika ditutup sekarang, kru lain tidak akan melihat update Anda sampai Anda membukanya lagi dan klik 'Simpan'. Tetap tutup?",
                     () => {
                         forceCloseChecklist();
                     }
@@ -5242,7 +5566,7 @@
                 categoryItems.forEach(i => {
                     const itemState = state.items[i.id] || {};
                     const asset = allAssets.find(a => a.name === i.brand);
-                    
+
                     // PRIORITAS: 
                     // 1. Data di 'itemState' (perubahan lokal yang belum/baru di-sync)
                     // 2. Data di 'asset' (Master Inventaris)
