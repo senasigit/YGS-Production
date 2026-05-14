@@ -2933,10 +2933,20 @@
 
             showLoading(true);
             try {
-                for (const trx of trxs) {
-                    allTransactions.push(trx);
-                    await apiCall({ action: 'ADD_TRANSACTION', payload: trx });
+                // Gunakan Parallel Processing untuk mempercepat pengiriman Gaji Massal
+                // Kita bagi menjadi beberapa chunk (misal 5 sekaligus) agar tidak melampaui limit server
+                const chunks = [];
+                for (let i = 0; i < trxs.length; i += 5) {
+                    chunks.push(trxs.slice(i, i + 5));
                 }
+
+                for (const chunk of chunks) {
+                    await Promise.all(chunk.map(trx => {
+                        allTransactions.push(trx);
+                        return apiCall({ action: 'ADD_TRANSACTION', payload: trx });
+                    }));
+                }
+
                 showLoading(false);
                 closeFinanceModal();
                 showToast("Gaji massal berhasil dikirim!");
@@ -3008,8 +3018,11 @@
             const imgs = container.querySelectorAll('img');
             let imagesLoaded = 0;
             const totalImages = imgs.length;
+            let pdfExecuted = false; // Flag keamanan agar tidak ter-execute 2x
 
             const executePDF = () => {
+                if(pdfExecuted) return;
+                pdfExecuted = true;
                 setTimeout(() => {
                     html2pdf().set(opt).from(container).save().then(() => {
                         // Bersihkan clone container setelah proses export selesai
@@ -3031,7 +3044,7 @@
                 }, 1500); // Delay ekstra 1.5 detik membiarkan library dan tabel me-render sempurna sebelum difoto
             };
 
-            // Jalankan pre-loader gambar
+            // Jalankan pre-loader gambar dengan TIMEOUT FALLBACK (Keamanan anti-freeze)
             if (totalImages === 0) {
                 executePDF();
             } else {
@@ -3044,6 +3057,14 @@
                         img.onerror = () => { imagesLoaded++; if (imagesLoaded === totalImages) executePDF(); }; // Abaikan jika error agar tidak stuck
                     }
                 });
+                
+                // Fallback: Jika setelah 6 detik gambar gagal load semua, paksa eksekusi PDF!
+                setTimeout(() => {
+                    if(!pdfExecuted) {
+                        console.warn("PDF fallback timeout triggered. Beberapa gambar mungkin gagal dimuat.");
+                        executePDF();
+                    }
+                }, 6000);
             }
         }
 
@@ -4231,10 +4252,28 @@
             const eid = document.getElementById('eval-event-id').value;
             const eventName = allProjects.find(p => p.id === eid)?.eventName || "Unknown";
             const msg = document.getElementById('eval-msg').value;
-            showLoading(true);
-            await apiCall({ action: 'ADD_EVAL', payload: { eventId: eid, eventName, msg, sender: currentUser.nickname || currentUser.fullName, time: new Date().toISOString() } });
+            if (!msg.trim()) return;
+
+            // OPTIMISTIC UI: Langsung munculkan di layar tanpa menunggu loading server
+            const newEval = { 
+                eventId: eid, 
+                eventName, 
+                msg, 
+                sender: currentUser.nickname || currentUser.fullName, 
+                time: new Date().toISOString() 
+            };
+            allEvals.unshift(newEval);
+            renderEvaluations();
+            
             document.getElementById('eval-msg').value = '';
-            showLoading(false); showToast("Terima kasih atas evaluasinya!"); fetchData();
+            showToast("Mengirim evaluasi...");
+
+            // Proses di background (Silent)
+            apiCall({ action: 'ADD_EVAL', payload: newEval }).then(res => {
+                if (res.success) showToast("Evaluasi tersimpan di cloud!");
+                else showToast("Gagal sync ke cloud, tapi tetap tersimpan di sesi ini.", true);
+                fetchData(true); // Sync data asli
+            });
         };
 
         // --- SISTEM ROUTING AUDIO AMAN DARI UNDEFINED ---
@@ -4776,13 +4815,14 @@
         function extractItemsForChecklist(p) {
             let items = [];
             if (!p.specDyn) return items;
-            let counter = 1;
 
             const addCat = (catName, arr) => {
                 if (!arr) return;
                 arr.forEach(i => {
                     if (i.brand || i.qty) {
-                        items.push({ id: `item_${counter++}`, cat: catName, jenis: i.jenis || '-', brand: i.brand || '-', qty: i.qty || 1 });
+                        // Gunakan Hash Stabil sebagai ID agar urutan alat tidak tertukar jika ada penyisipan alat baru
+                        const stableId = `chk_${catName}_${i.jenis}_${i.brand}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                        items.push({ id: stableId, cat: catName, jenis: i.jenis || '-', brand: i.brand || '-', qty: i.qty || 1 });
                     }
                 });
             };
@@ -4875,13 +4915,19 @@
                         }
                     }
 
-                    // Kita lakukan update master secara BERURUTAN (Sequential)
-                    // Agar tidak menabrak limit Google Apps Script jika item sangat banyak
+                    // Kita lakukan update master secara PARALEL BATCH (Chunks)
+                    // Menggunakan Promise.all untuk kecepatan, namun tetap dibatasi per 5 item agar aman
                     if (syncPromises.length > 0) {
-                        for (let i = 0; i < syncPromises.length; i++) {
-                            const pcent = Math.round(((i + 1) / syncPromises.length) * 100);
-                            showToast(`Sinkronisasi Aset Master: ${pcent}%...`);
-                            await syncPromises[i](); 
+                        const chunks = [];
+                        for (let i = 0; i < syncPromises.length; i += 5) {
+                            chunks.push(syncPromises.slice(i, i + 5));
+                        }
+
+                        let processed = 0;
+                        for (const chunk of chunks) {
+                            await Promise.all(chunk.map(fn => fn()));
+                            processed += chunk.length;
+                            showToast(`Sinkronisasi Aset Master: ${Math.round((processed / syncPromises.length) * 100)}%...`);
                         }
                     }
 
